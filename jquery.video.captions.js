@@ -277,15 +277,12 @@
                 case "stop":
                     this._stop_captions(options);
                     break;
-                case "get": 
-                    return this._get_langs();
-
             }
             return this;
 
         },
 
-        _captionLangs: null,
+        captionLanguages: null,
         _captionDefaultLang: null,
         _start_captions: function(options) {
 
@@ -296,14 +293,16 @@
 
             options = $.extend({}, this.options, options, {captions: true});
             this.addTicker(this._render_captions, options);
+
+            //TODO: add caption styling to document
         },
 
         _on_captions_loaded: function(langs) {
-            this._captionLangs = langs;
+            this.captionLanguages = langs;
             this._captionDefaultLang = null;
             for (var k in langs) {
-                if (this._captionLangs[k].default) {
-                    this._captionDefaultLang = this._captionLangs[k];
+                if (this.captionLanguages[k].default) {
+                    this._captionDefaultLang = this.captionLanguages[k];
                     break;
                 }
             }
@@ -313,7 +312,7 @@
             
             // skip realtime triggers, captions never need to be realtime
             if (event.realtime) return;
-            if (!this._captionLangs) return;
+            if (!this.captionLanguages) return;
 
             var ct = this.el.currentTime;
 
@@ -322,7 +321,7 @@
             this._$captionobservers.each(function(index, el) {
                 var $el = $(el);
                 var lang = $el.attr("vttlang")
-                if (!this._captionLangs[lang]) return;
+                if (!this.captionLanguages[lang]) return;
                 if (!liveLangElements[lang]) {
                     liveLangElements[lang] = [];
                     liveLangsCount++;
@@ -335,7 +334,7 @@
             for (var lang in liveLangElements) {
 
                 var $el = $(liveLangElements[lang]);
-                var captionLang = this._captionLangs[lang];
+                var captionLang = this.captionLanguages[lang];
 
                 var newLiveCues = captionLang._cues.filter(function(cue) {
                     return (cue.start <= ct && cue.end >= ct && !cue.live);
@@ -348,7 +347,8 @@
                 if (newLiveCues.length === 0 && toRemove.length === 0) return;
 
                 // Render changes to dom
-                // make this accessible proper
+                // TODO make this accessible proper
+                // TODO add positioning code here
                 $el.each(function(index, el) {
                     var $el = $(el);
                     newLiveCues.forEach(function(cue) {
@@ -376,6 +376,14 @@
 
         _get_langs: function(callback) {
 
+            if (typeof callback !== "function") {
+                callback = null;
+            }
+
+            if (this.captionLanguages) {
+                return callback(this.captionLanguages);
+            }
+
             var loaded = 0;
             var counted = 0;
             function onLoaded(lang) {
@@ -385,7 +393,9 @@
                 } else {
                     loaded++;
                 }
-                if (loaded === counted) callback(langs);
+                if (loaded === counted) {
+                    if (callback) callback(langs);
+                }
             }
 
             var langs = {};
