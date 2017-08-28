@@ -49,7 +49,7 @@
         _prop: "_jqv",
         _events: ["play", "pause", "timeupdate", "finish"],
 
-        removeTickers() {
+        removeTickers: function() {
 
             var tickers = $.Video._tickers;
 
@@ -162,7 +162,7 @@
 
         },
 
-        removeTickers(callback) {
+        removeTickers: function(callback) {
 
             var el = this.el;
             var tickers = $.Video._tickers;
