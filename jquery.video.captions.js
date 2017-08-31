@@ -153,7 +153,7 @@
         _timeUnits: [1/1000, 1, 60, 360],
         _parseTime: function(time) {
 
-            var blocks = time.split(/[\:\.]{1}/g).reverse();
+            var blocks = time.split(/[\:\.\,]{1}/g).reverse();
             if (blocks.length < 3) throw "Time declaration error, mm:ss.ttt or hh:mm:ss.tt";
             var seconds = 0;
             for (var i = 0, l = blocks.length; i < l; i++) {
@@ -167,79 +167,51 @@
 
             var items = line.split(" ").filter(function(item) {return item;});
             var parsed = {
-                line: {},
-                position: {},
-                size: {},
-                align: {},
+                line: -1,
+                position: "50%",
+                size: "100%",
+                align: "middle",
             };
             items.forEach(function(item) {
                 var parts = item.split(":");
                 var valueParts = parts[1].split(",");
                 var name = parts[0].toLowerCase();
-                parsed[name] = parsed[name] || {};
-                parsed[name].measure = valueParts[0];
-                parsed[name].where = valueParts[1] || null;
+                switch (name) {
+                    case "d": name = "vertical"; break;
+                    case "l": name = "line"; break;
+                    case "t": name = "position"; break;
+                    case "s": name = "size"; break;
+                    case "a": name = "align"; break;
+                    case "vertical": case "line": case "position": case "size": case "align": break;
+                    default: 
+                        throw "Bad position declaration, "+name;
+                }
+                parsed[name] = valueParts[0] || parsed[name];
             });
 
-            var vertical = parsed.vertical && parsed.vertical.value || "omitted";
-            parsed.vertical = parsed.vertical || {
-                measure: vertical,
-                where: null
-            };
-            parsed.vertical.measure = vertical;
+            // set vertical to rl/lr/horizontal
+            parsed.vertical = (parsed.vertical === "vertical") ? "rl" : (parsed.vertical === "vertical-lr") ? "lr" : "horizontal";
 
             for (var name in parsed) {
                 var value = parsed[name];
                 switch (name) {
                     case "line":
-                        value.measure = String(value.measure || -1);
-                        var isPercent = (value.measure.indexOf("%") !== -1);
-                        var num = parseInt(value.measure);
-                        switch (vertical) {
-                            case "omitted":
-                                value.where = (isPercent || num >= 0) ? "top" : "bottom";
-                                break;
-                            case "rl":
-                                value.where = (isPercent || num >= 0) ? "right" : "left";
-                                break;
-                            case "lr":
-                                value.where = (isPercent || num >= 0) ? "left" : "right";
-                                break;
-                        }
+                        value = String(value || -1);
                         break;
                     case "position":
-                        value.measure = String(value.measure || "0%");
-                        switch (vertical) {
-                            case "omitted":
-                                value.where = "horizontal";
-                                break;
-                            case "rl":
-                            case "lr":
-                                value.where = "vertical";
-                                break;
-                        }
+                        value = String(value || "0%");
+                        break;
                     case "size":
-                        value.measure = String(value.measure || "100%");
-                        switch (vertical) {
-                            case "omitted":
-                                value.where = "width";
-                                break;
-                            case "rl":
-                            case "lr":
-                                value.where = "height";
-                                break;
-                        }
+                        value = String(value || "100%");
+                        break;
                     case "align":
-                        value.measure = String(value.measure || "middle");
-                        switch (vertical) {
-                            case "omitted":
-                                value.where = "horizontal";
-                                break;
-                            case "rl":
-                            case "lr":
-                                value.where = "vertical";
-                                break;
+                        value = String(value || "middle");
+                        switch (value) {
+                            case "start": case "middle": case "end": break;
+                            default: 
+                                throw "Invalid align declaration";
                         }
+                        break;
                 }
             }
 
@@ -287,14 +259,24 @@
         _start_captions: function(options) {
 
             this.options.captions = true;
+            this._toggle_play_pause = this._toggle_play_pause.bind(this);
 
             this._get_langs(this._on_captions_loaded.bind(this));
             this._$captionobservers =  $("[for='"+this.$el.attr("id")+"'][kind=captions],[for='"+this.$el.attr("id")+"'][kind=subtitles]");
+            this._$captionobservers.on("click", this._toggle_play_pause);
 
             options = $.extend({}, this.options, options, {captions: true});
             this.addTicker(this._render_captions, options);
 
             //TODO: add caption styling to document
+        },
+
+        _toggle_play_pause: function() {
+            if (this.$el[0].paused) {
+                if (this.$el[0].play) this.$el[0].play();
+            } else {
+                if (this.$el[0].pause) this.$el[0].pause();
+            }
         },
 
         _on_captions_loaded: function(langs) {
@@ -348,19 +330,92 @@
 
                 // Render changes to dom
                 // TODO make this accessible proper
-                // TODO add positioning code here
                 $el.each(function(index, el) {
                     var $el = $(el);
                     newLiveCues.forEach(function(cue) {
                         cue.live = true;
-                        $el.append($('<span id="'+cue.id+'" class="cue">'+cue.lines.join("<br>") + '</span>'));
-                    });
+                        $el.append($('<span>', this._render_cue_placement({
+                            id: cue.id,
+                            'class': 'cue'
+                        }, cue)).append($('<span>', {
+                            'class': 'cue-text',
+                            html: cue.lines.join('<br>')
+                        })));
+                    }.bind(this));
                     toRemove.forEach(function(cue) {
                         cue.live = false;
                         $el.find("#"+cue.id+".cue").remove();
                     });
-                });
+                }.bind(this));
             }
+
+        },
+
+        _render_cue_placement: function(htmlObj, cue) {
+
+            var classes = htmlObj['class'].split(" ");
+            classes.push(cue.placement.vertical);
+            var style = "";
+
+            var placement = cue.placement;
+            switch (placement.vertical) {
+                case "horizontal":
+                    switch (placement.align) {
+                        case "start": classes.push("align-left"); break;
+                        case "middle": classes.push("align-center"); break;
+                        case "end": classes.push("align-right"); break;
+                    }
+                    style += "width:" + placement.size +";";
+                    style += "left:" + placement.position +";";
+                    var isPercentageMeasure = (String(placement.line).indexOf("%") > -1);
+                    if (isPercentageMeasure || placement.line >= 0) {
+                        var top = placement.line;
+                        style += "top:" + placement.line + "%";
+                    } else {
+                        var bottom = 100 - (Math.abs(placement.line) * 100);
+                        style += "bottom:" + bottom + "%";
+                    }
+                    break;
+                case "rl":
+                    switch (placement.align) {
+                        case "start": classes.push("align-top"); break;
+                        case "middle": classes.push("align-middle"); break;
+                        case "end": classes.push("align-bottom"); break;
+                    }
+                    style += "height:" + placement.size +";";
+                    style += "top:" + placement.position +";";
+                    var isPercentageMeasure = (String(placement.line).indexOf("%") > -1);
+                    if (isPercentageMeasure || placement.line >= 0) {
+                        var left = placement.line;
+                        style += "left:" + placement.line + "%";
+                    } else {
+                        var right = 100 - (Math.abs(placement.line) * 100);
+                        style += "right:" + right + "%";
+                    }
+                    break;
+                case "lr":
+                    switch (placement.align) {
+                        case "start": classes.push("align-top"); break;
+                        case "middle": classes.push("align-middle"); break;
+                        case "end": classes.push("align-bottom"); break;
+                    }
+                    style += "height:" + placement.size +";";
+                    style += "top:" + placement.position +";";
+                    var isPercentageMeasure = (String(placement.line).indexOf("%") > -1);
+                    if (isPercentageMeasure || placement.line >= 0) {
+                        var right = placement.line;
+                        style += "right:" + placement.line + "%";
+                    } else {
+                        var left = 100 - (Math.abs(placement.line) * 100);
+                        style += "left:" + left + "%";
+                    }
+                    break;
+            }
+
+            htmlObj['class'] = classes.join(" ");
+            htmlObj['style'] = style;
+
+            return htmlObj;
 
         },
 
@@ -434,6 +489,7 @@
 
         destroy: $.Video.prototype.chain('destroy', function(destroy) {
             this._hide_captions();
+            this._$captionobservers.off("click", this._toggle_play_pause);
             destroy();
         })
 

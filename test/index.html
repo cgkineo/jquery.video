@@ -7,17 +7,76 @@
     <script src="../jquery.video.control.js"></script>
     <script src="../jquery.video.realtime.js"></script>
     <script src="../jquery.video.captions.js"></script>
+    <style> 
+
+        .video-container {
+            display: inline-block;
+            position: relative;
+            font-size: 0;
+            line-height: 0;
+        }
+        [kind=captions] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            font-size: 22px;
+            font-family: sans-serif;
+            line-height: 120%;
+        }
+        [kind=captions] .cue {
+            position: absolute;
+            font-size: 100%;
+            line-height: 120%;
+        }
+        [kind=captions] .cue .cue-text {
+            background-color:  black;
+            color: white;
+            padding:  0.2%;
+        }
+        [kind=captions] .cue.horizontal {
+            transform: translateX(-50%);
+        }
+        [kind=captions] .cue.lr {
+            transform: translateY(-50%);
+        }
+        [kind=captions] .cue.rl {
+            transform: translateY(-50%);
+        }
+        [kind=captions] .cue.align-left {
+            text-align: left;
+        }
+        [kind=captions] .cue.align-right {
+            text-align: right;
+        }
+        [kind=captions] .cue.align-center {
+            text-align: center;
+        }
+        [kind=captions] .cue.align-top {
+            text-align: left;
+        }
+        [kind=captions] .cue.align-middle {
+            text-align: right;
+        }
+        [kind=captions] .cue.align-bottom {
+            text-align: center;
+        }
+        
+    </style>
 </head>
     <body>
-        <video id="c-40" src="c-40.mp4" autobuffer autoloop loop poster="c-40.jpg" vttsrc="c-40.vtt" vttlang="en" vttlabel="English">
-            <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
-        </video>
 
-        <div for="c-40" kind="captions" vttlang="en">
+        <div class="video-container">
 
-        </div>
-        <div for="c-40" kind="captions" vttlang="de">
+            <video id="c-40" src="c-40.mp4" autobuffer autoloop loop poster="c-40.jpg" vttsrc="c-40.vtt" vttlang="en" vttlabel="English">
+                <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
+            </video>
 
+            <div for="c-40" kind="captions" vttlang="en">
+
+            </div>
+         
         </div>
     </body>
 </html>
