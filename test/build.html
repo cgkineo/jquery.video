@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./jquery.v2.js"></script>
+    <script src="../build/jquery.video.min.js"></script>
+    <style> 
+
+        .video-container {
+            display: inline-block;
+            position: relative;
+            font-size: 0;
+            line-height: 0;
+        }
+        
+    </style>
+</head>
+    <body>
+
+        <div class="video-container">
+
+            <video id="c-40" src="c-40.mp4" muted="true" loop poster="c-40.jpg">
+                <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
+                    <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
+            </video>
+
+            <div for="c-40" kind="captions" srclang="en">
+
+            </div>
+         
+        </div>
+    </body>
+</html>

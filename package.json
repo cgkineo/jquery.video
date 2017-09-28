@@ -1,0 +1,18 @@
+{
+  "name": "jquery.video",
+  "version": "0.0.1",
+  "description": "jQuery video toolkit",
+  "main": "make.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oliverfoster/jquery.video.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oliverfoster/jquery.video/issues"
+  },
+  "homepage": "https://github.com/oliverfoster/jquery.video#readme",
+  "dependencies": {
+    "fs-glob": "^1.1.22",
+    "uglify-js": "^3.1.2"
+  }
+}

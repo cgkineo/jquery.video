@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./jquery.v2.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.captions.css" />
+    <script src="../src/jquery.video.utils.js"></script>
+    <script src="../src/jquery.video.core.js"></script>
+    <script src="../src/jquery.video.control.js"></script>
+    <script src="../src/jquery.video.realtime.js"></script>
+    <script src="../src/jquery.video.captions.js"></script>
+    <style> 
+
+        .video-container {
+            display: inline-block;
+            position: relative;
+            font-size: 0;
+            line-height: 0;
+        }
+        
+    </style>
+</head>
+    <body>
+
+        <div class="video-container">
+
+            <video id="c-40" src="c-40.mp4" muted="true" loop poster="c-40.jpg">
+                <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
+                    <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
+            </video>
+
+            <div for="c-40" kind="captions" srclang="en">
+
+            </div>
+         
+        </div>
+    </body>
+</html>
