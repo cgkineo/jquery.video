@@ -2,12 +2,15 @@
 <html>
 <head>
     <script src="./jquery.v2.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.captions.css" />
     <script src="../src/jquery.video.utils.js"></script>
     <script src="../src/jquery.video.core.js"></script>
-    <script src="../src/jquery.video.control.js"></script>
     <script src="../src/jquery.video.realtime.js"></script>
     <script src="../src/jquery.video.captions.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.captions.css" />
+    <script src="../src/jquery.video.poster.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.poster.css" />
+    <script src="../src/jquery.video.controls.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.controls.css" />
     <style> 
 
         .video-container {
@@ -30,6 +33,12 @@
 
             <div for="c-40" kind="captions" srclang="en">
 
+            </div>
+
+            <div for="c-40" kind="poster"></div>
+
+            <div for="c-40" kind="controls">
+                <button class="big-play play">Play</button>
             </div>
          
         </div>
