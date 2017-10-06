@@ -9,8 +9,8 @@ extend(Video, {
   _minRealTimeInterval: 62.5,
 
   _addRealtime: function(video) {
-    if (video._opts.realtime) return;
-    video._opts.realtime = true;
+    if (video._opts._realtime) return;
+    video._opts._realtime = true;
     Video._realTimers.push(video);
     raf(Video._processRealtimeEvents);
   },
@@ -33,8 +33,8 @@ extend(Video, {
   },
 
   _removeRealtime: function(video) {
-    if (!video._opts.realtime) return;
-    video._opts.realtime = false;
+    if (!video._opts._realtime) return;
+    video._opts._realtime = false;
     for (var i = Video._realTimers.length -1, l = -1; i > l; i--) {
       var item = Video._realTimers[i];
       if (item !== video) continue;
@@ -50,7 +50,7 @@ extend(Video[p], {
 
   defaults: chain(Video[p].defaults, function(defaults) {
     this.setOptions({
-      realtime: false
+      realtime: true
     });
     defaults();
   }),
@@ -83,11 +83,9 @@ extend(Video[p], {
   _realtime_events: function(event, options) {
     switch (event.type) {
       case "play":
-        if (this._opts.realtime) return;
         Video._addRealtime(this);
         break;
       case "pause": case "finish":
-        if (!this._opts.realtime) return;
         Video._removeRealtime(this);
         break;
     }

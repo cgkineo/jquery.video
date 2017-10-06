@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../src/jquery.video.poster.css" />
     <script src="../src/jquery.video.controls.js"></script>
     <link rel="stylesheet" href="../src/jquery.video.controls.css" />
+    <script src="../src/jquery.video.buffering.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.buffering.css" />
     <style> 
 
         .video-container {
@@ -26,7 +28,7 @@
 
         <div class="video-container">
 
-            <video id="c-40" src="c-40.mp4" muted="true" loop poster="c-40.jpg">
+            <video id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg">
                 <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
                     <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
             </video>
@@ -34,6 +36,8 @@
             <div for="c-40" kind="captions" srclang="en">
 
             </div>
+
+            <div for="c-40" kind="buffering"></div>
 
             <div for="c-40" kind="poster"></div>
 

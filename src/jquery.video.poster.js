@@ -52,8 +52,13 @@
       case "pause":
         this._$posterobservers.removeClass("playing paused");
         this._$posterobservers.addClass("paused");
-        break;
     }
+    var isAtStart = this.el.currentTime <= 1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+    this._$posterobservers[isAtStart?'addClass':'removeClass']("at-start");
+    this._$posterobservers[isAtEnd?'addClass':'removeClass']("at-end");
+    this._$posterobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+
   },
 
   _stop_poster: function(options) {

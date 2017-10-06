@@ -1,0 +1,18 @@
+[for][kind=buffering] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  font-size: 22px;
+  font-family: sans-serif;
+  line-height: 120%;
+  background: red;
+}
+
+[for][kind=buffering] {
+    display: none;
+}
+[for][kind=buffering].buffering {
+    display: block;
+}

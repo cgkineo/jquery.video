@@ -1,6 +1,6 @@
 {
   "name": "jquery.video",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "jQuery video toolkit",
   "main": "make.js",
   "repository": {
