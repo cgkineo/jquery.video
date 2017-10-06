@@ -8,7 +8,7 @@
 ```
 
 ```html
-    <video id="c-40" src="c-40.mp4" loop poster="c-40.jpg">
+    <video id="c-40" preload="none" src="c-40.mp4" loop poster="c-40.jpg">
         <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
         <track kind="captions" src="c-40-en.vtt" type="text/vtt" srclang="en" label="English">
     </video>
@@ -16,7 +16,18 @@
     <div for="c-40" kind="captions" srclang="en">
 
     </div>
-    <div for="c-40" kind="captions" srclang="de">
+    
+    <div for="c-40" kind="buffering" class="toggle">
+
+    </div>
+
+    <div for"c-40" kind="controls" class="toggle">
+
+        <div class="big-play play"> </div>
+
+    </div>
+
+    <div for="c-40" kind="captions" class="toggle" srclang="de">
 
     </div>
 ```
