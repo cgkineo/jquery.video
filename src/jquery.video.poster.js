@@ -52,6 +52,7 @@
       case "pause":
         this._$posterobservers.removeClass("playing paused");
         this._$posterobservers.addClass("paused");
+        break;
     }
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;

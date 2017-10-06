@@ -257,24 +257,15 @@ extend(Video[p], {
   _start_captions: function(options) {
 
     this._opts.captions = true;
-    this._toggle_play_pause = this._toggle_play_pause.bind(this);
 
     this._get_langs(this._on_captions_loaded.bind(this));
     this._$captionobservers =  $("[for='"+this.$el.attr("id")+"'][kind=captions],[for='"+this.$el.attr("id")+"'][kind=subtitles]");
-    this._$captionobservers.on("click", this._toggle_play_pause);
+    this._$captionobservers.on("click", this.handleInputEvent);
 
     options = extend({}, this._opts, options, {captions: true});
     this.addEventsHandler(this._render_captions, options);
 
     //TODO: add caption styling to document
-  },
-
-  _toggle_play_pause: function() {
-    if (this.$el[0].paused) {
-      if (this.$el[0].play) this.$el[0].play();
-    } else {
-      if (this.$el[0].pause) this.$el[0].pause();
-    }
   },
 
   _on_captions_loaded: function(langs) {
@@ -480,7 +471,7 @@ extend(Video[p], {
   },
 
   destroy: chain(Video[p].destroy, function(destroy) {
-    this._$captionobservers.off("click", this._toggle_play_pause);
+    this._$captionobservers.off("click", this.handleInputEvent);
     this._stop_captions();
     destroy();
   })

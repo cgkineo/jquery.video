@@ -9,6 +9,7 @@
   line-height: 120%;
 }
 
+[for][kind=poster].paused.in-middle img,
 [for][kind=poster].playing img {
     display: none;
 }

@@ -44,7 +44,7 @@ extend(Video, {
   _eventsHandler_count: 0,
   _eventsHandlers: {},
   _prop: "player",
-  _events: ["play", "pause", "timeupdate", "finish"],
+  _events: ["load", "waiting", "preplay", "play", "pause", "timeupdate", "finish"],
 
   removeEventsHandler: function() {
 

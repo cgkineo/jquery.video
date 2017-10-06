@@ -38,13 +38,15 @@ fsg.stats({
 
     files['jquery.video.util.js'] = fs.readFileSync("./src/jquery.video.utils.js").toString();
     files['jquery.video.core.js'] = fs.readFileSync("./src/jquery.video.core.js").toString();
+    files['jquery.video.controls.js'] = fs.readFileSync("./src/jquery.video.controls.js").toString();
 
     return fsg.stats({
         globs: [
             "*.js",
             "**/*.js",
             "!jquery.video.utils.js",
-            "!jquery.video.core.js"
+            "!jquery.video.core.js",
+            "!jquery.video.controls.js"
         ],
         location: "./src"
     }).then((stats)=>{

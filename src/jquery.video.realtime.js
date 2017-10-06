@@ -23,7 +23,7 @@ extend(Video, {
     Video._lastRealTimeEvent = now;
 
     Video._realTimers.forEach(function(video) {
-      if (video.el.paused) return;
+      if (video.el.paused && !video._opts._inpreplay) return;
       video.$el.trigger("timeupdate", {
         realtime: true
       });
@@ -75,18 +75,26 @@ extend(Video[p], {
 
   _start_realtime: function() {
     this.addEventsHandler(this._realtime_events);
-    if (!this.el.paused) {
-      Video._addRealtime(this);
-    }
+    if (this.el.paused) return;
+    Video._addRealtime(this);
   },
 
   _realtime_events: function(event, options) {
     switch (event.type) {
+      case "preplay":
+        this._opts._inpreplay = true;
+        Video._addRealtime(this);
+        break;
       case "play":
         Video._addRealtime(this);
+        this._opts._inpreplay = false;
         break;
       case "pause": case "finish":
         Video._removeRealtime(this);
+        this._opts._inpreplay = false;
+        break;
+      case "timeupdate":
+        this._opts._inpreplay = false;
         break;
     }
   },

@@ -3,14 +3,14 @@ extend($.fn, {
 
   play: function() {
     this.videos().each(function(index, item) {
-      item.play();
+      item[Video._prop].play();
     });
     return this;
   },
 
   pause: function() {
     this.videos().each(function(index, item) {
-      item.pause();
+      item[Video._prop].pause();
     });
     return this;
   },
@@ -62,7 +62,7 @@ extend($.fn, {
     this.$el.mute(this._opts.muted);
     this.$el.loop(this._opts.loop);
 
-    this._process_controls = this._process_controls.bind(this);
+    this.handleInputEvent = this.handleInputEvent.bind(this);
     this._toggle_play_pause = this._toggle_play_pause.bind(this);
 
     if (this._opts.controls) {
@@ -83,16 +83,27 @@ extend($.fn, {
     return this;
   },
 
+  play: function() {
+    if (!this.$el[0].play) return;
+    this.$el.trigger("preplay");
+    this.$el[0].play();
+  },
+
+  pause: function() {
+    if (!this.$el[0].play) return;
+    this.$el[0].pause();
+  },
+
   _start_controls: function(options) {
     this._$controlobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls]");
-    this._$controlobservers.on("click", this._process_controls);
+    this._$controlobservers.on("click", this.handleInputEvent);
 
     options = extend({}, this._opts, options, {controls: true});
     this.addEventsHandler(this._render_controls, options);
 
   },
 
-  _process_controls: function(event) {
+  handleInputEvent: function(event) {
     var $target = $(event.target);
     if ($target.is("[kind=controls]") || $target.is(".play") || $target.parents(".play").length !== 0) {
       this._toggle_play_pause();
@@ -101,9 +112,9 @@ extend($.fn, {
 
   _toggle_play_pause: function() {
     if (this.$el[0].paused) {
-      if (this.$el[0].play) this.$el[0].play();
+      this.play();
     } else {
-      if (this.$el[0].pause) this.$el[0].pause();
+      this.pause();
     }
   },
 
@@ -121,7 +132,7 @@ extend($.fn, {
   },
 
   _stop_controls: function(options) {
-    this._$controlobservers.off("click", this._process_controls);
+    this._$controlobservers.off("click", this.handleInputEvent);
     this._$controlobservers = null;
     this.removeEventsHandler(this._render_controls, options);
   },

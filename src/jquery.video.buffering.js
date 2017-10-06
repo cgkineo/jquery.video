@@ -30,6 +30,7 @@
 
   _start_buffering: function(options) {
     this._$bufferingobservers =  $("[for='"+this.$el.attr("id")+"'][kind=buffering]");
+    this._$bufferingobservers.on("click", this.handleInputEvent);
 
     options = extend({}, this._opts, options, {buffering: true});
     this.addEventsHandler(this._render_buffering, options);
@@ -38,10 +39,12 @@
 
   _render_buffering: function(event, options) {
     switch (event.type) {
+      case "preload":
+        this._opts._seconds = this.el.currentTime;
       case "timeupdate":
-        if (!this._opts._seconds) {
-          this._opts._seconds = this.el.currentTime;
-        } else if (this._opts._seconds === this.el.currentTime) {
+      case "waiting":
+      case "load":
+        if (this._opts._seconds === this.el.currentTime) {
           if (!this._opts._lastStalled) {
             this._opts._lastStalled = Date.now();
           } else {
@@ -51,14 +54,18 @@
               return;
             }
           }
+        } else {
+          this._opts._lastStalled = null;
         }
-      default:
+      case "play":
+      case "pause":
         this._$bufferingobservers.removeClass("buffering");
         this._opts._seconds = this.el.currentTime;
     }
   },
 
   _stop_buffering: function(options) {
+    this._$bufferingobservers.off("click", this.handleInputEvent);
     this._$bufferingobservers = null;
     this.removeEventsHandler(this._render_controls, options);
   },

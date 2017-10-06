@@ -21,6 +21,10 @@
             font-size: 0;
             line-height: 0;
         }
+
+        [for][kind=buffering] {
+            background: rgba(255, 0, 0, 0.28);
+        }
         
     </style>
 </head>
@@ -28,7 +32,7 @@
 
         <div class="video-container">
 
-            <video id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg">
+            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg">
                 <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
                     <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
             </video>
@@ -37,9 +41,9 @@
 
             </div>
 
-            <div for="c-40" kind="buffering"></div>
-
             <div for="c-40" kind="poster"></div>
+
+            <div for="c-40" kind="buffering"></div>
 
             <div for="c-40" kind="controls">
                 <button class="big-play play">Play</button>
