@@ -64,6 +64,7 @@ extend($.fn, {
 
     this.handleInputEvent = this.handleInputEvent.bind(this);
     this._toggle_play_pause = this._toggle_play_pause.bind(this);
+    this._on_after_mouseover = debounce(this._on_after_mouseover, 3000);
 
     if (this._opts.controls) {
       this.controls("start");
@@ -101,17 +102,58 @@ extend($.fn, {
   _start_controls: function(options) {
     this._$controlobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls]");
     this._$controlobservers.on("click", this.handleInputEvent);
+    this._$controlobservers.on("mousemove", this.handleInputEvent);
 
     options = extend({}, this._opts, options, {controls: true});
     this.addEventsHandler(this._render_controls, options);
-
+    
+    this._render_control_classes();
+    this._$controlobservers.removeClass("playing paused");
+    this._$controlobservers.addClass("paused");
   },
 
   handleInputEvent: function(event) {
     var $target = $(event.target);
-    if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
-      this._toggle_play_pause();
+
+    if ($.fn.videos.isTouch) {
+      switch (event.type) {
+      case "click":
+        if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this._$controlobservers.find(".scrub").length > 0) {
+          this._triggeredMouseMove = true;
+          this._$controlobservers.addClass("mousemove");
+          this._on_after_mouseover();
+          return;
+        }
+
+        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+          this._toggle_play_pause();
+        }
+        this._on_after_mouseover();
+        break;
+      case "mousemove":
+        this._on_after_mouseover();
+      }
+      return
     }
+
+    switch (event.type) {
+      case "click":
+        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+          this._toggle_play_pause();
+        }
+        break;
+      case "mousemove":
+        this._triggeredMouseMove = true;
+        this._$controlobservers.addClass("mousemove");
+        this._on_after_mouseover();
+    }
+
+  },
+
+  _triggeredMouseMove: false,
+  _on_after_mouseover: function() {
+    this._triggeredMouseMove = false;
+    this._$controlobservers.removeClass("mousemove");
   },
 
   _toggle_play_pause: function() {
@@ -133,6 +175,10 @@ extend($.fn, {
         this._$controlobservers.addClass("paused");
         break;
     }
+    this._render_control_classes();
+  },
+
+  _render_control_classes: function() {
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
     this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
@@ -143,6 +189,7 @@ extend($.fn, {
   _stop_controls: function(options) {
     if (!this._$controlobservers) return;
     this._$controlobservers.off("click", this.handleInputEvent);
+    this._$controlobservers.off("mousemove", this.handleInputEvent);
     this._$controlobservers = null;
     this.removeEventsHandler(this._render_controls, options);
   },

@@ -20,6 +20,7 @@ fsg.stats({
         css = css.replace(/\"/g, "'");
         css = css.replace(/  /g, "");
         css = css.replace(/\r\n/g, "");
+        css = css.replace(/\n/g, "");
         css = css.replace(/ [\{]/g, "{");
         css = css.replace(/ *: */g, ":");
         cssJS+=css;
@@ -81,6 +82,7 @@ fsg.stats({
         }
     });
     if (result.error) {
+        console.log(files['jquery.video.css']);
         console.log(result.error);
         return;
     }

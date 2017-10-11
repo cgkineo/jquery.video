@@ -9,6 +9,11 @@
   line-height: 120%;
 }
 
+[for][kind=controls] {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
 [for][kind=controls].playing .big-play {
-    display: none;
+  opacity: 0;
 }

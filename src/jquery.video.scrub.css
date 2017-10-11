@@ -23,5 +23,23 @@
   position: relative;
   height: 8px;
   background-color: #d45971;
+  transition: width 0.1s linear;
 }
 
+[for][kind=controls] .scrub {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+}
+
+[for][kind=controls].paused.at-start .scrub,
+[for][kind=controls].paused.at-end .scrub,
+[for][kind=controls].playing .scrub {
+  opacity: 0
+}
+
+
+[for][kind=controls].mousemove.paused.in-middle .scrub,
+[for][kind=controls].mousemove.paused.at-end .scrub,
+[for][kind=controls].mousemove.playing .scrub {
+  opacity: 1
+}

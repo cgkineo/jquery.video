@@ -1,4 +1,4 @@
-(function($){$("<style>",{text:"[for][kind=buffering]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=buffering]{display:none;}[for][kind=buffering].buffering{display:block;}[for][kind=captions]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=captions] .cue{position:absolute;font-size:100%;line-height:120%;}[for][kind=captions] .cue .cue-text{background-color:black;color:white;padding:0.2%;}[for][kind=captions] .cue.horizontal{transform:translateX(-50%);}[for][kind=captions] .cue.lr{transform:translateY(-50%);}[for][kind=captions] .cue.rl{transform:translateY(-50%);}[for][kind=captions] .cue.align-left{text-align:left;}[for][kind=captions] .cue.align-right{text-align:right;}[for][kind=captions] .cue.align-center{text-align:center;}[for][kind=captions] .cue.align-top{text-align:left;}[for][kind=captions] .cue.align-middle{text-align:right;}[for][kind=captions] .cue.align-bottom{text-align:center;}[for][kind=controls]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=controls].playing .big-play{display:none;}[for][kind=poster]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=poster] img{opacity:1;transition:opacity 0.5s ease-in;}[for][kind=poster].paused.in-middle img,[for][kind=poster].playing img{opacity:0}[for][kind=controls] .scrub{position:absolute;bottom:0;width:100%;background:rgba(255, 255, 255, 0.82);}[for][kind=controls] .scrub .rail{margin:8px;position:relative;}[for][kind=controls] .scrub .rail .rail-back{position:absolute;top:0;left:0;right:0;bottom:0;background-color:lightgrey;}[for][kind=controls] .scrub .rail .rail-inner{position:relative;height:8px;background-color:#d45971;}"}).appendTo("head");
+(function($){$("<style>",{text:"[for][kind=buffering]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=buffering]{display:none;}[for][kind=buffering].buffering{display:block;}[for][kind=captions]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=captions] .cue{position:absolute;font-size:100%;line-height:120%;}[for][kind=captions] .cue .cue-text{background-color:black;color:white;padding:0.2%;}[for][kind=captions] .cue.horizontal{transform:translateX(-50%);}[for][kind=captions] .cue.lr{transform:translateY(-50%);}[for][kind=captions] .cue.rl{transform:translateY(-50%);}[for][kind=captions] .cue.align-left{text-align:left;}[for][kind=captions] .cue.align-right{text-align:right;}[for][kind=captions] .cue.align-center{text-align:center;}[for][kind=captions] .cue.align-top{text-align:left;}[for][kind=captions] .cue.align-middle{text-align:right;}[for][kind=captions] .cue.align-bottom{text-align:center;}[for][kind=controls]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=controls]{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=controls].playing .big-play{opacity:0;}[for][kind=poster]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=poster] img{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=poster].paused.in-middle img,[for][kind=poster].playing img{opacity:0;}[for][kind=controls] .scrub{position:absolute;bottom:0;width:100%;background:rgba(255, 255, 255, 0.82);}[for][kind=controls] .scrub .rail{margin:8px;position:relative;}[for][kind=controls] .scrub .rail .rail-back{position:absolute;top:0;left:0;right:0;bottom:0;background-color:lightgrey;}[for][kind=controls] .scrub .rail .rail-inner{position:relative;height:8px;background-color:#d45971;transition:width 0.1s linear;}[for][kind=controls] .scrub{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=controls].paused.at-start .scrub,[for][kind=controls].paused.at-end .scrub,[for][kind=controls].playing .scrub{opacity:0}[for][kind=controls].mousemove.paused.in-middle .scrub,[for][kind=controls].mousemove.paused.at-end .scrub,[for][kind=controls].mousemove.playing .scrub{opacity:1}"}).appendTo("head");
 var extend = $.extend;
 var p = "prototype";
 
@@ -29,6 +29,17 @@ $.chain = function(original, callback) {
 
 var chain = $.chain;
 
+var debounce = function(func, time) {
+  var handle = null;
+  return function() {
+    var args = arguments;
+    clearTimeout(handle);
+    handle = setTimeout(function() {
+      func.apply(this, args);
+    }.bind(this), time || 0);
+  }
+};
+
 // global api
 $.fn.videos = function(options) {
 
@@ -55,6 +66,17 @@ $.fn.videos = function(options) {
   return $videos;
 
 };
+
+// check for touch devices
+extend($.fn.videos, {
+  isTouch: false
+});
+var touchListener = function() {
+  window.removeEventListener("touchstart", touchListener);
+  $.fn.videos.isTouch = true;
+};
+window.addEventListener("touchstart", touchListener);
+
 
 // Video class
 var Video = $.Video = function Video($el, options) {
@@ -289,6 +311,7 @@ extend($.fn, {
 
     this.handleInputEvent = this.handleInputEvent.bind(this);
     this._toggle_play_pause = this._toggle_play_pause.bind(this);
+    this._on_after_mouseover = debounce(this._on_after_mouseover, 3000);
 
     if (this._opts.controls) {
       this.controls("start");
@@ -326,17 +349,56 @@ extend($.fn, {
   _start_controls: function(options) {
     this._$controlobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls]");
     this._$controlobservers.on("click", this.handleInputEvent);
+    this._$controlobservers.on("mousemove", this.handleInputEvent);
 
     options = extend({}, this._opts, options, {controls: true});
     this.addEventsHandler(this._render_controls, options);
-
+    
+    this._render_control_classes();
+    this._$controlobservers.removeClass("playing paused");
+    this._$controlobservers.addClass("paused");
   },
 
   handleInputEvent: function(event) {
     var $target = $(event.target);
-    if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
-      this._toggle_play_pause();
+
+    if ($.fn.videos.isTouch) {
+      switch (event.type) {
+      case "click":
+        if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this.$el.find(".rail").length > 0) {
+          this._triggeredMouseMove = true;
+          this._$controlobservers.addClass("mousemove");
+          this._on_after_mouseover();
+          return;
+        }
+
+        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+          this._toggle_play_pause();
+        }
+        this._on_after_mouseover();
+        break;
+      }
+      return
     }
+
+    switch (event.type) {
+      case "click":
+        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+          this._toggle_play_pause();
+        }
+        break;
+      case "mousemove":
+        this._triggeredMouseMove = true;
+        this._$controlobservers.addClass("mousemove");
+        this._on_after_mouseover();
+    }
+
+  },
+
+  _triggeredMouseMove: false,
+  _on_after_mouseover: function() {
+    this._triggeredMouseMove = false;
+    this._$controlobservers.removeClass("mousemove");
   },
 
   _toggle_play_pause: function() {
@@ -358,6 +420,10 @@ extend($.fn, {
         this._$controlobservers.addClass("paused");
         break;
     }
+    this._render_control_classes();
+  },
+
+  _render_control_classes: function() {
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
     this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
@@ -368,6 +434,7 @@ extend($.fn, {
   _stop_controls: function(options) {
     if (!this._$controlobservers) return;
     this._$controlobservers.off("click", this.handleInputEvent);
+    this._$controlobservers.off("mousemove", this.handleInputEvent);
     this._$controlobservers = null;
     this.removeEventsHandler(this._render_controls, options);
   },
@@ -1164,9 +1231,9 @@ extend(Video[p], {
   },
 
   _start_scrub: function(options) {
-    this._$scrub =  $("[for='"+this.$el.attr("id")+"'][kind=controls] .scrub");
-    this._$scrub.on("click", this._on_scrub_click);
-    this._$scrub.find(".rail-inner, .rail-back").on("click", this._on_scrub_inner_click);
+    this._$scrubobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls] .scrub");
+    this._$scrubobservers.on("click", this._on_scrub_click);
+    this._$scrubobservers.find(".rail-inner, .rail-back").on("click", this._on_scrub_inner_click);
     options = extend({}, this._opts, options, {scrub: true});
     this.addEventsHandler(this._render_scrub, options);
   },
@@ -1174,7 +1241,7 @@ extend(Video[p], {
   _render_scrub: function(event, options) {
     switch (event.type) {
       case "timeupdate":
-        this._$scrub.find(".rail-inner").css({
+        this._$scrubobservers.find(".rail-inner").css({
           width: ((100 / this.el.duration) * this.el.currentTime) + "%"
         })
         break;
@@ -1187,15 +1254,15 @@ extend(Video[p], {
   },
 
   _on_scrub_inner_click: function(event) {
-    var width = this._$scrub.find(".rail-back").width();
+    var width = this._$scrubobservers.find(".rail-back").width();
     this.el.currentTime = (event.offsetX/width * this.el.duration);
   },
 
   _stop_scrub: function(options) {
-    if (!this._$scrub) return;
-    this._$scrub.off("click", this._on_scrub_click);
-    this._$scrub.find(".rail-inner, .rail-back").off("click", this._on_scrub_inner_click);
-    this._$scrub = null;
+    if (!this._$scrubobservers) return;
+    this._$scrubobservers.off("click", this._on_scrub_click);
+    this._$scrubobservers.find(".rail-inner, .rail-back").off("click", this._on_scrub_inner_click);
+    this._$scrubobservers = null;
     this.removeEventsHandler(this._render_scrub, options);
   },
 

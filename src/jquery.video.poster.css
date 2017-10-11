@@ -11,10 +11,10 @@
 
 [for][kind=poster] img {
   opacity: 1;
-  transition: opacity 0.5s ease-in;
+  transition: opacity 0.2s ease-in;
 }
 
 [for][kind=poster].paused.in-middle img,
 [for][kind=poster].playing img {
-    opacity: 0
+    opacity: 0;
 }

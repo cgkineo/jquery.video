@@ -27,3 +27,14 @@ $.chain = function(original, callback) {
 };
 
 var chain = $.chain;
+
+var debounce = function(func, time) {
+  var handle = null;
+  return function() {
+    var args = arguments;
+    clearTimeout(handle);
+    handle = setTimeout(function() {
+      func.apply(this, args);
+    }.bind(this), time || 0);
+  }
+};

@@ -25,6 +25,17 @@ $.fn.videos = function(options) {
 
 };
 
+// check for touch devices
+extend($.fn.videos, {
+  isTouch: false
+});
+var touchListener = function() {
+  window.removeEventListener("touchstart", touchListener);
+  $.fn.videos.isTouch = true;
+};
+window.addEventListener("touchstart", touchListener);
+
+
 // Video class
 var Video = $.Video = function Video($el, options) {
   this.id = ++Video._ids;

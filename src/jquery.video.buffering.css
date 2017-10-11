@@ -10,8 +10,8 @@
 }
 
 [for][kind=buffering] {
-    display: none;
+  display: none;
 }
 [for][kind=buffering].buffering {
-    display: block;
+  display: block;
 }
