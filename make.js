@@ -85,7 +85,11 @@ fsg.stats({
         return;
     }
 
+    var values = [];
+    for (var k in files) values.push(files[k]);
+
     fsg.mkdir("./build");
+    fs.writeFileSync("./build/jquery.video.js", "(function($){"+values.join("\n")+"})(jQuery);");
     fs.writeFileSync("./build/jquery.video.min.js", "(function($){"+result.code+"})(jQuery);");
 
 });

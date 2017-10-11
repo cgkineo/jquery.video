@@ -34,6 +34,7 @@
     this._$posterobservers.each(function(index, item) {
       var $item = $(item);
       $item.append($("<img>", {
+        class: "jqv-poster-image",
         src: this._opts.poster
       }));
     }.bind(this));
@@ -63,6 +64,8 @@
   },
 
   _stop_poster: function(options) {
+    if (!this._$posterobservers) return;
+    this._$posterobservers.find(".jqv-poster-image").remove();
     this._$posterobservers = null;
     this.removeEventsHandler(this._render_controls, options);
   },

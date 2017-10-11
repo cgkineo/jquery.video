@@ -187,9 +187,8 @@ extend(Video[p], {
 
   },
 
-  destroy: chain(Video[p].destroy, function(destroy) {
+  destroy: function(destroy) {
     this.removeEventsHandler();
-    destroy();
-  })
+  }
 
 });

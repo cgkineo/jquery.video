@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="../src/jquery.video.controls.css" />
     <script src="../src/jquery.video.buffering.js"></script>
     <link rel="stylesheet" href="../src/jquery.video.buffering.css" />
+    <script src="../src/jquery.video.scrub.js"></script>
+    <link rel="stylesheet" href="../src/jquery.video.scrub.css" />
     <style> 
 
         .video-container {
@@ -45,8 +47,17 @@
 
             <div for="c-40" kind="buffering"></div>
 
-            <div for="c-40" kind="controls">
+            <div for="c-40" kind="controls" class="toggle">
                 <button class="big-play play">Play</button>
+                <div class="scrub">
+                    <div class="little-playpause toggle"></div>
+                    <div class="rail">
+                        <div class="rail-back">
+                        </div>
+                        <div class="rail-inner">
+                        </div>
+                    </div>
+                </div>
             </div>
          
         </div>

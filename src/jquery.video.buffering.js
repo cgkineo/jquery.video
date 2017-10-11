@@ -65,6 +65,7 @@
   },
 
   _stop_buffering: function(options) {
+    if (!this._$bufferingobserver) return;
     this._$bufferingobservers.off("click", this.handleInputEvent);
     this._$bufferingobservers = null;
     this.removeEventsHandler(this._render_controls, options);

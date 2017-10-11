@@ -471,8 +471,12 @@ extend(Video[p], {
   },
 
   destroy: chain(Video[p].destroy, function(destroy) {
-    this._$captionobservers.off("click", this.handleInputEvent);
-    this._stop_captions();
+    
+    if (this._$captionobservers) {
+      this._$captionobservers.off("click", this.handleInputEvent);
+      this._stop_captions();
+    }
+    
     destroy();
   })
 

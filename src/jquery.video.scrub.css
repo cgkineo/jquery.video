@@ -1,0 +1,27 @@
+[for][kind=controls] .scrub {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+[for][kind=controls] .scrub .rail {
+  margin: 8px;
+  position: relative;
+}
+
+[for][kind=controls] .scrub .rail .rail-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: lightgrey;
+}
+
+[for][kind=controls] .scrub .rail .rail-inner {
+  position: relative;
+  height: 8px;
+  background-color: #d45971;
+}
+

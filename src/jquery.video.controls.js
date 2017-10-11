@@ -86,7 +86,11 @@ extend($.fn, {
   play: function() {
     if (!this.$el[0].play) return;
     this.$el.trigger("preplay");
-    this.$el[0].play();
+    try {
+      this.$el[0].play();
+    } catch(err) {
+      
+    }
   },
 
   pause: function() {
@@ -105,7 +109,7 @@ extend($.fn, {
 
   handleInputEvent: function(event) {
     var $target = $(event.target);
-    if ($target.is("[kind=controls]") || $target.is(".play") || $target.parents(".play").length !== 0) {
+    if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
       this._toggle_play_pause();
     }
   },
@@ -129,9 +133,15 @@ extend($.fn, {
         this._$controlobservers.addClass("paused");
         break;
     }
+    var isAtStart = this.el.currentTime <= 1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+    this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
+    this._$controlobservers[isAtEnd?'addClass':'removeClass']("at-end");
+    this._$controlobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
   },
 
   _stop_controls: function(options) {
+    if (!this._$controlobservers) return;
     this._$controlobservers.off("click", this.handleInputEvent);
     this._$controlobservers = null;
     this.removeEventsHandler(this._render_controls, options);
