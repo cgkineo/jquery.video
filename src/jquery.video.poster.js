@@ -51,6 +51,7 @@
         this._$posterobservers.addClass("playing");
         break;
       case "pause":
+      case "finish":
         this._$posterobservers.removeClass("playing paused");
         this._$posterobservers.addClass("paused");
         break;

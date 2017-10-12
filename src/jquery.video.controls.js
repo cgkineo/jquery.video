@@ -117,21 +117,22 @@ extend($.fn, {
 
     if ($.fn.videos.isTouch) {
       switch (event.type) {
-      case "click":
-        if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this._$controlobservers.find(".scrub").length > 0) {
-          this._triggeredMouseMove = true;
-          this._$controlobservers.addClass("mousemove");
-          this._on_after_mouseover();
-          return;
-        }
+        case "click":
+          if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this._$controlobservers.find(".scrub").length > 0) {
+            this._triggeredMouseMove = true;
+            this._$controlobservers.addClass("mousemove");
+            this._on_after_mouseover();
+            return;
+          }
 
-        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
-          this._toggle_play_pause();
-        }
-        this._on_after_mouseover();
-        break;
-      case "mousemove":
-        this._on_after_mouseover();
+          if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+            this._toggle_play_pause();
+          }
+          this._on_after_mouseover();
+          break;
+        case "mousemove":
+          this._on_after_mouseover();
+          break;
       }
       return
     }
@@ -146,6 +147,7 @@ extend($.fn, {
         this._triggeredMouseMove = true;
         this._$controlobservers.addClass("mousemove");
         this._on_after_mouseover();
+        break;
     }
 
   },
@@ -153,6 +155,7 @@ extend($.fn, {
   _triggeredMouseMove: false,
   _on_after_mouseover: function() {
     this._triggeredMouseMove = false;
+    if (!this._$controlobservers) return;
     this._$controlobservers.removeClass("mousemove");
   },
 
@@ -170,7 +173,8 @@ extend($.fn, {
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("playing");
         break;
-      case "pause":
+      case "pause": 
+      case "finish":
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("paused");
         break;

@@ -89,12 +89,16 @@ extend(Video[p], {
         Video._addRealtime(this);
         this._opts._inpreplay = false;
         break;
-      case "pause": case "finish":
+      case "pause": 
+      case "finish":
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
         break;
       case "timeupdate":
         this._opts._inpreplay = false;
+        if (!this.el.loop && Math.floor(this.el.currentTime*10) === Math.floor(this.el.duration*10)) {
+          this.el.pause();
+        }
         break;
     }
   },
@@ -102,6 +106,10 @@ extend(Video[p], {
   _stop_realtime: function() {
     this.removeEventsHandler(this._realtime_events);
     Video._removeRealtime(this);
+    setTimeout(function() {
+      if (!this.el) return;
+      this.el.trigger("timeupdate");
+    }.bind(this), 100);
   },
 
   destroy: chain(Video[p].destroy, function(destroy) {

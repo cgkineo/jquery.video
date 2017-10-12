@@ -59,6 +59,7 @@
         }
       case "play":
       case "pause":
+      case "finish":
         this._$bufferingobservers.removeClass("buffering");
         this._opts._seconds = this.el.currentTime;
     }

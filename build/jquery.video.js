@@ -364,19 +364,22 @@ extend($.fn, {
 
     if ($.fn.videos.isTouch) {
       switch (event.type) {
-      case "click":
-        if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this.$el.find(".rail").length > 0) {
-          this._triggeredMouseMove = true;
-          this._$controlobservers.addClass("mousemove");
-          this._on_after_mouseover();
-          return;
-        }
+        case "click":
+          if (!this.el.paused && $.fn.videos.isTouch && !this._triggeredMouseMove && this._$controlobservers.find(".scrub").length > 0) {
+            this._triggeredMouseMove = true;
+            this._$controlobservers.addClass("mousemove");
+            this._on_after_mouseover();
+            return;
+          }
 
-        if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
-          this._toggle_play_pause();
-        }
-        this._on_after_mouseover();
-        break;
+          if ($target.is(".play, .toggle") || $target.parents(".play, .toggle").length !== 0) {
+            this._toggle_play_pause();
+          }
+          this._on_after_mouseover();
+          break;
+        case "mousemove":
+          this._on_after_mouseover();
+          break;
       }
       return
     }
@@ -391,6 +394,7 @@ extend($.fn, {
         this._triggeredMouseMove = true;
         this._$controlobservers.addClass("mousemove");
         this._on_after_mouseover();
+        break;
     }
 
   },
@@ -398,6 +402,7 @@ extend($.fn, {
   _triggeredMouseMove: false,
   _on_after_mouseover: function() {
     this._triggeredMouseMove = false;
+    if (!this._$controlobservers) return;
     this._$controlobservers.removeClass("mousemove");
   },
 
@@ -415,7 +420,8 @@ extend($.fn, {
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("playing");
         break;
-      case "pause":
+      case "pause": 
+      case "finish":
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("paused");
         break;
@@ -506,6 +512,7 @@ extend($.fn, {
         }
       case "play":
       case "pause":
+      case "finish":
         this._$bufferingobservers.removeClass("buffering");
         this._opts._seconds = this.el.currentTime;
     }
@@ -1060,6 +1067,7 @@ extend(Video[p], {
         this._$posterobservers.addClass("playing");
         break;
       case "pause":
+      case "finish":
         this._$posterobservers.removeClass("playing paused");
         this._$posterobservers.addClass("paused");
         break;
@@ -1176,12 +1184,16 @@ extend(Video[p], {
         Video._addRealtime(this);
         this._opts._inpreplay = false;
         break;
-      case "pause": case "finish":
+      case "pause": 
+      case "finish":
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
         break;
       case "timeupdate":
         this._opts._inpreplay = false;
+        if (!this.el.loop && Math.floor(this.el.currentTime*10) === Math.floor(this.el.duration*10)) {
+          this.el.pause();
+        }
         break;
     }
   },
@@ -1189,6 +1201,10 @@ extend(Video[p], {
   _stop_realtime: function() {
     this.removeEventsHandler(this._realtime_events);
     Video._removeRealtime(this);
+    setTimeout(function() {
+      if (!this.el) return;
+      this.el.trigger("timeupdate");
+    }.bind(this), 100);
   },
 
   destroy: chain(Video[p].destroy, function(destroy) {
