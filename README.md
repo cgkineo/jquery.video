@@ -21,7 +21,7 @@
 
     </div>
 
-    <div for"c-40" kind="controls" class="toggle">
+    <div for="c-40" kind="controls" class="toggle">
 
         <div class="big-play play"> </div>
 
