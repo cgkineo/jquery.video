@@ -25,6 +25,16 @@
 
         <div class="big-play play"> </div>
 
+        <div class="scrub">
+            <div class="little-playpause toggle"></div>
+            <div class="rail">
+                <div class="rail-back">
+                </div>
+                <div class="rail-inner">
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     <div for="c-40" kind="captions" class="toggle" srclang="de">
