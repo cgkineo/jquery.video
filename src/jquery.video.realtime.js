@@ -98,6 +98,7 @@ extend(Video[p], {
         this._opts._inpreplay = false;
         if (!this.el.loop && Math.floor(this.el.currentTime*10) === Math.floor(this.el.duration*10)) {
           this.el.pause();
+          this.el.currentTime = this.el.duration;
         }
         break;
     }

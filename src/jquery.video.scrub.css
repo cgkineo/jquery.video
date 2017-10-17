@@ -8,6 +8,7 @@
 [for][kind=controls] .scrub .rail {
   margin: 8px;
   position: relative;
+  cursor: pointer;
 }
 
 [for][kind=controls] .scrub .rail .rail-back {

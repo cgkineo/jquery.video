@@ -44,7 +44,7 @@
       case "timeupdate":
       case "waiting":
       case "load":
-        if (this._opts._seconds === this.el.currentTime) {
+        if (!this.el.paused && this._opts._seconds === this.el.currentTime) {
           if (!this._opts._lastStalled) {
             this._opts._lastStalled = Date.now();
           } else {
