@@ -58,9 +58,14 @@
     }
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
-    this._$posterobservers[isAtStart?'addClass':'removeClass']("at-start");
-    this._$posterobservers[isAtEnd?'addClass':'removeClass']("at-end");
-    this._$posterobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+    var isInMiddle = (!isAtStart && !isAtEnd);
+    var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
+    if (this._opts._posterState !== state) {
+      this._$posterobservers[isAtStart?'addClass':'removeClass']("at-start");
+      this._$posterobservers[isAtEnd?'addClass':'removeClass']("at-end");
+      this._$posterobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+      this._opts._posterState = state;
+    }
 
   },
 

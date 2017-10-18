@@ -9,7 +9,7 @@ $.fn.videos = function(options) {
     case "destroy":
       // tear down all video class + dom associations
       $videos.each(function(index, item) {
-        if (!item[Video._prop]) return;
+        if (!(item[Video._prop] instanceof Video)) return;
         item[Video._prop].destroy();
         delete item[Video._prop];
       });

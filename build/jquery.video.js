@@ -51,7 +51,7 @@ $.fn.videos = function(options) {
     case "destroy":
       // tear down all video class + dom associations
       $videos.each(function(index, item) {
-        if (!item[Video._prop]) return;
+        if (!(item[Video._prop] instanceof Video)) return;
         item[Video._prop].destroy();
         delete item[Video._prop];
       });
@@ -432,9 +432,14 @@ extend($.fn, {
   _render_control_classes: function() {
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
-    this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
-    this._$controlobservers[isAtEnd?'addClass':'removeClass']("at-end");
-    this._$controlobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+    var isInMiddle = (!isAtStart && !isAtEnd);
+    var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
+    if (this._opts._controlState !== state) {
+      this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
+      this._$controlobservers[isAtEnd?'addClass':'removeClass']("at-end");
+      this._$controlobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+      this._opts._controlState = state;
+    }
   },
 
   _stop_controls: function(options) {
@@ -483,8 +488,12 @@ extend($.fn, {
 
   _start_buffering: function(options) {
     this._$bufferingobservers =  $("[for='"+this.$el.attr("id")+"'][kind=buffering]");
-    this._$bufferingobservers.on("click", this.handleInputEvent);
+    if (!this._$bufferingobservers.length) {
+      this._$bufferingobservers = null;
+      return;
+    }
 
+    this._$bufferingobservers.on("click", this.handleInputEvent);
     options = extend({}, this._opts, options, {buffering: true});
     this.addEventsHandler(this._render_buffering, options);
 
@@ -503,6 +512,7 @@ extend($.fn, {
           } else {
             var timeSinceStalled = (Date.now() - this._opts._lastStalled);
             if (timeSinceStalled > 1) {
+              this._opts._hasBufferingClass = true;
               this._$bufferingobservers.addClass("buffering");
               return;
             }
@@ -513,7 +523,10 @@ extend($.fn, {
       case "play":
       case "pause":
       case "finish":
-        this._$bufferingobservers.removeClass("buffering");
+        if (this._opts._hasBufferingClass) {
+          this._opts._hasBufferingClass = false;
+          this._$bufferingobservers.removeClass("buffering");
+        }
         this._opts._seconds = this.el.currentTime;
     }
   },
@@ -1074,9 +1087,14 @@ extend(Video[p], {
     }
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
-    this._$posterobservers[isAtStart?'addClass':'removeClass']("at-start");
-    this._$posterobservers[isAtEnd?'addClass':'removeClass']("at-end");
-    this._$posterobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+    var isInMiddle = (!isAtStart && !isAtEnd);
+    var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
+    if (this._opts._posterState !== state) {
+      this._$posterobservers[isAtStart?'addClass':'removeClass']("at-start");
+      this._$posterobservers[isAtEnd?'addClass':'removeClass']("at-end");
+      this._$posterobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+      this._opts._posterState = state;
+    }
 
   },
 
@@ -1093,7 +1111,10 @@ extend(Video[p], {
   })
 
 });
-var raf = window.requestAnimationFrame;
+var raf = function(cb, timeslice) {
+  //return setTimeout(cb, timeslice);
+  return window.requestAnimationFrame;
+};
 
 // realtime timeupdates
 // realtime global functions
@@ -1114,7 +1135,7 @@ extend(Video, {
     if (!Video._realTimers.length) return;
     
     var now = Date.now();
-    if (now - Video._lastRealTimeEvent < Video._minRealTimeInterval) return raf(Video._processRealtimeEvents);
+    if (now - Video._lastRealTimeEvent < Video._minRealTimeInterval) return raf(Video._processRealtimeEvents, Video._minRealTimeInterval);
     Video._lastRealTimeEvent = now;
 
     Video._realTimers.forEach(function(video) {
@@ -1204,7 +1225,7 @@ extend(Video[p], {
     Video._removeRealtime(this);
     setTimeout(function() {
       if (!this.el) return;
-      this.el.trigger("timeupdate");
+      this.$el.trigger("timeupdate");
     }.bind(this), 100);
   },
 
@@ -1249,6 +1270,10 @@ extend(Video[p], {
 
   _start_scrub: function(options) {
     this._$scrubobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls] .scrub");
+    if (!this._$scrubobservers.length) {
+      this._$scrubobservers = null;
+      return;
+    }
     this._$scrubobservers.on("click", this._on_scrub_click);
     this._$scrubobservers.find(".rail-inner, .rail-back").on("click", this._on_scrub_inner_click);
     options = extend({}, this._opts, options, {scrub: true});

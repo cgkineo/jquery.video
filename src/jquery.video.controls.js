@@ -185,9 +185,14 @@ extend($.fn, {
   _render_control_classes: function() {
     var isAtStart = this.el.currentTime <= 1;
     var isAtEnd = this.el.currentTime  >= this.el.duration -1;
-    this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
-    this._$controlobservers[isAtEnd?'addClass':'removeClass']("at-end");
-    this._$controlobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+    var isInMiddle = (!isAtStart && !isAtEnd);
+    var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
+    if (this._opts._controlState !== state) {
+      this._$controlobservers[isAtStart?'addClass':'removeClass']("at-start");
+      this._$controlobservers[isAtEnd?'addClass':'removeClass']("at-end");
+      this._$controlobservers[!isAtStart&&!isAtEnd?'addClass':'removeClass']("in-middle");
+      this._opts._controlState = state;
+    }
   },
 
   _stop_controls: function(options) {

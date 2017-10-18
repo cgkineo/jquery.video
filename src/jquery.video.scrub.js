@@ -33,6 +33,10 @@
 
   _start_scrub: function(options) {
     this._$scrubobservers =  $("[for='"+this.$el.attr("id")+"'][kind=controls] .scrub");
+    if (!this._$scrubobservers.length) {
+      this._$scrubobservers = null;
+      return;
+    }
     this._$scrubobservers.on("click", this._on_scrub_click);
     this._$scrubobservers.find(".rail-inner, .rail-back").on("click", this._on_scrub_inner_click);
     options = extend({}, this._opts, options, {scrub: true});

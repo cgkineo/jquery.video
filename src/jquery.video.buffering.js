@@ -30,8 +30,12 @@
 
   _start_buffering: function(options) {
     this._$bufferingobservers =  $("[for='"+this.$el.attr("id")+"'][kind=buffering]");
-    this._$bufferingobservers.on("click", this.handleInputEvent);
+    if (!this._$bufferingobservers.length) {
+      this._$bufferingobservers = null;
+      return;
+    }
 
+    this._$bufferingobservers.on("click", this.handleInputEvent);
     options = extend({}, this._opts, options, {buffering: true});
     this.addEventsHandler(this._render_buffering, options);
 
@@ -50,6 +54,7 @@
           } else {
             var timeSinceStalled = (Date.now() - this._opts._lastStalled);
             if (timeSinceStalled > 1) {
+              this._opts._hasBufferingClass = true;
               this._$bufferingobservers.addClass("buffering");
               return;
             }
@@ -60,7 +65,10 @@
       case "play":
       case "pause":
       case "finish":
-        this._$bufferingobservers.removeClass("buffering");
+        if (this._opts._hasBufferingClass) {
+          this._opts._hasBufferingClass = false;
+          this._$bufferingobservers.removeClass("buffering");
+        }
         this._opts._seconds = this.el.currentTime;
     }
   },

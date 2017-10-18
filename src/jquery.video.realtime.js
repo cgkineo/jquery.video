@@ -1,4 +1,7 @@
-var raf = window.requestAnimationFrame;
+var raf = function(cb, timeslice) {
+  //return setTimeout(cb, timeslice);
+  return window.requestAnimationFrame;
+};
 
 // realtime timeupdates
 // realtime global functions
@@ -19,7 +22,7 @@ extend(Video, {
     if (!Video._realTimers.length) return;
     
     var now = Date.now();
-    if (now - Video._lastRealTimeEvent < Video._minRealTimeInterval) return raf(Video._processRealtimeEvents);
+    if (now - Video._lastRealTimeEvent < Video._minRealTimeInterval) return raf(Video._processRealtimeEvents, Video._minRealTimeInterval);
     Video._lastRealTimeEvent = now;
 
     Video._realTimers.forEach(function(video) {
@@ -109,7 +112,7 @@ extend(Video[p], {
     Video._removeRealtime(this);
     setTimeout(function() {
       if (!this.el) return;
-      this.el.trigger("timeupdate");
+      this.$el.trigger("timeupdate");
     }.bind(this), 100);
   },
 
