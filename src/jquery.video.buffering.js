@@ -36,6 +36,7 @@
     }
 
     this._$bufferingobservers.on("click", this.handleInputEvent);
+    this._opts._hasBufferingClass = true;
     options = extend({}, this._opts, options, {buffering: true});
     this.addEventsHandler(this._render_buffering, options);
 

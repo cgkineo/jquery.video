@@ -1,6 +1,6 @@
 var raf = function(cb, timeslice) {
   //return setTimeout(cb, timeslice);
-  return window.requestAnimationFrame;
+  return window.requestAnimationFrame(cb);
 };
 
 // realtime timeupdates
@@ -85,6 +85,9 @@ extend(Video[p], {
   _realtime_events: function(event, options) {
     switch (event.type) {
       case "preplay":
+        if (!this.el.loop && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+          this.el.currentTime = 0;
+        }
         this._opts._inpreplay = true;
         Video._addRealtime(this);
         break;
@@ -99,9 +102,10 @@ extend(Video[p], {
         break;
       case "timeupdate":
         this._opts._inpreplay = false;
-        if (!this.el.loop && Math.floor(this.el.currentTime*10) === Math.floor(this.el.duration*10)) {
-          this.el.pause();
+        if (!this.el.loop && !this.el.paused && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+          Video._removeRealtime(this);
           this.el.currentTime = this.el.duration;
+          this.el.pause();
         }
         break;
     }

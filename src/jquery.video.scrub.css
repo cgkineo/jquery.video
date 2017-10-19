@@ -24,7 +24,7 @@
   position: relative;
   height: 8px;
   background-color: #d45971;
-  transition: width 0.1s linear;
+  transition: width 0.05s linear;
 }
 
 [for][kind=controls] .scrub {
