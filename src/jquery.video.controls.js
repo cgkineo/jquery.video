@@ -115,6 +115,10 @@ extend($.fn, {
   handleInputEvent: function(event) {
     var $target = $(event.target);
 
+    if (!$target.is(".play, .toggle") && ($target.is(".no-control") || $target.parents(".no-control").length !== 0)) {
+      return;
+    }
+
     if ($.fn.videos.isTouch) {
       switch (event.type) {
         case "click":
@@ -183,8 +187,8 @@ extend($.fn, {
   },
 
   _render_control_classes: function() {
-    var isAtStart = this.el.currentTime <= 1;
-    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+    var isAtStart = this.el.currentTime <= 0.1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -0.1;
     var isInMiddle = (!isAtStart && !isAtEnd);
     var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
     if (this._opts._controlState !== state) {

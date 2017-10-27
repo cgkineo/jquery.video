@@ -85,6 +85,7 @@ extend(Video[p], {
   _realtime_events: function(event, options) {
     switch (event.type) {
       case "preplay":
+        this._opts._hasfinished = false;
         if (!this.el.loop && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
           this.el.currentTime = 0;
         }
@@ -92,20 +93,37 @@ extend(Video[p], {
         Video._addRealtime(this);
         break;
       case "play":
+        this._opts._hasfinished = false;
         Video._addRealtime(this);
         this._opts._inpreplay = false;
         break;
-      case "pause": 
       case "finish":
+        this._opts._hasfinished = true;
+      case "pause": 
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
+        if (!this.el.loop && !this._opts._hasfinished && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+          setTimeout(function() {
+            if (!this.$el) return;
+            if (this._opts._hasfinished) return;
+            this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
+        }
         break;
       case "timeupdate":
+        this._opts._hasfinished = false;
         this._opts._inpreplay = false;
         if (!this.el.loop && !this.el.paused && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
           Video._removeRealtime(this);
           this.el.currentTime = this.el.duration;
           this.el.pause();
+          setTimeout(function() {
+            if (!this.$el) return;
+            if (this._opts._hasfinished) return;
+            this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
         }
         break;
     }

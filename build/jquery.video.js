@@ -1,4 +1,4 @@
-(function($){$("<style>",{text:"[for][kind=buffering]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=buffering]{display:none;}[for][kind=buffering].buffering{display:block;}[for][kind=captions]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=captions] .cue{position:absolute;font-size:100%;line-height:120%;}[for][kind=captions] .cue .cue-text{background-color:black;color:white;padding:0.2%;}[for][kind=captions] .cue.horizontal{transform:translateX(-50%);}[for][kind=captions] .cue.lr{transform:translateY(-50%);}[for][kind=captions] .cue.rl{transform:translateY(-50%);}[for][kind=captions] .cue.align-left{text-align:left;}[for][kind=captions] .cue.align-right{text-align:right;}[for][kind=captions] .cue.align-center{text-align:center;}[for][kind=captions] .cue.align-top{text-align:left;}[for][kind=captions] .cue.align-middle{text-align:right;}[for][kind=captions] .cue.align-bottom{text-align:center;}[for][kind=controls]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=controls]{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=controls].playing .big-play{opacity:0;}[for][kind=poster]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=poster] img{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=poster].paused.in-middle img,[for][kind=poster].playing img{opacity:0;}[for][kind=controls] .scrub{position:absolute;bottom:0;width:100%;background:rgba(255, 255, 255, 0.82);}[for][kind=controls] .scrub .rail{margin:8px;position:relative;cursor:pointer;}[for][kind=controls] .scrub .rail .rail-back{position:absolute;top:0;left:0;right:0;bottom:0;background-color:lightgrey;}[for][kind=controls] .scrub .rail .rail-inner{position:relative;height:8px;background-color:#d45971;transition:width 0.05s linear;}[for][kind=controls] .scrub{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=controls].paused.at-start .scrub,[for][kind=controls].paused.at-end .scrub,[for][kind=controls].playing .scrub{opacity:0}[for][kind=controls].mousemove.paused.in-middle .scrub,[for][kind=controls].mousemove.paused.at-end .scrub,[for][kind=controls].mousemove.playing .scrub{opacity:1}"}).appendTo("head");
+(function($){$("<style>",{text:"[for][kind=buffering]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=buffering]{display:none;}[for][kind=buffering].buffering{display:block;}[for][kind=captions]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=captions] .cue{position:absolute;font-size:100%;line-height:120%;}[for][kind=captions] .cue .cue-text{background-color:black;color:white;padding:0.2%;}[for][kind=captions] .cue.horizontal{transform:translateX(-50%);}[for][kind=captions] .cue.lr{transform:translateY(-50%);}[for][kind=captions] .cue.rl{transform:translateY(-50%);}[for][kind=captions] .cue.align-left{text-align:left;}[for][kind=captions] .cue.align-right{text-align:right;}[for][kind=captions] .cue.align-center{text-align:center;}[for][kind=captions] .cue.align-top{text-align:left;}[for][kind=captions] .cue.align-middle{text-align:right;}[for][kind=captions] .cue.align-bottom{text-align:center;}[for][kind=controls]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=controls]{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=controls].playing .big-play{opacity:0;}[for][kind=poster]{position:absolute;top:0;left:0;bottom:0;right:0;font-size:22px;font-family:sans-serif;line-height:120%;}[for][kind=poster] img{opacity:1;transition:opacity 0.2s ease-in;}[for][kind=poster].paused.in-middle img,[for][kind=poster].playing img{opacity:0;}[for][kind=controls] .scrub{position:absolute;bottom:0;width:100%;background:rgba(255, 255, 255, 0.82);}[for][kind=controls] .scrub .rail{margin:8px;position:relative;cursor:pointer;}[for][kind=controls] .scrub .rail .rail-back{position:absolute;top:0;left:0;right:0;bottom:0;background-color:lightgrey;}[for][kind=controls] .scrub .rail .rail-inner{position:relative;height:8px;background-color:#d45971;transition:width 0.05s linear;}[for][kind=controls] .scrub{opacity:1;transition:opacity 0.2s ease-in;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}[for][kind=controls].paused.at-start .scrub,[for][kind=controls].paused.at-end .scrub,[for][kind=controls].playing .scrub{opacity:0}[for][kind=controls].mousemove.paused.in-middle .scrub,[for][kind=controls].mousemove.paused.at-end .scrub,[for][kind=controls].mousemove.playing .scrub{opacity:1}"}).appendTo("head");
 var extend = $.extend;
 var p = "prototype";
 
@@ -362,6 +362,10 @@ extend($.fn, {
   handleInputEvent: function(event) {
     var $target = $(event.target);
 
+    if (!$target.is(".play, .toggle") && ($target.is(".no-control") || $target.parents(".no-control").length !== 0)) {
+      return;
+    }
+
     if ($.fn.videos.isTouch) {
       switch (event.type) {
         case "click":
@@ -430,8 +434,8 @@ extend($.fn, {
   },
 
   _render_control_classes: function() {
-    var isAtStart = this.el.currentTime <= 1;
-    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+    var isAtStart = this.el.currentTime <= 0.1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -0.1;
     var isInMiddle = (!isAtStart && !isAtEnd);
     var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
     if (this._opts._controlState !== state) {
@@ -1086,8 +1090,9 @@ extend(Video[p], {
         this._$posterobservers.addClass("paused");
         break;
     }
-    var isAtStart = this.el.currentTime <= 1;
-    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+
+    var isAtStart = this.el.currentTime <= 0.1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -0.1;
     var isInMiddle = (!isAtStart && !isAtEnd);
     var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
     if (this._opts._posterState !== state) {
@@ -1199,6 +1204,7 @@ extend(Video[p], {
   _realtime_events: function(event, options) {
     switch (event.type) {
       case "preplay":
+        this._opts._hasfinished = false;
         if (!this.el.loop && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
           this.el.currentTime = 0;
         }
@@ -1206,20 +1212,37 @@ extend(Video[p], {
         Video._addRealtime(this);
         break;
       case "play":
+        this._opts._hasfinished = false;
         Video._addRealtime(this);
         this._opts._inpreplay = false;
         break;
-      case "pause": 
       case "finish":
+        this._opts._hasfinished = true;
+      case "pause": 
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
+        if (!this.el.loop && !this._opts._hasfinished && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+          setTimeout(function() {
+            if (!this.$el) return;
+            if (this._opts._hasfinished) return;
+            this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
+        }
         break;
       case "timeupdate":
+        this._opts._hasfinished = false;
         this._opts._inpreplay = false;
         if (!this.el.loop && !this.el.paused && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
           Video._removeRealtime(this);
           this.el.currentTime = this.el.duration;
           this.el.pause();
+          setTimeout(function() {
+            if (!this.$el) return;
+            if (this._opts._hasfinished) return;
+            this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
         }
         break;
     }
@@ -1252,7 +1275,9 @@ extend(Video[p], {
   initialize:chain(Video[p].initialize, function(initialize) {
 
     this._on_scrub_click = this._on_scrub_click.bind(this);
-    this._on_scrub_inner_click = this._on_scrub_inner_click.bind(this);
+    this._on_scrub_inner_down = this._on_scrub_inner_down.bind(this);
+    this._on_scrub_inner_move = this._on_scrub_inner_move.bind(this);
+    this._on_scrub_inner_up = this._on_scrub_inner_up.bind(this);
 
     if (this._opts.scrub) {
       this.scrub("start");
@@ -1280,7 +1305,9 @@ extend(Video[p], {
       return;
     }
     this._$scrubobservers.on("click", this._on_scrub_click);
-    this._$scrubobservers.find(".rail-inner, .rail-back").on("click", this._on_scrub_inner_click);
+    this._$scrubobservers.find(".rail-inner, .rail-back").on("mousedown touchstart", this._on_scrub_inner_down);
+    this._$scrubobservers.find(".rail-inner, .rail-back").on("mousemove touchmove", this._on_scrub_inner_move);
+    $(document).on("mouseup touchend", this._on_scrub_inner_up);
     options = extend({}, this._opts, options, {scrub: true});
     this.addEventsHandler(this._render_scrub, options);
   },
@@ -1296,19 +1323,57 @@ extend(Video[p], {
   },
 
   _on_scrub_click: function(event) {
-    event.preventDefault();
-    event.stopPropagation();
+
   },
 
-  _on_scrub_inner_click: function(event) {
+  _on_scrub_inner_down: function(event) {
+    this._opts._in_scrub_was_playing = !this.el.paused;
+    this.$el.pause();
+    this._opts._in_scrub_click = true;
+    this._move_time_to_event(event);
+  },
+
+  _on_scrub_inner_move: function(event) {
+    if (!this._opts._in_scrub_click) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this._move_time_to_event(event)
+  },
+
+  _on_scrub_inner_up: function(event) {
+    if (!this._opts._in_scrub_click) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this._move_time_to_event(event)
+    if (this._opts._in_scrub_was_playing) {
+      this.$el.play();
+    }
+    this._opts._in_scrub_click = false;
+  },
+
+  _move_time_to_event: function(width) {
+    if (isNaN(this.el.duration)) {
+      this.el.load();
+      return;
+    }
     var width = this._$scrubobservers.find(".rail-back").width();
-    this.el.currentTime = (event.offsetX/width * this.el.duration);
+    try {
+      this.el.currentTime = (event.offsetX/width * this.el.duration);
+    } catch(e) {
+      //try {
+        this.$el.play();
+        this.el.currentTime = (event.offsetX/width * this.el.duration);
+        this.$el.pause();
+      //
+    }
   },
 
   _stop_scrub: function(options) {
     if (!this._$scrubobservers) return;
     this._$scrubobservers.off("click", this._on_scrub_click);
-    this._$scrubobservers.find(".rail-inner, .rail-back").off("click", this._on_scrub_inner_click);
+    this._$scrubobservers.find(".rail-inner, .rail-back").off("mousedown touchstart", this._on_scrub_inner_down);
+    this._$scrubobservers.find(".rail-inner, .rail-back").off("mousemove touchmove", this._on_scrub_inner_move);
+    $(document).off("mouseup touchend", this._on_scrub_inner_up);
     this._$scrubobservers = null;
     this.removeEventsHandler(this._render_scrub, options);
   },

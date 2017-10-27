@@ -56,8 +56,9 @@
         this._$posterobservers.addClass("paused");
         break;
     }
-    var isAtStart = this.el.currentTime <= 1;
-    var isAtEnd = this.el.currentTime  >= this.el.duration -1;
+
+    var isAtStart = this.el.currentTime <= 0.1;
+    var isAtEnd = this.el.currentTime  >= this.el.duration -0.1;
     var isInMiddle = (!isAtStart && !isAtEnd);
     var state = isAtStart ? "at-start" : isAtEnd ? "at-end" : "in-middle";
     if (this._opts._posterState !== state) {
