@@ -70,15 +70,11 @@
 
   _on_scrub_inner_move: function(event) {
     if (!this._opts._in_scrub_click) return;
-    event.preventDefault();
-    event.stopPropagation();
     this._move_time_to_event(event)
   },
 
   _on_scrub_inner_up: function(event) {
     if (!this._opts._in_scrub_click) return;
-    event.preventDefault();
-    event.stopPropagation();
     this._move_time_to_event(event)
     if (this._opts._in_scrub_was_playing) {
       this.$el.play();
@@ -86,7 +82,7 @@
     this._opts._in_scrub_click = false;
   },
 
-  _move_time_to_event: function(width) {
+  _move_time_to_event: function(event) {
     if (isNaN(this.el.duration)) {
       this.el.load();
       return;

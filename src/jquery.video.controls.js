@@ -116,6 +116,8 @@ extend($.fn, {
     var $target = $(event.target);
 
     if (!$target.is(".play, .toggle") && ($target.is(".no-control") || $target.parents(".no-control").length !== 0)) {
+      this._$controlobservers.addClass("mousemove");
+      this._on_after_mouseover();
       return;
     }
 
