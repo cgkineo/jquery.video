@@ -92,12 +92,23 @@
       return;
     }
     var width = this._$scrubobservers.find(".rail-back").width();
+    var left = this._$scrubobservers.find(".rail-back")[0].getBoundingClientRect().left;
+    var offsetX;
+    switch (event.type) {
+      case "touchstart": case "touchend": case "touchmove":
+        if (!event || !event.originalEvent || !event.originalEvent.touches || !event.originalEvent.touches.length) return;
+        offsetX = event.originalEvent.touches[0].clientX - left;
+        break;
+      default:
+        offsetX = event.clientX - left;
+    }
+
     try {
-      this.el.currentTime = (event.offsetX/width * this.el.duration);
+      this.el.currentTime = (offsetX/width * this.el.duration);
     } catch(e) {
       //try {
         this.$el.play();
-        this.el.currentTime = (event.offsetX/width * this.el.duration);
+        this.el.currentTime = (offsetX/width * this.el.duration);
         this.$el.pause();
       //
     }

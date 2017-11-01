@@ -83,10 +83,11 @@ extend(Video[p], {
   },
 
   _realtime_events: function(event, options) {
+    var isAtEnd = (Math.abs(Math.floor(this.el.currentTime*10) - Math.floor(this.el.duration*10)) <= 1);
     switch (event.type) {
       case "preplay":
         this._opts._hasfinished = false;
-        if (!this.el.loop && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+        if (!this.el.loop && isAtEnd) {
           this.el.currentTime = 0;
         }
         this._opts._inpreplay = true;
@@ -102,7 +103,7 @@ extend(Video[p], {
       case "pause": 
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
-        if (!this.el.loop && !this._opts._hasfinished && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+        if (!this.el.loop && !this._opts._hasfinished && isAtEnd) {
           setTimeout(function() {
             if (!this.$el) return;
             if (this._opts._hasfinished) return;
@@ -114,7 +115,7 @@ extend(Video[p], {
       case "timeupdate":
         this._opts._hasfinished = false;
         this._opts._inpreplay = false;
-        if (!this.el.loop && !this.el.paused && Math.floor(this.el.currentTime*10) >= Math.floor(this.el.duration*10)) {
+        if (!this.el.loop && !this.el.paused && isAtEnd) {
           Video._removeRealtime(this);
           this.el.currentTime = this.el.duration;
           this.el.pause();
@@ -128,6 +129,7 @@ extend(Video[p], {
         break;
     }
   },
+
 
   _stop_realtime: function() {
     this.removeEventsHandler(this._realtime_events);
