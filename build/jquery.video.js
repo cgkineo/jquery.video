@@ -126,6 +126,8 @@ extend(Video, {
     var eventsHandlers = Video._eventsHandlers;
 
     var el = event.currentTarget;
+    var player = event.currentTarget[Video._prop];
+    if (!player) return;
     var id = event.currentTarget[Video._prop].id;
     if (!id) return;
 
@@ -139,7 +141,7 @@ extend(Video, {
     eventsHandler.forEach(function(item) {
       item.callback.call(video, event, item._opts)
     });
-    
+
   }
 
 });
@@ -165,7 +167,7 @@ extend(Video[p], {
   addEventsHandler: function(callback, options) {
 
     var eventsHandlers = Video._eventsHandlers;
-  
+
     if (!callback) return;
 
     var el = this.el;
@@ -204,12 +206,12 @@ extend(Video[p], {
     if (!Video._eventsHandler_count) return;
 
     var eventsHandler = eventsHandlers[el[Video._prop].id];
-    
+
     if (!eventsHandler) return;
     if (!eventsHandler.length) return;
 
     if (callback) {
-    
+
       for (var i = eventsHandler.length-1, l = -1; i > l; i--) {
         var item = eventsHandler[i];
         if (item.context !== this || item.callback !== callback) continue;
@@ -258,6 +260,15 @@ extend($.fn, {
   pause: function() {
     this.videos().each(function(index, item) {
       item[Video._prop].pause();
+    });
+    return this;
+  },
+
+  rewind: function() {
+    this.videos().each(function(index, item) {
+      try {
+        item.currentTime = 0;
+      } catch (err) {}
     });
     return this;
   },
@@ -426,8 +437,7 @@ extend($.fn, {
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("playing");
         break;
-      case "pause": 
-      case "finish":
+      case "pause":
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("paused");
         break;
@@ -1087,7 +1097,6 @@ extend(Video[p], {
         this._$posterobservers.addClass("playing");
         break;
       case "pause":
-      case "finish":
         this._$posterobservers.removeClass("playing paused");
         this._$posterobservers.addClass("paused");
         break;
@@ -1221,6 +1230,7 @@ extend(Video[p], {
         break;
       case "finish":
         this._opts._hasfinished = true;
+        break;
       case "pause": 
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
@@ -1244,6 +1254,11 @@ extend(Video[p], {
             if (!this.$el) return;
             if (this._opts._hasfinished) return;
             this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
+        } else if (this.el.loop && !this.el.paused && isAtEnd) {
+          setTimeout(function() {
+            if (!this.$el) return;
             this.$el.trigger("finish");
           }.bind(this), 100);
         }

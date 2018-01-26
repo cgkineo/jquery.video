@@ -100,6 +100,7 @@ extend(Video[p], {
         break;
       case "finish":
         this._opts._hasfinished = true;
+        break;
       case "pause": 
         Video._removeRealtime(this);
         this._opts._inpreplay = false;
@@ -123,6 +124,11 @@ extend(Video[p], {
             if (!this.$el) return;
             if (this._opts._hasfinished) return;
             this._opts._hasfinished = true;
+            this.$el.trigger("finish");
+          }.bind(this), 100);
+        } else if (this.el.loop && !this.el.paused && isAtEnd) {
+          setTimeout(function() {
+            if (!this.$el) return;
             this.$el.trigger("finish");
           }.bind(this), 100);
         }

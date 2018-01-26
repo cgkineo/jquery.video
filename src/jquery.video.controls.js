@@ -15,6 +15,15 @@ extend($.fn, {
     return this;
   },
 
+  rewind: function() {
+    this.videos().each(function(index, item) {
+      try {
+        item.currentTime = 0;
+      } catch (err) {}
+    });
+    return this;
+  },
+
   mute: function(bool) {
     var isToggle = (bool === undefined);
     bool = Boolean(bool);
@@ -179,8 +188,7 @@ extend($.fn, {
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("playing");
         break;
-      case "pause": 
-      case "finish":
+      case "pause":
         this._$controlobservers.removeClass("playing paused");
         this._$controlobservers.addClass("paused");
         break;

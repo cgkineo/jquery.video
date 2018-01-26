@@ -84,6 +84,8 @@ extend(Video, {
     var eventsHandlers = Video._eventsHandlers;
 
     var el = event.currentTarget;
+    var player = event.currentTarget[Video._prop];
+    if (!player) return;
     var id = event.currentTarget[Video._prop].id;
     if (!id) return;
 
@@ -97,7 +99,7 @@ extend(Video, {
     eventsHandler.forEach(function(item) {
       item.callback.call(video, event, item._opts)
     });
-    
+
   }
 
 });
@@ -123,7 +125,7 @@ extend(Video[p], {
   addEventsHandler: function(callback, options) {
 
     var eventsHandlers = Video._eventsHandlers;
-  
+
     if (!callback) return;
 
     var el = this.el;
@@ -162,12 +164,12 @@ extend(Video[p], {
     if (!Video._eventsHandler_count) return;
 
     var eventsHandler = eventsHandlers[el[Video._prop].id];
-    
+
     if (!eventsHandler) return;
     if (!eventsHandler.length) return;
 
     if (callback) {
-    
+
       for (var i = eventsHandler.length-1, l = -1; i > l; i--) {
         var item = eventsHandler[i];
         if (item.context !== this || item.callback !== callback) continue;
