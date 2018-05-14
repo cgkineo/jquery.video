@@ -1,5 +1,12 @@
 # jquery.video
 
+### Building
+```
+$ npm install
+$ npm run build
+```
+
+### Example
 ```javascript
 
     $("video").play().mute(true).loop(true).pause();
