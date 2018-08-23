@@ -1,0 +1,52 @@
+[for][kind=controls] .scrub {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+[for][kind=controls] .scrub .rail {
+  margin: 8px;
+  position: relative;
+  cursor: pointer;
+}
+
+[for][kind=controls] .scrub .rail .rail-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: lightgrey;
+}
+
+[for][kind=controls] .scrub .rail .rail-inner {
+  position: relative;
+  height: 8px;
+  background-color: #d45971;
+  transition: width 0.05s linear;
+}
+
+[for][kind=controls] .scrub {
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+[for][kind=controls].paused.at-start .scrub,
+[for][kind=controls].paused.at-end .scrub,
+[for][kind=controls].playing .scrub {
+  opacity: 0
+}
+
+
+[for][kind=controls].mousemove.paused.in-middle .scrub,
+[for][kind=controls].mousemove.paused.at-end .scrub,
+[for][kind=controls].mousemove.playing .scrub {
+  opacity: 1
+}

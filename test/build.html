@@ -2,8 +2,8 @@
 <html>
 <head>
     <script src="./jquery.v2.js"></script>
-    <script src="../build/jquery.video.js"></script>
-    <style>
+    <script src="../build/jquery.video.min.js"></script>
+    <style> 
 
         .video-container {
             display: inline-block;
@@ -15,14 +15,14 @@
         [for][kind=buffering] {
             background: rgba(255, 0, 0, 0.28);
         }
-
+        
     </style>
 </head>
     <body>
 
         <div class="video-container">
 
-            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" loop="false">
+            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" loop="true">
                 <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
                     <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
             </video>
@@ -33,21 +33,21 @@
 
             <div for="c-40" kind="poster"></div>
 
-            <div for="c-40" kind="waiting"></div>
+            <div for="c-40" kind="buffering"></div>
 
-            <div class="controls">
-                <button for="c-40" class="big-play" kind="toggle">Play</button>
-                <div class="scrub">
-                    <div for="c-40" class="little-playpause" kind="toggle"></div>
+            <div for="c-40" kind="controls" class="controls toggle">
+                <button class="big-play play">Play</button>
+                <div class="scrub no-control">
+                    <div class="little-playpause toggle"></div>
                     <div class="rail">
                         <div class="rail-back">
                         </div>
-                        <div for="c-40" class="rail-inner" kind="rail">
+                        <div class="rail-inner">
                         </div>
                     </div>
                 </div>
             </div>
-
+         
         </div>
     </body>
     <script>

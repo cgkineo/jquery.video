@@ -37,24 +37,17 @@ fsg.stats({
 
 }).then((files)=>{
 
-    files['store.js'] = fs.readFileSync("./src/utils/store.js").toString();
-    files['util.js'] = fs.readFileSync("./src/utils/utils.js").toString();
-    files['device.js'] = fs.readFileSync("./src/utils/device.js").toString();
-    files['events.js'] = fs.readFileSync("./src/utils/events.js").toString();
-    files['properties.js'] = fs.readFileSync("./src/utils/properties.js").toString();
-    files['class.js'] = fs.readFileSync("./src/utils/class.js").toString();
-    files['core.js'] = fs.readFileSync("./src/core/core.js").toString();
+    files['jquery.video.util.js'] = fs.readFileSync("./src/jquery.video.utils.js").toString();
+    files['jquery.video.core.js'] = fs.readFileSync("./src/jquery.video.core.js").toString();
+    files['jquery.video.controls.js'] = fs.readFileSync("./src/jquery.video.controls.js").toString();
 
     return fsg.stats({
         globs: [
             "*.js",
             "**/*.js",
-            "!utils/store.js",
-            "!utils/utils.js",
-            "!utils/device.js",
-            "!utils/events.js",
-            "!utils/class.js",
-            "!core/core.js"
+            "!jquery.video.utils.js",
+            "!jquery.video.core.js",
+            "!jquery.video.controls.js"
         ],
         location: "./src"
     }).then((stats)=>{
