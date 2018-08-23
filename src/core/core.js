@@ -88,6 +88,8 @@ var Video = Class({
     for (var i = 0, l = this.domEvents.length; i < l; i++) {
       this.el.removeEventListener(this.domEvents[i], this._proxyEvent);
     }
+    this.stopListening();
+    this.off();
   }
 
 }, {
