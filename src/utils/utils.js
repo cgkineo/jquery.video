@@ -1,21 +1,24 @@
-var extend = $.extend;
 var p = "prototype";
 
-$.indexOfRegex = function(value, regex, fromIndex){
+var delay = function(callback, time) {
+  setTimeout(callback, time);
+};
+
+var indexOfRegex = function(value, regex, fromIndex){
   fromIndex = fromIndex || 0;
   var str = fromIndex ? value.substring(fromIndex) : value;
   var match = str.match(regex);
   return match ? str.indexOf(match[0]) + fromIndex : -1;
 };
 
-$.lastIndexOfRegex = function(value, regex, fromIndex){
+var lastIndexOfRegex = function(value, regex, fromIndex){
   fromIndex = fromIndex || 0;
   var str = fromIndex ? value.substring(0, fromIndex) : value;
   var match = str.match(regex);
   return match ? str.lastIndexOf(match[match.length-1]) : -1;
 };
 
-$.chain = function(original, callback) {
+var chain = function(original, callback) {
   return function() {
     var args = Array[p].slice.call(arguments, 0);
     args.unshift(function() {
@@ -26,8 +29,6 @@ $.chain = function(original, callback) {
   };
 };
 
-var chain = $.chain;
-
 var debounce = function(func, time) {
   var handle = null;
   return function() {
@@ -37,4 +38,18 @@ var debounce = function(func, time) {
       func.apply(this, args);
     }.bind(this), time || 0);
   }
+};
+
+var toArray = function(args, start) {
+  return Array.prototype.slice.call(args, start || 0);
+};
+
+var extend = function(subject) {
+  for (var i = 1, l = arguments.length; i < l; i++) {
+    var arg = arguments[i];
+    for (var k in arg) {
+      subject[k] = arg[k];
+    }
+  }
+  return subject;
 };

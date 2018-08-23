@@ -1,0 +1,3 @@
+var STORE = {
+    isTouchCapable: false
+};
