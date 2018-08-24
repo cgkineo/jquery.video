@@ -37,6 +37,11 @@ var DOM = Class({
     this.elements = this._groupNodes(elements);
   },
 
+  fetch: function(video) {
+    var id = video.el.id;
+    return this.elements[id] || [];
+  },
+
   _searchNodeList: function(nodeList, selector) {
     var results = [];
     for (var i = 0, l = nodeList.length; i < l; i++) {
