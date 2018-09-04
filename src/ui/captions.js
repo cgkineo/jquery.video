@@ -95,10 +95,14 @@ var Captions = Class({
         toRemove.forEach(function(cue) {
           cue.live = false;
           var children = el.querySelectorAll("#"+cue.id+".cue");
-          children.forEach(function(child) { child.remove(); });
+          toArray(children).forEach(function(child) {
+            removeElement(child);
+          });
         });
         var children = el.querySelectorAll(".cue:not([lang="+lang+"])")
-        children.forEach(function(child) { child.remove(); });
+        toArray(children).forEach(function(child) {
+          removeElement(child);
+        });
       }.bind(this));
     }
 
@@ -216,7 +220,8 @@ var Captions = Class({
 
     var langs = {};
 
-    this.video.el.querySelectorAll("track[type='text/vtt']").forEach(function(el) {
+    var tracks = this.video.el.querySelectorAll("track[type='text/vtt']");
+    toArray(tracks).forEach(function(el) {
       var lang = el.getAttribute("srclang");
       var src = el.getAttribute("src");
       if (lang && src) {
@@ -231,7 +236,7 @@ var Captions = Class({
           label: el.getAttribute("label")
         }, onLoaded);
       }
-      el.remove();
+      removeElement(el);
     });
 
     return langs;

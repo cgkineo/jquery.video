@@ -21,27 +21,23 @@ var TimeUpdate = Class({
   onPlay: function(video) {
     this.playing.push(video);
     if (!this.inRaf) {
-      this.rAF(this.onRaf);
+      rAF(this.onRaf);
       this.inRaf = true;
     }
-  },
-
-  rAF: function(cb) {
-    return window.requestAnimationFrame(cb);
   },
 
   onRaf: function() {
     var now = Date.now();
     if (now < this.lastTickTime + this.interval) {
       if (!this.playing.length) return this.inRaf = false;
-      return this.rAF(this.onRaf);
+      return rAF(this.onRaf);
     }
     for (var i = 0, l = this.playing.length; i < l; i++) {
-      var event = new Event('timeupdate');
+      var event = createEvent('timeupdate');
       event.realtime = true;
       this.playing[i].el.dispatchEvent(event);
     }
-    return this.rAF(this.onRaf);
+    return rAF(this.onRaf);
   },
 
   onPause: function(video) {
