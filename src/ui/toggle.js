@@ -1,8 +1,8 @@
-var Toggle = Class({
+var Toggle = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Toggle(video) {
     this.video = video;
     this.listenTo(video, {
       "pause play": this.onUpdate
@@ -46,4 +46,4 @@ var Toggle = Class({
 
 });
 
-Video.Toggle = Toggle;
+Video.components.Toggle = Toggle;

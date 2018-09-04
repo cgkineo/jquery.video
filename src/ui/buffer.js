@@ -1,8 +1,8 @@
-var Buffer = Class({
+var Buffer = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Buffer(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -36,4 +36,4 @@ var Buffer = Class({
 
 });
 
-Video.Buffer = Buffer;
+Video.components.Buffer = Buffer;

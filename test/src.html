@@ -15,26 +15,25 @@
     <script src="../src/utils/properties.js"></script>
     <script src="../src/utils/class.js"></script>
     <script src="../src/core/core.js"></script>
+    <script src="../src/utils/stream.js"></script>
     <script src="../src/utils/device.js"></script>
     <script src="../src/utils/dom.js"></script>
     <script src="../src/core/ended.js"></script>
     <script src="../src/core/timeupdate.js"></script>
     <script src="../src/ui/buffer.js"></script>
-    <script src="../src/ui/bufferController.js"></script>
     <script src="../src/ui/captions.js"></script>
-    <script src="../src/ui/captionsController.js"></script>
+    <script src="../src/ui/controller.js"></script>
     <script src="../src/ui/dom.js"></script>
     <script src="../src/ui/lang.js"></script>
     <script src="../src/ui/poster.js"></script>
     <script src="../src/ui/rail.js"></script>
-    <script src="../src/ui/railController.js"></script>
     <script src="../src/ui/ratio.js"></script>
-    <script src="../src/ui/ratioController.js"></script>
     <script src="../src/ui/state.js"></script>
-    <script src="../src/ui/stateController.js"></script>
     <script src="../src/ui/toggle.js"></script>
-    <script src="../src/ui/toggleController.js"></script>
     <script src="../src/ui/waiting.js"></script>
+    <script src="../src/streams/video.js"></script>
+    <script src="../src/streams/greyscale.js"></script>
+    <script src="../src/streams/canvas.js"></script>
     <script src="../src/integration/jquery.js"></script>
     <style>
 
@@ -87,8 +86,16 @@
                 </div>
             </div>
         </div>
+
+        <div class="canvas-container"> 
+            <canvas id="canvas1"></canvas>
+        </div>
     </body>
     <script>
         $("video").videos({captions:true});
+        var input = new Video.Stream.VideoInput($("video")[0]);
+        var greyscale = new Video.Stream.GreyscaleTransform();
+        var output = new Video.Stream.CanvasOutput($("canvas")[0]);
+        input.pipe(greyscale).pipe(output);
     </script>
 </html>

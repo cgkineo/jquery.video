@@ -1,10 +1,10 @@
-var State = Class({
+var State = Class.extend({
 
   floorPrecision: 10,
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function State(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -47,4 +47,4 @@ var State = Class({
 
 });
 
-Video.State = State;
+Video.components.State = State;

@@ -1,8 +1,8 @@
-var Ratio = Class({
+var Ratio = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Ratio(video) {
     this.video = video;
     this.onResize = this.onResize.bind(this);
     this.listenTo(video, {
@@ -130,4 +130,4 @@ var Ratio = Class({
 
 });
 
-Video.Ratio = Ratio;
+Video.components.Ratio = Ratio;

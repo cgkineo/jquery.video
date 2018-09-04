@@ -3,12 +3,12 @@
  Video.dom.refresh();
  var UIElements = Video.dom.fetch(video)
  */
-var DOM = Class({
+var DOM = Class.extend({
 
   _videos: null,
   _elements: null,
 
-  constructor: function() {
+  constructor: function DOM() {
     this._videos = [];
     this._elements = {};
     this.listenTo(Video, {

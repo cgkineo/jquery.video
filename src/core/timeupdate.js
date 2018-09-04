@@ -1,15 +1,15 @@
 /*
 This makes timeupdate events trigger at greater frequency, every 62.5 milliseconds
-rather than 250ms in most browsers.
+(16fps) rather than 250ms (4fps) in most browsers.
 */
-var TimeUpdate = Class({
+var TimeUpdate = Class.extend({
 
   playing: null,
   interval: 62.5,
   isRaf: false,
   lastTickTime: null,
 
-  constructor: function() {
+  constructor: function TimeUpdate() {
     this.playing = [];
     this.listenTo(Video, {
       "play": this.onPlay,

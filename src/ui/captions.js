@@ -1,10 +1,10 @@
-var Captions = Class({
+var Captions = Class.extend({
 
   video: null,
   languages: null,
   defaultLang: null,
 
-  constructor: function(video) {
+  constructor: function Captions(video) {
     this.video = video;
     this.getLangs(this.onCaptionsLoaded.bind(this));
     this.listenTo(this.video, {
@@ -249,4 +249,4 @@ var Captions = Class({
 
 });
 
-Video.Captions = Captions;
+Video.components.Captions = Captions;

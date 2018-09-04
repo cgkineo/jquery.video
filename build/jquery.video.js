@@ -25,10 +25,12 @@ var toArray = function(args, start) {
 };
 
 var parseUnit = function(value, unit) {
-  value = (value || 0) + unit + "";
-  var unit = value.match(/[^0-9]/);
+  value = String(value || 0) + String(unit || "");
+  var unitMatch = value.match(/[^0-9]+/g);
+  var unit = "px";
+  if (unitMatch) unit = unitMatch[0];
   return {
-    value: parseFloat(value),
+    value: parseFloat(value) || 0,
     unit: unit
   };
 };
@@ -462,27 +464,23 @@ var TimeUpdate = Class({
   onPlay: function(video) {
     this.playing.push(video);
     if (!this.inRaf) {
-      this.rAF(this.onRaf);
+      rAF(this.onRaf);
       this.inRaf = true;
     }
-  },
-
-  rAF: function(cb) {
-    return window.requestAnimationFrame(cb);
   },
 
   onRaf: function() {
     var now = Date.now();
     if (now < this.lastTickTime + this.interval) {
       if (!this.playing.length) return this.inRaf = false;
-      return this.rAF(this.onRaf);
+      return rAF(this.onRaf);
     }
     for (var i = 0, l = this.playing.length; i < l; i++) {
-      var event = new Event('timeupdate');
+      var event = createEvent('timeupdate');
       event.realtime = true;
       this.playing[i].el.dispatchEvent(event);
     }
-    return this.rAF(this.onRaf);
+    return rAF(this.onRaf);
   },
 
   onPause: function(video) {
@@ -542,6 +540,46 @@ $.fn.pause = function() {
 };
 
 }
+
+var Buffer = Class({
+
+  video: null,
+
+  constructor: function(video) {
+    this.video = video;
+    this.listenTo(video, {
+      "timeupdate": this.onTimeUpdate,
+      "destroyed": this.onDestroyed
+    });
+    this.onTimeUpdate();
+  },
+
+  onTimeUpdate: function() {
+    var groups = Video.dom.fetch(this.video);
+    if (!groups.buffer) return;
+    var buffers = groups.buffer;
+    var duration = this.video.el.duration;
+    var buffered = this.video.el.buffered;
+    var length = 0;
+    for (var b = 0, bl = buffered.length; b < bl; b++) {
+      var start = buffered.start(b);
+      var end = buffered.end(b);
+      length += end-start;
+    }
+    var position = (length / duration) || 0;
+    for (var i = 0, l = buffers.length; i < l; i++) {
+      var buffer = buffers[i];
+      buffer.style.width = position * 100 + "%";
+    }
+  },
+
+  onDestroyed: function() {
+    debugger;
+  }
+
+});
+
+Video.components.Buffer = Buffer;
 
 var Captions = Class({
 
@@ -640,10 +678,14 @@ var Captions = Class({
         toRemove.forEach(function(cue) {
           cue.live = false;
           var children = el.querySelectorAll("#"+cue.id+".cue");
-          children.forEach(function(child) { child.remove(); });
+          toArray(children).forEach(function(child) {
+            removeElement(child);
+          });
         });
         var children = el.querySelectorAll(".cue:not([lang="+lang+"])")
-        children.forEach(function(child) { child.remove(); });
+        toArray(children).forEach(function(child) {
+          removeElement(child);
+        });
       }.bind(this));
     }
 
@@ -761,7 +803,8 @@ var Captions = Class({
 
     var langs = {};
 
-    this.video.el.querySelectorAll("track[type='text/vtt']").forEach(function(el) {
+    var tracks = this.video.el.querySelectorAll("track[type='text/vtt']");
+    toArray(tracks).forEach(function(el) {
       var lang = el.getAttribute("srclang");
       var src = el.getAttribute("src");
       if (lang && src) {
@@ -776,7 +819,7 @@ var Captions = Class({
           label: el.getAttribute("label")
         }, onLoaded);
       }
-      el.remove();
+      removeElement(el);
     });
 
     return langs;
@@ -789,24 +832,25 @@ var Captions = Class({
 
 });
 
-Video.Captions = Captions;
+Video.components.Captions = Captions;
 
-var CaptionsController = Class({
+var Controller = Class({
 
   constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
+  this.listenTo(Video, {
+    "created": this.onCreated
+  });
   },
 
-  onCreate: function(video) {
-    new Video.Captions(video)
+  onCreated: function(video) {
+    for (var k in Video.components) {
+      this[k] = new Video.components[k](video);
+    }
   }
 
 });
 
-
-Video.captions = new CaptionsController();
+Video.controller = new Controller();
 
 /*
  Captures DOM elements and groups them according to their for and kind attributes.
@@ -1157,7 +1201,7 @@ var Rail = Class({
     var rails = groups.rail;
     for (var i = 0, l = rails.length; i < l; i++) {
       var rail = rails[i];
-      var position = this.video.el.currentTime / this.video.el.duration;
+      var position = (this.video.el.currentTime / this.video.el.duration) || 0;
       rail.style.width = position * 100 + "%";
     }
   },
@@ -1168,23 +1212,7 @@ var Rail = Class({
 
 });
 
-Video.Rail = Rail;
-
-var RailController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Video.Rail(video)
-  }
-
-});
-
-Video.rail = new RailController();
+Video.components.Rail = Rail;
 
 var Ratio = Class({
 
@@ -1192,6 +1220,7 @@ var Ratio = Class({
 
   constructor: function(video) {
     this.video = video;
+    this.onResize = this.onResize.bind(this);
     this.listenTo(video, {
       "resize": this.onResize,
       "destroyed": this.onDestroyed
@@ -1201,57 +1230,123 @@ var Ratio = Class({
   },
 
   attachEventListeners: function() {
-    this.onResize = this.onResize.bind(this);
-    // window.removeEventListener("resize", this.onResize);
-    // window.addEventListener("resize", this.onResize);
+    window.removeEventListener("resize", this.onResize);
+    window.addEventListener("resize", this.onResize);
   },
 
   onResize: function() {
-    var ratio = this.video.el.getAttribute("size") || "";
+    var size = this.getSize();
+    var parent = this.getParent();
+
+    var el = this.video.el;
+    switch (size.width.unit) {
+      case "contain":
+        el.style['object-fit'] = size.width.unit;
+        if (size.ratio <= parent.ratio) {
+          // height
+          el.style.height = parent.height.value + parent.height.unit;
+          el.style.width = (parent.height.value * size.ratio) + parent.height.unit;
+        } else {
+          // width
+          el.style.width = parent.width.value + parent.width.unit;
+          el.style.height = (parent.width.value / size.ratio)  + parent.width.unit;
+        }
+        break;
+      case "cover":
+        el.style['object-fit'] = size.width.unit;
+        if (size.ratio <= parent.ratio) {
+          //width
+          el.style.width = parent.width.value + parent.width.unit;
+          el.style.height = (parent.width.value / size.ratio)  + parent.width.unit;
+        } else {
+          //height
+          el.style.height = parent.height.value + parent.height.unit;
+          el.style.width = (parent.height.value * size.ratio) + parent.height.unit;
+        }
+        break;
+      case "fill":
+        el.style['object-fit'] = size.width.unit;
+        el.style.height = parent.height.value + parent.height.unit;
+        el.style.width = parent.width.value + parent.width.unit;
+        break;
+      case "none":
+        el.style['object-fit'] = size.width.unit;
+        el.style.height = "";
+        el.style.width = "";
+        break;
+      default:
+        el.style['object-fit'] = "fill";
+        if (size.width.unit !== "auto") {
+          el.style.width = size.width.value + size.width.unit;
+        }
+        if (size.height.unit !== "auto") {
+          el.style.height = size.height.value + size.height.unit;
+        }
+        if (size.width.unit === "auto") {
+          el.style.width = (el.clientHeight * size.ratio)  + "px";
+        }
+        if (size.height.unit === "auto") {
+          el.style.height = (el.clientWidth / size.ratio)  + "px";
+        }
+    }
+
+  },
+
+  getSize: function() {
+    var size = this.video.el.getAttribute("size") || "none";
+    size = size.trim();
+
+    var sizeParts = size.split(" ");
+    var sizeWidth = parseUnit(sizeParts[0] || "auto");
+    var sizeHeight = parseUnit(sizeParts[1] || "auto");
+
+    switch (sizeWidth.unit) {
+      case "contain":
+      case "cover":
+      case "fill":
+      case "none":
+        sizeHeight.unit = sizeWidth.unit;
+        break;
+    }
+
+    return {
+      ratio: this.getRatio(),
+      width: sizeWidth,
+      height: sizeHeight
+    };
+  },
+
+  getRatio: function() {
+    var ratio = this.video.el.getAttribute("ratio") || "16:9";
     ratio = ratio.trim();
     ratio = ratio.replace(/\:/g, " ");
     ratio = ratio.replace(/\//g, " ");
     ratio = ratio.replace(/\*/g, "");
 
-    switch (ratio) {
-      case "contain":
-        debugger;
-        break;
-      case "cover":
-        debugger;
-        break;
-      default:
-        var parts = ratio.split(" ");
-        var width = parts[0] === "" || parts[0] === undefined ? "auto" : parts[0];
-        var height = parts[1] === "" || parts[1] === undefined ? "auto" : parts[1];
-        debugger;
-    }
+    var ratioParts = ratio.split(" ");
+    var ratioWidth = parseUnit(ratioParts[0] || "16");
+    var ratioheight = parseUnit(ratioParts[1] || "9");
 
+    return ratioWidth.value / ratioheight.value;
+  },
+
+  getParent: function() {
+    var offsetParent = this.video.el.offsetParent;
+    var parentSize = offsetParent.getBoundingClientRect();
+    return {
+      ratio: parentSize.width / parentSize.height,
+      width: parseUnit(parentSize.width),
+      height: parseUnit(parentSize.height)
+    };
   },
 
   onDestroyed: function() {
-    //window.removeEventListener("resize", this.onResize);
+    window.removeEventListener("resize", this.onResize);
   }
 
 });
 
-Video.Ratio = Ratio;
-
-var RatioController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Video.Ratio(video)
-  }
-
-});
-
-Video.ratio = new RatioController();
+Video.components.Ratio = Ratio;
 
 var State = Class({
 
@@ -1302,23 +1397,7 @@ var State = Class({
 
 });
 
-Video.State = State;
-
-var StateController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Video.State(video)
-  }
-
-});
-
-Video.state = new StateController();
+Video.components.State = State;
 
 var Toggle = Class({
 
@@ -1368,23 +1447,7 @@ var Toggle = Class({
 
 });
 
-Video.Toggle = Toggle;
-
-var ToggleController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Video.Toggle(video)
-  }
-
-});
-
-Video.toggle = new ToggleController();
+Video.components.Toggle = Toggle;
 
 
 var toggleClass = function(element, classNames, bool) {
@@ -1406,6 +1469,30 @@ var toggleClass = function(element, classNames, bool) {
     if (!found && bool) classList.add(nameItem);
     else if (found && !bool) classList.remove(nameItem);
   }
+};
+
+var removeElement = function(element) {
+  if (element.remove) element.remove();
+  else element.parentNode.removeChild(element);
+};
+
+var createEvent = function(name) {
+  if (!createEvent._ie11) {
+    try {
+      var event = new Event('timeupdate');
+      return event;
+    } catch (e) {
+      createEvent._ie11 = true;
+    }
+  }
+  if (!createEvent._ie11) return;
+  var event = document.createEvent('Event');
+  event.initEvent('timeupdate', true, true);
+  return event;
+};
+
+var rAF = function(cb) {
+  return window.requestAnimationFrame(cb);
 };
 
 /**

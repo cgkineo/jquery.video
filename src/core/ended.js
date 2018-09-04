@@ -3,11 +3,11 @@ This is needed for ie11, sometimes it doesn't call ended properly.
 It forces the ended event to trigger if the duration and current time are
 within 0.01 of each other and the video is paused.
  */
-var Ended = Class({
+var Ended = Class.extend({
 
   floorPrecision: 10,
 
-  constructor: function() {
+  constructor: function Ended() {
     this.listenTo(Video, {
       "play": this.onPlay,
       "pause": this.onPause,

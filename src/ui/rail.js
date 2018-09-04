@@ -1,8 +1,8 @@
-var Rail = Class({
+var Rail = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Rail(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -28,4 +28,4 @@ var Rail = Class({
 
 });
 
-Video.Rail = Rail;
+Video.components.Rail = Rail;

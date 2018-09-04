@@ -1,4 +1,4 @@
-var Lang = Class({
+var Lang = Class.extend({
 
   _cues: null,
   _styles: null,
@@ -9,7 +9,7 @@ var Lang = Class({
   lang: null,
   src: null,
 
-  constructor: function(options, callback) {
+  constructor: function Lang(options, callback) {
     extend(this, options);
     this._fetch(callback);
   },

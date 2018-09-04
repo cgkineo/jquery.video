@@ -1,9 +1,10 @@
-var Video = Class({
+var Video = Class.extend({
 
   id: null,
   selector: null,
   el: null,
   options: null,
+  components: null,
   domEvents: [
     "loadstart",
     "process",
@@ -35,6 +36,7 @@ var Video = Class({
     this.id = ++Video._ids;
     this._ensureElement(selector);
     this.options = options || {};
+    this.components = {};
     this._proxyEvent = this._proxyEvent.bind(this);
     Video.players.push(this);
     Video.trigger("create", this);
@@ -98,7 +100,8 @@ var Video = Class({
   _ids: 0,
   _prop: "player",
 
-  players: []
+  players: [],
+  components: {}
 
 });
 
