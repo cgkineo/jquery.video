@@ -1,4 +1,6 @@
-// check for touch devices
+/*
+Check for touch devices.
+ */
 STORE.isTouchCapable = false;
 var touchListener = function() {
   window.removeEventListener("touchstart", touchListener);

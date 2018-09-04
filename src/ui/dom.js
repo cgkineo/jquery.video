@@ -1,13 +1,18 @@
+/*
+ Captures DOM elements and groups them according to their for and kind attributes.
+ Video.dom.refresh();
+ var UIElements = Video.dom.fetch(video)
+ */
 var DOM = Class({
 
   _videos: null,
-  elements: null,
+  _elements: null,
 
   constructor: function() {
     this._videos = [];
-    this.elements = {};
+    this._elements = {};
     this.listenTo(Video, {
-      "created": this._onCreated,
+      "create": this._onCreated,
       "destroyed": this._onDestroyed
     });
     this.refresh = this.refresh.bind(this);
@@ -34,12 +39,12 @@ var DOM = Class({
   refresh: function() {
     var elements = this._searchNodeList([document.body], "[for][kind]");
     elements = this._filterNodes(elements);
-    this.elements = this._groupNodes(elements);
+    this._elements = this._groupNodes(elements);
   },
 
   fetch: function(video) {
     var id = video.el.id;
-    return this.elements[id] || [];
+    return this._elements[id] || {};
   },
 
   _searchNodeList: function(nodeList, selector) {

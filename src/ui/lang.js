@@ -222,3 +222,5 @@ var Lang = Class({
   _cueid: 0
 
 });
+
+Video.Lang = Lang;

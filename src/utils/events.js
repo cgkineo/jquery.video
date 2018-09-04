@@ -1,7 +1,9 @@
 var Events = {
+
   _listeningTo: null,
   _eventsId: 0,
   _events: null,
+
   listenTo: function(subject, name, callback) {
     if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
@@ -11,6 +13,7 @@ var Events = {
     this._listeningTo[subject.id] = true;
     return this;
   },
+
   listenToOnce: function(subject, name, callback) {
     if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
@@ -20,6 +23,7 @@ var Events = {
     this._listeningTo[subject.id] = true;
     return this;
   },
+
   stopListening: function(subject, name, callback) {
     // check turn on listening on subject and this
     if (!subject) {
@@ -39,6 +43,7 @@ var Events = {
     subject.off(name, callback);
     return this;
   },
+
   on: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -64,6 +69,7 @@ var Events = {
     });
     return this;
   },
+
   once: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -89,6 +95,7 @@ var Events = {
     });
     return this;
   },
+
   off: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -119,6 +126,7 @@ var Events = {
     if (!this._events[name].length) delete this._events[name];
     return this;
   },
+
   trigger: function(name) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     if (!name) return this;
@@ -136,7 +144,9 @@ var Events = {
     }
     if (!this._events[name].length) delete this._events[name];
   },
+
   destroy: function() {
     this.off();
   }
+
 };

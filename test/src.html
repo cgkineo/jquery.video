@@ -2,64 +2,90 @@
 <html>
 <head>
     <script src="./jquery.v2.js"></script>
-    <script src="../src/jquery.video.utils.js"></script>
-    <script src="../src/jquery.video.core.js"></script>
-    <script src="../src/jquery.video.realtime.js"></script>
-    <script src="../src/jquery.video.captions.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.captions.css" />
-    <script src="../src/jquery.video.poster.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.poster.css" />
-    <script src="../src/jquery.video.controls.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.controls.css" />
-    <script src="../src/jquery.video.buffering.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.buffering.css" />
-    <script src="../src/jquery.video.scrub.js"></script>
-    <link rel="stylesheet" href="../src/jquery.video.scrub.css" />
-    <style> 
+    <script src="../src/utils/store.js"></script>
+    <script src="../src/utils/constants.js"></script>
+    <script src="../src/utils/arrays.js"></script>
+    <script src="../src/utils/objects.js"></script>
+    <script src="../src/utils/strings.js"></script>
+    <script src="../src/utils/units.js"></script>
+    <script src="../src/utils/regex.js"></script>
+    <script src="../src/utils/timing.js"></script>
+    <script src="../src/utils/device.js"></script>
+    <script src="../src/utils/events.js"></script>
+    <script src="../src/utils/properties.js"></script>
+    <script src="../src/utils/class.js"></script>
+    <script src="../src/core/core.js"></script>
+    <script src="../src/utils/device.js"></script>
+    <script src="../src/utils/dom.js"></script>
+    <script src="../src/core/ended.js"></script>
+    <script src="../src/core/timeupdate.js"></script>
+    <script src="../src/ui/buffer.js"></script>
+    <script src="../src/ui/bufferController.js"></script>
+    <script src="../src/ui/captions.js"></script>
+    <script src="../src/ui/captionsController.js"></script>
+    <script src="../src/ui/dom.js"></script>
+    <script src="../src/ui/lang.js"></script>
+    <script src="../src/ui/poster.js"></script>
+    <script src="../src/ui/rail.js"></script>
+    <script src="../src/ui/railController.js"></script>
+    <script src="../src/ui/ratio.js"></script>
+    <script src="../src/ui/ratioController.js"></script>
+    <script src="../src/ui/state.js"></script>
+    <script src="../src/ui/stateController.js"></script>
+    <script src="../src/ui/toggle.js"></script>
+    <script src="../src/ui/toggleController.js"></script>
+    <script src="../src/ui/waiting.js"></script>
+    <script src="../src/integration/jquery.js"></script>
+    <style>
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
 
         .video-container {
             display: inline-block;
-            position: relative;
-            font-size: 0;
-            line-height: 0;
         }
 
-        [for][kind=buffering] {
-            background: rgba(255, 0, 0, 0.28);
+        .video-container .rail {
+            height: 16px;
         }
-        
+        .video-container .rail-inner,
+        .video-container .buffer-inner {
+            height:  100%;
+            background: red;
+        }
+
+        .video-container
+
     </style>
 </head>
     <body>
 
         <div class="video-container">
-
-            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg">
+            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="900px auto" ratio="16:9">
                 <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
-                    <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
+                <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
             </video>
-
-            <div for="c-40" kind="captions" srclang="en">
-
-            </div>
-
-            <div for="c-40" kind="poster"></div>
-
-            <div for="c-40" kind="buffering"></div>
-
-            <div for="c-40" kind="controls" class="controls toggle">
-                <button class="big-play play">Play</button>
-                <div class="scrub no-control">
-                    <div class="little-playpause toggle"></div>
+            <div class="captions" for="c-40" kind="captions" srclang="en"></div>
+            <div class="poster" for="c-40" kind="poster"></div>
+            <div class="waiting" for="c-40" kind="waiting"></div>
+            <div class="controls">
+                <button class="big-play" for="c-40" kind="toggle">Play</button>
+                <div class="scrub" for="c-40" kind="state">
+                    <div class="little-playpause" for="c-40" kind="toggle"></div>
                     <div class="rail">
                         <div class="rail-back">
                         </div>
-                        <div class="rail-inner">
+                        <div class="rail-inner" for="c-40" kind="rail">
+                        </div>
+                        <div class="buffer-inner" for="c-40" kind="buffer">
                         </div>
                     </div>
                 </div>
             </div>
-         
         </div>
     </body>
     <script>

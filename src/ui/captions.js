@@ -1,17 +1,3 @@
-var CaptionsController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Captions(video)
-  }
-
-});
-
 var Captions = Class({
 
   video: null,
@@ -22,8 +8,10 @@ var Captions = Class({
     this.video = video;
     this.getLangs(this.onCaptionsLoaded.bind(this));
     this.listenTo(this.video, {
-      "timeupdate": this.onTimeUpdate
+      "timeupdate": this.onTimeUpdate,
+      "destroyed": this.onDestroyed
     });
+    this.onTimeUpdate();
   },
 
   onCaptionsLoaded: function(langs) {
@@ -38,8 +26,8 @@ var Captions = Class({
 
   onTimeUpdate: function(event) {
 
-    // skip realtime triggers, captions never need to be realtime
-    if (event.realtime) return;
+    // Skip realtime triggers, captions never need to be realtime
+    if (event && event.realtime) return;
     if (!this.languages) return;
 
     var ct = this.video.el.currentTime;
@@ -248,8 +236,12 @@ var Captions = Class({
 
     return langs;
 
+  },
+
+  onDestroyed: function() {
+    debugger;
   }
 
 });
 
-Video.captions = new CaptionsController();
+Video.Captions = Captions;

@@ -1,12 +1,36 @@
 (function($){$("<style>",{text:""}).appendTo("head");
-var STORE = {
-    isTouchCapable: false
-};
+/*
+Library local storage variable.
+ */
+var STORE = {};
 
 var p = "prototype";
 
-var delay = function(callback, time) {
-  setTimeout(callback, time);
+var toArray = function(args, start) {
+  return Array[p].slice.call(args, start || 0);
+};
+
+var extend = function(subject) {
+  for (var i = 1, l = arguments.length; i < l; i++) {
+    var arg = arguments[i];
+    for (var k in arg) {
+      subject[k] = arg[k];
+    }
+  }
+  return subject;
+};
+
+var toArray = function(args, start) {
+  return Array[p].slice.call(args, start || 0);
+};
+
+var parseUnit = function(value, unit) {
+  value = (value || 0) + unit + "";
+  var unit = value.match(/[^0-9]/);
+  return {
+    value: parseFloat(value),
+    unit: unit
+  };
 };
 
 var indexOfRegex = function(value, regex, fromIndex){
@@ -23,15 +47,8 @@ var lastIndexOfRegex = function(value, regex, fromIndex){
   return match ? str.lastIndexOf(match[match.length-1]) : -1;
 };
 
-var chain = function(original, callback) {
-  return function() {
-    var args = Array[p].slice.call(arguments, 0);
-    args.unshift(function() {
-      var args = Array[p].slice.call(arguments, 0);
-      return original.apply(this, args);
-    }.bind(this));
-    return callback.apply(this, args);
-  };
+var delay = function(callback, time) {
+  setTimeout(callback, time);
 };
 
 var debounce = function(func, time) {
@@ -45,30 +62,22 @@ var debounce = function(func, time) {
   }
 };
 
-var toArray = function(args, start) {
-  return Array.prototype.slice.call(args, start || 0);
-};
-
-var extend = function(subject) {
-  for (var i = 1, l = arguments.length; i < l; i++) {
-    var arg = arguments[i];
-    for (var k in arg) {
-      subject[k] = arg[k];
-    }
-  }
-  return subject;
-};
-// check for touch devices
+/*
+Check for touch devices.
+ */
 STORE.isTouchCapable = false;
 var touchListener = function() {
   window.removeEventListener("touchstart", touchListener);
   STORE.isTouchCapable = true;
 };
 window.addEventListener("touchstart", touchListener);
+
 var Events = {
+
   _listeningTo: null,
   _eventsId: 0,
   _events: null,
+
   listenTo: function(subject, name, callback) {
     if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
@@ -78,6 +87,7 @@ var Events = {
     this._listeningTo[subject.id] = true;
     return this;
   },
+
   listenToOnce: function(subject, name, callback) {
     if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
@@ -87,6 +97,7 @@ var Events = {
     this._listeningTo[subject.id] = true;
     return this;
   },
+
   stopListening: function(subject, name, callback) {
     // check turn on listening on subject and this
     if (!subject) {
@@ -106,6 +117,7 @@ var Events = {
     subject.off(name, callback);
     return this;
   },
+
   on: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -131,6 +143,7 @@ var Events = {
     });
     return this;
   },
+
   once: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -156,6 +169,7 @@ var Events = {
     });
     return this;
   },
+
   off: function(name, callback, subject) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     switch (typeof name) {
@@ -186,6 +200,7 @@ var Events = {
     if (!this._events[name].length) delete this._events[name];
     return this;
   },
+
   trigger: function(name) {
     if (!this._eventsId) this._eventsId = ++Events._eventsId;
     if (!name) return this;
@@ -203,34 +218,74 @@ var Events = {
     }
     if (!this._events[name].length) delete this._events[name];
   },
+
   destroy: function() {
     this.off();
   }
-};
-var properties = function(object) {
-  var properties = {};
-  if (object.$set) {
-    for (var k in object.$set) {
-      properties[k] = properties[k] || {};
-      properties[k].set = object.$set[k];
-    }
-  }
-  if (object.$get) {
-    for (var k in object.$set) {
-      properties[k] = properties[k] || {};
-      properties[k].get = object.$set[k];
-    }
-  }
-  Object.defineProperties(object, properties);
+
 };
 
-var Class = function(prototype, parent) {
-  var c = prototype.constructor === Object ?
+/**
+ * A tool for easily creating getter and setters in ES5
+ * Class({
+ *   $set: {
+ *     propName: function(value) {
+ *       this._propName = value;
+ *     }
+ *   },
+ *   $get: {
+ *     propName: function() {
+ *       return this._propName;
+ *     }
+ *   }
+ * });
+ * @param  {Object} cls Class on which to apply properties pattern
+ * @return {Object}     Return cls, modified.
+ */
+var properties = function(cls) {
+  var props = {};
+  if (cls.$set) {
+    for (var k in cls.$set) {
+      props[k] = props[k] || {};
+      props[k].set = cls.$set[k];
+    }
+  }
+  if (cls.$get) {
+    for (var k in cls.$set) {
+      props[k] = props[k] || {};
+      props[k].get = cls.$set[k];
+    }
+  }
+  Object.defineProperties(cls, props);
+  return cls;
+};
+
+/**
+ * A simple class implementation akin to Backbonejs.
+ * var cls = Class({
+ *  instanceFunction: function() {
+ *    console.log("parent function");
+ *  }
+ * }, {
+ *  classFunction: function() {
+ *    console.log("class function");
+ *  }
+ * });
+ * @param {Object} proto  An object describing the Class prototype properties.
+ * @param {Object} parent An object describing the Class properties.
+ */
+var Class = function(proto, cls) {
+  // Capture constructor function
+  var c = proto.constructor === Object ?
     function() {} :
-    prototype.constructor;
-  extend(c.prototype, Events, prototype || {});
-  extend(c, Events, parent || {});
-  properties(c.prototype);
+    proto.constructor;
+  // Add Events and proto properties to contructor prototype
+  extend(c[p], Events, proto || {});
+  // Add Events and cls properties to constructor
+  extend(c, Events, cls || {});
+  // Apply properties pattern to constructor prototype
+  properties(c[p]);
+  // Apply properties pattern to constructor
   properties(c);
   return c;
 };
@@ -264,7 +319,8 @@ var Video = Class({
     "pause",
     "ratechange",
     "resize",
-    "volumechange"
+    "volumechange",
+    "resize"
   ],
 
   constructor: function Video(selector, options) {
@@ -339,35 +395,40 @@ var Video = Class({
 });
 
 window.Video = Video;
-// This is needed for ie11, sometimes it doesn't call ended properly.
-var FixEnded = Class({
+
+/*
+This is needed for ie11, sometimes it doesn't call ended properly.
+It forces the ended event to trigger if the duration and current time are
+within 0.01 of each other and the video is paused.
+ */
+var Ended = Class({
 
   floorPrecision: 10,
 
   constructor: function() {
     this.listenTo(Video, {
-      "ended": this.onEnded,
       "play": this.onPlay,
-      "pause": this.onPause
+      "pause": this.onPause,
+      "ended": this.onEnded
     });
   },
 
   onPlay: function(video) {
-    video.hasEnded = false;
+    video._isAtEnd = false;
   },
 
   onPause: function(video) {
-    if (!this.isEnded(video) || video.hasEnded) return;
+    if (!this.isEnded(video) || video._isAtEnd) return;
     setTimeout(function() {
       if (!video.el) return;
-      if (video.hasEnded) return;
+      if (video._isAtEnd) return;
       if (!this.isEnded(video)) return;
       video.el.dispatchEvent(new Event('ended'));
     }.bind(this), 150);
   },
 
   onEnded: function(video) {
-    video.hasEnded = true;
+    video._isAtEnd = true;
   },
 
   isEnded: function(video) {
@@ -376,14 +437,13 @@ var FixEnded = Class({
 
 });
 
-Video.fixended = new FixEnded();
+Video.ended = new Ended();
 
-// This makes timeupdate events trigger at greater frequency
-var raf = function(cb) {
-  return window.requestAnimationFrame(cb);
-};
-
-var Realtime = Class({
+/*
+This makes timeupdate events trigger at greater frequency, every 62.5 milliseconds
+rather than 250ms in most browsers.
+*/
+var TimeUpdate = Class({
 
   playing: null,
   interval: 62.5,
@@ -402,23 +462,27 @@ var Realtime = Class({
   onPlay: function(video) {
     this.playing.push(video);
     if (!this.inRaf) {
-      raf(this.onRaf);
+      this.rAF(this.onRaf);
       this.inRaf = true;
     }
+  },
+
+  rAF: function(cb) {
+    return window.requestAnimationFrame(cb);
   },
 
   onRaf: function() {
     var now = Date.now();
     if (now < this.lastTickTime + this.interval) {
       if (!this.playing.length) return this.inRaf = false;
-      return raf(this.onRaf);
+      return this.rAF(this.onRaf);
     }
     for (var i = 0, l = this.playing.length; i < l; i++) {
       var event = new Event('timeupdate');
       event.realtime = true;
       this.playing[i].el.dispatchEvent(event);
     }
-    return raf(this.onRaf);
+    return this.rAF(this.onRaf);
   },
 
   onPause: function(video) {
@@ -430,7 +494,7 @@ var Realtime = Class({
 
 });
 
-Video.realtime = new Realtime();
+Video.timeupdate = new TimeUpdate();
 
 if ($ && $.fn) {
 // jQuery API
@@ -458,20 +522,26 @@ $.fn.videos = function(options) {
   return $videos;
 
 };
+
+$.fn.play = function() {
+  var $videos = this.find("video");
+  $videos = $videos.add(this.filter("video"));
+  $videos.each(function(index, item) {
+    if (item.tagName !== "VIDEO") return;
+    item.play();
+  });
+};
+
+$.fn.pause = function() {
+  var $videos = this.find("video");
+  $videos = $videos.add(this.filter("video"));
+  $videos.each(function(index, item) {
+    if (item.tagName !== "VIDEO") return;
+    item.pause();
+  });
+};
+
 }
-var CaptionsController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Captions(video)
-  }
-
-});
 
 var Captions = Class({
 
@@ -483,8 +553,10 @@ var Captions = Class({
     this.video = video;
     this.getLangs(this.onCaptionsLoaded.bind(this));
     this.listenTo(this.video, {
-      "timeupdate": this.onTimeUpdate
+      "timeupdate": this.onTimeUpdate,
+      "destroyed": this.onDestroyed
     });
+    this.onTimeUpdate();
   },
 
   onCaptionsLoaded: function(langs) {
@@ -499,8 +571,8 @@ var Captions = Class({
 
   onTimeUpdate: function(event) {
 
-    // skip realtime triggers, captions never need to be realtime
-    if (event.realtime) return;
+    // Skip realtime triggers, captions never need to be realtime
+    if (event && event.realtime) return;
     if (!this.languages) return;
 
     var ct = this.video.el.currentTime;
@@ -709,22 +781,48 @@ var Captions = Class({
 
     return langs;
 
+  },
+
+  onDestroyed: function() {
+    debugger;
   }
 
 });
 
+Video.Captions = Captions;
+
+var CaptionsController = Class({
+
+  constructor: function() {
+    this.listenTo(Video, {
+      "create": this.onCreate
+    });
+  },
+
+  onCreate: function(video) {
+    new Video.Captions(video)
+  }
+
+});
+
+
 Video.captions = new CaptionsController();
 
+/*
+ Captures DOM elements and groups them according to their for and kind attributes.
+ Video.dom.refresh();
+ var UIElements = Video.dom.fetch(video)
+ */
 var DOM = Class({
 
   _videos: null,
-  elements: null,
+  _elements: null,
 
   constructor: function() {
     this._videos = [];
-    this.elements = {};
+    this._elements = {};
     this.listenTo(Video, {
-      "created": this._onCreated,
+      "create": this._onCreated,
       "destroyed": this._onDestroyed
     });
     this.refresh = this.refresh.bind(this);
@@ -751,12 +849,12 @@ var DOM = Class({
   refresh: function() {
     var elements = this._searchNodeList([document.body], "[for][kind]");
     elements = this._filterNodes(elements);
-    this.elements = this._groupNodes(elements);
+    this._elements = this._groupNodes(elements);
   },
 
   fetch: function(video) {
     var id = video.el.id;
-    return this.elements[id] || [];
+    return this._elements[id] || {};
   },
 
   _searchNodeList: function(nodeList, selector) {
@@ -1037,6 +1135,40 @@ var Lang = Class({
 
 });
 
+Video.Lang = Lang;
+
+
+var Rail = Class({
+
+  video: null,
+
+  constructor: function(video) {
+    this.video = video;
+    this.listenTo(video, {
+      "timeupdate": this.onTimeUpdate,
+      "destroyed": this.onDestroyed
+    });
+    this.onTimeUpdate();
+  },
+
+  onTimeUpdate: function() {
+    var groups = Video.dom.fetch(this.video);
+    if (!groups.rail) return;
+    var rails = groups.rail;
+    for (var i = 0, l = rails.length; i < l; i++) {
+      var rail = rails[i];
+      var position = this.video.el.currentTime / this.video.el.duration;
+      rail.style.width = position * 100 + "%";
+    }
+  },
+
+  onDestroyed: function() {
+    debugger;
+  }
+
+});
+
+Video.Rail = Rail;
 
 var RailController = Class({
 
@@ -1047,12 +1179,83 @@ var RailController = Class({
   },
 
   onCreate: function(video) {
-    new Rail(video)
+    new Video.Rail(video)
   }
 
 });
 
-var Rail = Class({
+Video.rail = new RailController();
+
+var Ratio = Class({
+
+  video: null,
+
+  constructor: function(video) {
+    this.video = video;
+    this.listenTo(video, {
+      "resize": this.onResize,
+      "destroyed": this.onDestroyed
+    });
+    this.attachEventListeners();
+    this.onResize();
+  },
+
+  attachEventListeners: function() {
+    this.onResize = this.onResize.bind(this);
+    // window.removeEventListener("resize", this.onResize);
+    // window.addEventListener("resize", this.onResize);
+  },
+
+  onResize: function() {
+    var ratio = this.video.el.getAttribute("size") || "";
+    ratio = ratio.trim();
+    ratio = ratio.replace(/\:/g, " ");
+    ratio = ratio.replace(/\//g, " ");
+    ratio = ratio.replace(/\*/g, "");
+
+    switch (ratio) {
+      case "contain":
+        debugger;
+        break;
+      case "cover":
+        debugger;
+        break;
+      default:
+        var parts = ratio.split(" ");
+        var width = parts[0] === "" || parts[0] === undefined ? "auto" : parts[0];
+        var height = parts[1] === "" || parts[1] === undefined ? "auto" : parts[1];
+        debugger;
+    }
+
+  },
+
+  onDestroyed: function() {
+    //window.removeEventListener("resize", this.onResize);
+  }
+
+});
+
+Video.Ratio = Ratio;
+
+var RatioController = Class({
+
+  constructor: function() {
+    this.listenTo(Video, {
+      "create": this.onCreate
+    });
+  },
+
+  onCreate: function(video) {
+    new Video.Ratio(video)
+  }
+
+});
+
+Video.ratio = new RatioController();
+
+var State = Class({
+
+  floorPrecision: 10,
 
   video: null,
 
@@ -1060,42 +1263,197 @@ var Rail = Class({
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
-      "destroy": this.destroy()
+      "destroyed": this.onDestroyed
     });
+    this.onTimeUpdate();
   },
 
   onTimeUpdate: function() {
-    var forId = this.video.el.id;
-    if (!Video.dom.elements[forId]) return;
-    if (!Video.dom.elements[forId]['rail']) return;
-    var rails = Video.dom.elements[forId]['rail'];
-    for (var i = 0, l = rails.length; i < l; i++) {
-      var rail = rails[i];
-      var position = this.video.el.currentTime / this.video.el.duration;
-      rail.style.width = position * 100 + "%";
+    var groups = Video.dom.fetch(this.video);
+    if (!groups.state) return;
+    var states = groups.state;
+    var isAtStart = this.isAtStart();
+    var isAtEnd = this.isAtEnd();
+    var isPaused = this.video.el.paused;
+    for (var i = 0, l = states.length; i < l; i++) {
+      var state = states[i];
+      toggleClass(state, "is-playing", !isPaused);
+      toggleClass(state, "is-paused", isPaused);
+      toggleClass(state, "is-start", isAtStart);
+      toggleClass(state, "is-end", isAtEnd);
+      toggleClass(state, "is-middle", !isAtEnd && !isAtStart);
     }
+  },
+
+  isAtStart: function() {
+    var currentTime = this.video.el.currentTime;
+    return (Math.floor(currentTime*this.floorPrecision) <= 1);
+  },
+
+  isAtEnd: function() {
+    var currentTime = this.video.el.currentTime;
+    var duration = this.video.el.duration;
+    return (Math.abs(Math.floor(currentTime*this.floorPrecision) - Math.floor(duration*this.floorPrecision)) <= 1);
+  },
+
+  onDestroyed: function() {
+    debugger;
   }
 
 });
 
-Video.rail = new RailController();
+Video.State = State;
+
+var StateController = Class({
+
+  constructor: function() {
+    this.listenTo(Video, {
+      "create": this.onCreate
+    });
+  },
+
+  onCreate: function(video) {
+    new Video.State(video)
+  }
+
+});
+
+Video.state = new StateController();
+
+var Toggle = Class({
+
+  video: null,
+
+  constructor: function(video) {
+    this.video = video;
+    this.listenTo(video, {
+      "pause play": this.onUpdate
+    });
+    this.attachEventListeners();
+    this.onUpdate();
+  },
+
+  attachEventListeners: function() {
+    this.onClick = this.onClick.bind(this);
+    var groups = Video.dom.fetch(this.video);
+    groups.toggle && groups.toggle.forEach(function(el) {
+      el.removeEventListener('click', this.onClick);
+      el.addEventListener('click', this.onClick);
+    }.bind(this));
+  },
+
+  onUpdate: function() {
+    var groups = Video.dom.fetch(this.video);
+    var isPaused = this.video.el.paused;
+    groups.toggle && groups.toggle.forEach(function(el) {
+      toggleClass(el, "should-play", isPaused);
+      toggleClass(el, "should-pause", !isPaused);
+    });
+  },
+
+  onClick: function() {
+    var isPaused = this.video.el.paused;
+    if (isPaused) this.video.el.play();
+    else this.video.el.pause();
+    this.onUpdate();
+  },
+
+  onDestroyed: function() {
+    var groups = Video.dom.fetch(this.video);
+    groups.toggle && groups.toggle.forEach(function(el) {
+      el.removeEventListener('click', this.onClick);
+      el.addEventListener('click', this.onClick);
+    }.bind(this));
+  }
+
+});
+
+Video.Toggle = Toggle;
+
+var ToggleController = Class({
+
+  constructor: function() {
+    this.listenTo(Video, {
+      "create": this.onCreate
+    });
+  },
+
+  onCreate: function(video) {
+    new Video.Toggle(video)
+  }
+
+});
+
+Video.toggle = new ToggleController();
 
 
+var toggleClass = function(element, classNames, bool) {
+  switch (typeof classNames) {
+    case "string":
+      classNames = classNames.split(" ");
+      break;
+  }
+  bool = (bool === undefined) ? true : bool;
+  var classList = element.classList;
+  for (var n = 0, nl = classNames.length; n < nl; n++) {
+    var nameItem = classNames[n];
+    var found = false;
+    for (var i = 0, l = classList.length; i < l; i++) {
+      var classItem = classList[i];
+      if (classItem !== nameItem) continue;
+      found = true;
+    }
+    if (!found && bool) classList.add(nameItem);
+    else if (found && !bool) classList.remove(nameItem);
+  }
+};
 
-var properties = function(object) {
-  var properties = {};
-  if (object.$set) {
-    for (var k in object.$set) {
-      properties[k] = properties[k] || {};
-      properties[k].set = object.$set[k];
+/**
+ * A tool for easily creating getter and setters in ES5
+ * Class({
+ *   $set: {
+ *     propName: function(value) {
+ *       this._propName = value;
+ *     }
+ *   },
+ *   $get: {
+ *     propName: function() {
+ *       return this._propName;
+ *     }
+ *   }
+ * });
+ * @param  {Object} cls Class on which to apply properties pattern
+ * @return {Object}     Return cls, modified.
+ */
+var properties = function(cls) {
+  var props = {};
+  if (cls.$set) {
+    for (var k in cls.$set) {
+      props[k] = props[k] || {};
+      props[k].set = cls.$set[k];
     }
   }
-  if (object.$get) {
-    for (var k in object.$set) {
-      properties[k] = properties[k] || {};
-      properties[k].get = object.$set[k];
+  if (cls.$get) {
+    for (var k in cls.$set) {
+      props[k] = props[k] || {};
+      props[k].get = cls.$set[k];
     }
   }
-  Object.defineProperties(object, properties);
+  Object.defineProperties(cls, props);
+  return cls;
+};
+
+var indexOfRegex = function(value, regex, fromIndex){
+  fromIndex = fromIndex || 0;
+  var str = fromIndex ? value.substring(fromIndex) : value;
+  var match = str.match(regex);
+  return match ? str.indexOf(match[0]) + fromIndex : -1;
+};
+
+var lastIndexOfRegex = function(value, regex, fromIndex){
+  fromIndex = fromIndex || 0;
+  var str = fromIndex ? value.substring(0, fromIndex) : value;
+  var match = str.match(regex);
+  return match ? str.lastIndexOf(match[match.length-1]) : -1;
 };
 })(jQuery);

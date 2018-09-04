@@ -5,12 +5,13 @@
     <script src="../build/jquery.video.js"></script>
     <style>
 
-        /*.video-container {
-            display: inline-block;
-            position: relative;
-            font-size: 0;
-            line-height: 0;
-        }*/
+        .rail {
+            height: 16px;
+        }
+        .rail-inner {
+            height:  100%;
+            background: red;
+        }
 
         [for][kind=buffering] {
             background: rgba(255, 0, 0, 0.28);
@@ -37,7 +38,7 @@
 
             <div class="controls">
                 <button for="c-40" class="big-play" kind="toggle">Play</button>
-                <div class="scrub">
+                <div class="scrub" for="c-40" kind="state">
                     <div for="c-40" class="little-playpause" kind="toggle"></div>
                     <div class="rail">
                         <div class="rail-back">

@@ -1,9 +1,8 @@
-// This makes timeupdate events trigger at greater frequency
-var raf = function(cb) {
-  return window.requestAnimationFrame(cb);
-};
-
-var Realtime = Class({
+/*
+This makes timeupdate events trigger at greater frequency, every 62.5 milliseconds
+rather than 250ms in most browsers.
+*/
+var TimeUpdate = Class({
 
   playing: null,
   interval: 62.5,
@@ -22,23 +21,27 @@ var Realtime = Class({
   onPlay: function(video) {
     this.playing.push(video);
     if (!this.inRaf) {
-      raf(this.onRaf);
+      this.rAF(this.onRaf);
       this.inRaf = true;
     }
+  },
+
+  rAF: function(cb) {
+    return window.requestAnimationFrame(cb);
   },
 
   onRaf: function() {
     var now = Date.now();
     if (now < this.lastTickTime + this.interval) {
       if (!this.playing.length) return this.inRaf = false;
-      return raf(this.onRaf);
+      return this.rAF(this.onRaf);
     }
     for (var i = 0, l = this.playing.length; i < l; i++) {
       var event = new Event('timeupdate');
       event.realtime = true;
       this.playing[i].el.dispatchEvent(event);
     }
-    return raf(this.onRaf);
+    return this.rAF(this.onRaf);
   },
 
   onPause: function(video) {
@@ -50,4 +53,4 @@ var Realtime = Class({
 
 });
 
-Video.realtime = new Realtime();
+Video.timeupdate = new TimeUpdate();

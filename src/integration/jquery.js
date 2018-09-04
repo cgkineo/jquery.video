@@ -24,4 +24,23 @@ $.fn.videos = function(options) {
   return $videos;
 
 };
+
+$.fn.play = function() {
+  var $videos = this.find("video");
+  $videos = $videos.add(this.filter("video"));
+  $videos.each(function(index, item) {
+    if (item.tagName !== "VIDEO") return;
+    item.play();
+  });
+};
+
+$.fn.pause = function() {
+  var $videos = this.find("video");
+  $videos = $videos.add(this.filter("video"));
+  $videos.each(function(index, item) {
+    if (item.tagName !== "VIDEO") return;
+    item.pause();
+  });
+};
+
 }

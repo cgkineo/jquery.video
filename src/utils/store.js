@@ -1,3 +1,4 @@
-var STORE = {
-    isTouchCapable: false
-};
+/*
+Library local storage variable.
+ */
+var STORE = {};

@@ -27,7 +27,8 @@ var Video = Class({
     "pause",
     "ratechange",
     "resize",
-    "volumechange"
+    "volumechange",
+    "resize"
   ],
 
   constructor: function Video(selector, options) {

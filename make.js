@@ -38,7 +38,13 @@ fsg.stats({
 }).then((files)=>{
 
     files['store.js'] = fs.readFileSync("./src/utils/store.js").toString();
-    files['util.js'] = fs.readFileSync("./src/utils/utils.js").toString();
+    files['constants.js'] = fs.readFileSync("./src/utils/constants.js").toString();
+    files['arrays.js'] = fs.readFileSync("./src/utils/arrays.js").toString();
+    files['objects.js'] = fs.readFileSync("./src/utils/objects.js").toString();
+    files['strings.js'] = fs.readFileSync("./src/utils/arrays.js").toString();
+    files['units.js'] = fs.readFileSync("./src/utils/units.js").toString();
+    files['regex.js'] = fs.readFileSync("./src/utils/regex.js").toString();
+    files['timing.js'] = fs.readFileSync("./src/utils/timing.js").toString();
     files['device.js'] = fs.readFileSync("./src/utils/device.js").toString();
     files['events.js'] = fs.readFileSync("./src/utils/events.js").toString();
     files['properties.js'] = fs.readFileSync("./src/utils/properties.js").toString();
@@ -50,6 +56,12 @@ fsg.stats({
             "*.js",
             "**/*.js",
             "!utils/store.js",
+            "!utils/constants.js",
+            "!utils/arrays.js",
+            "!utils/objects.js",
+            "!utils/strings.js",
+            "!utils/units.js",
+            "!utils/timing.js",
             "!utils/utils.js",
             "!utils/device.js",
             "!utils/events.js",

@@ -1,17 +1,3 @@
-var RailController = Class({
-
-  constructor: function() {
-    this.listenTo(Video, {
-      "create": this.onCreate
-    });
-  },
-
-  onCreate: function(video) {
-    new Rail(video)
-  }
-
-});
-
 var Rail = Class({
 
   video: null,
@@ -20,22 +6,26 @@ var Rail = Class({
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
-      "destroy": this.destroy()
+      "destroyed": this.onDestroyed
     });
+    this.onTimeUpdate();
   },
 
   onTimeUpdate: function() {
-    var forId = this.video.el.id;
-    if (!Video.dom.elements[forId]) return;
-    if (!Video.dom.elements[forId]['rail']) return;
-    var rails = Video.dom.elements[forId]['rail'];
+    var groups = Video.dom.fetch(this.video);
+    if (!groups.rail) return;
+    var rails = groups.rail;
     for (var i = 0, l = rails.length; i < l; i++) {
       var rail = rails[i];
-      var position = this.video.el.currentTime / this.video.el.duration;
+      var position = (this.video.el.currentTime / this.video.el.duration) || 0;
       rail.style.width = position * 100 + "%";
     }
+  },
+
+  onDestroyed: function() {
+    debugger;
   }
 
 });
 
-Video.rail = new RailController();
+Video.Rail = Rail;

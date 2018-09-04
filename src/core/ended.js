@@ -1,32 +1,36 @@
-// This is needed for ie11, sometimes it doesn't call ended properly.
-var FixEnded = Class({
+/*
+This is needed for ie11, sometimes it doesn't call ended properly.
+It forces the ended event to trigger if the duration and current time are
+within 0.01 of each other and the video is paused.
+ */
+var Ended = Class({
 
   floorPrecision: 10,
 
   constructor: function() {
     this.listenTo(Video, {
-      "ended": this.onEnded,
       "play": this.onPlay,
-      "pause": this.onPause
+      "pause": this.onPause,
+      "ended": this.onEnded
     });
   },
 
   onPlay: function(video) {
-    video.hasEnded = false;
+    video._isAtEnd = false;
   },
 
   onPause: function(video) {
-    if (!this.isEnded(video) || video.hasEnded) return;
+    if (!this.isEnded(video) || video._isAtEnd) return;
     setTimeout(function() {
       if (!video.el) return;
-      if (video.hasEnded) return;
+      if (video._isAtEnd) return;
       if (!this.isEnded(video)) return;
       video.el.dispatchEvent(new Event('ended'));
     }.bind(this), 150);
   },
 
   onEnded: function(video) {
-    video.hasEnded = true;
+    video._isAtEnd = true;
   },
 
   isEnded: function(video) {
@@ -35,4 +39,4 @@ var FixEnded = Class({
 
 });
 
-Video.fixended = new FixEnded();
+Video.ended = new Ended();
