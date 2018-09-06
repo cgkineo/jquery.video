@@ -11,7 +11,7 @@ fsg.stats({
     location: "./src"
 }).then((stats)=>{
 
-    var cssJS = '$("<style>",{text:"';
+    var cssJS = 'if ($) $("<style>",{text:"';
     return stats.each((stat, next, resolve)=>{
 
         if (!stat) return resolve();
@@ -50,6 +50,7 @@ fsg.stats({
     files['properties.js'] = fs.readFileSync("./src/utils/properties.js").toString();
     files['class.js'] = fs.readFileSync("./src/utils/class.js").toString();
     files['core.js'] = fs.readFileSync("./src/core/core.js").toString();
+    files['stream.js'] = fs.readFileSync("./src/utils/stream.js").toString();
 
     return fsg.stats({
         globs: [
@@ -66,7 +67,8 @@ fsg.stats({
             "!utils/device.js",
             "!utils/events.js",
             "!utils/class.js",
-            "!core/core.js"
+            "!core/core.js",
+            "!utils/stream.js"
         ],
         location: "./src"
     }).then((stats)=>{
@@ -110,7 +112,7 @@ fsg.stats({
     for (var k in files) values.push(files[k]);
 
     fsg.mkdir("./build");
-    fs.writeFileSync("./build/jquery.video.js", "(function($){"+values.join("\n")+"})(jQuery);");
-    fs.writeFileSync("./build/jquery.video.min.js", "(function($){"+result.code+"})(jQuery);");
+    fs.writeFileSync("./build/jquery.video.js", "(function(window, $){"+values.join("\n")+"})(this,this.jQuery);");
+    fs.writeFileSync("./build/jquery.video.min.js", "(function(window, $){"+result.code+"})(this,this.jQuery);");
 
 });

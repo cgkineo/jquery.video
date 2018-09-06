@@ -2,38 +2,57 @@
 <html>
 <head>
     <script src="./jquery.v2.js"></script>
-    <script src="../src/utils/store.js"></script>
-    <script src="../src/utils/constants.js"></script>
-    <script src="../src/utils/arrays.js"></script>
-    <script src="../src/utils/objects.js"></script>
-    <script src="../src/utils/strings.js"></script>
-    <script src="../src/utils/units.js"></script>
-    <script src="../src/utils/regex.js"></script>
-    <script src="../src/utils/timing.js"></script>
-    <script src="../src/utils/device.js"></script>
-    <script src="../src/utils/events.js"></script>
-    <script src="../src/utils/properties.js"></script>
-    <script src="../src/utils/class.js"></script>
-    <script src="../src/core/core.js"></script>
-    <script src="../src/utils/stream.js"></script>
-    <script src="../src/utils/device.js"></script>
-    <script src="../src/utils/dom.js"></script>
-    <script src="../src/core/ended.js"></script>
-    <script src="../src/core/timeupdate.js"></script>
-    <script src="../src/ui/buffer.js"></script>
-    <script src="../src/ui/captions.js"></script>
-    <script src="../src/ui/controller.js"></script>
-    <script src="../src/ui/dom.js"></script>
-    <script src="../src/ui/lang.js"></script>
-    <script src="../src/ui/poster.js"></script>
-    <script src="../src/ui/rail.js"></script>
-    <script src="../src/ui/ratio.js"></script>
-    <script src="../src/ui/state.js"></script>
-    <script src="../src/ui/toggle.js"></script>
-    <script src="../src/ui/waiting.js"></script>
-    <script src="../src/streams/video.js"></script>
-    <script src="../src/streams/greyscale.js"></script>
-    <script src="../src/streams/canvas.js"></script>
+
+    <script src="../src/util/css.js"></script>
+    <script src="../src/util/html.js"></script>
+    <script src="../src/util/javascript.js"></script>
+    <script src="../src/util/data/arrays.js"></script>
+    <script src="../src/util/data/numbers.js"></script>
+    <script src="../src/util/data/objects.js"></script>
+    <script src="../src/util/data/strings.js"></script>
+    <script src="../src/util/abstractions/properties.js"></script>
+    <script src="../src/util/abstractions/events.js"></script>
+    <script src="../src/util/abstractions/class.js"></script>
+
+    <script src="../src/video/video.js"></script>
+    <script src="../src/video/extra/device.js"></script>
+    <script src="../src/video/extra/ended.js"></script>
+    <script src="../src/video/extra/timeupdate.js"></script>
+
+    <script src="../src/webgl/polyfills/OES_texture_float_linear-polyfill.js"></script>
+    <script src="../src/webgl/webgl.js"></script>
+    <script src="../src/webgl/shader.js"></script>
+    <script src="../src/webgl/texture.js"></script>
+    <script src="../src/webgl/shaders/huesaturation.js"></script>
+    <script src="../src/webgl/shaders/brightnesscontrast.js"></script>
+    <script src="../src/webgl/shaders/sepia.js"></script>
+
+    <script src="../src/stream/stream.js"></script>
+    <script src="../src/stream/frame.js"></script>
+    <script src="../src/stream/streams/blend.js"></script>
+    <script src="../src/stream/streams/canvasoutput.js"></script>
+    <script src="../src/stream/streams/copy.js"></script>
+    <script src="../src/stream/streams/modify.js"></script>
+    <script src="../src/stream/streams/videoinput.js"></script>
+
+    <script src="../src/stream/streams/blends/fade.js"></script>
+    <script src="../src/stream/streams/blends/split.js"></script>
+    <script src="../src/stream/streams/modifiers/greyscale.js"></script>
+    <script src="../src/stream/streams/modifiers/greenscreen.js"></script>
+    <script src="../src/stream/streams/modifiers/sepia.js"></script>
+
+    <script src="../src/ui/ui.js"></script>
+    <script src="../src/ui/component.js"></script>
+    <script src="../src/ui/components.js"></script>
+    <script src="../src/ui/components/captions/captions.js"></script>
+    <script src="../src/ui/components/captions/lang.js"></script>
+    <script src="../src/ui/components/poster.js"></script>
+    <script src="../src/ui/components/rail.js"></script>
+    <script src="../src/ui/components/resize.js"></script>
+    <script src="../src/ui/components/state.js"></script>
+    <script src="../src/ui/components/toggle.js"></script>
+    <script src="../src/ui/components/waiting.js"></script>
+
     <script src="../src/integration/jquery.js"></script>
     <style>
 
@@ -62,12 +81,8 @@
     </style>
 </head>
     <body>
-
         <div class="video-container">
-            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="900px auto" ratio="16:9">
-                <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
-                <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
-            </video>
+
             <div class="captions" for="c-40" kind="captions" srclang="en"></div>
             <div class="poster" for="c-40" kind="poster"></div>
             <div class="waiting" for="c-40" kind="waiting"></div>
@@ -87,15 +102,29 @@
             </div>
         </div>
 
-        <div class="canvas-container"> 
+        <div class="canvas-container">
             <canvas id="canvas1"></canvas>
         </div>
     </body>
     <script>
-        $("video").videos({captions:true});
-        var input = new Video.Stream.VideoInput($("video")[0]);
-        var greyscale = new Video.Stream.GreyscaleTransform();
-        var output = new Video.Stream.CanvasOutput($("canvas")[0]);
-        input.pipe(greyscale).pipe(output);
+        var $video = $('<video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="300px auto" ratio="16:9" style=""><track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch"><track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English"></video>').videos();
+        //$("video").videos({captions:true});
+        var input1 = new Video.VideoInputStream($video[0]);
+        var output = new Video.CanvasOutputStream($("canvas")[0]);
+        //input1.pipe(output);
+
+        var copy = new Video.CopyStream();
+        var modify = new Video.ModifyStream();
+        //var greenscreen = new Video.Modify.GreenScreen();
+        //modify.add(greenscreen);
+        var sepia = new Video.SepiaModify();
+        modify.add(sepia);
+        var i1 = input1.pipe(copy).pipe(modify);
+
+        var md1 = new Video.BlendStream([input1, i1]);
+        var split = new Video.SplitBlend();
+        md1.add(split);
+        md1.pipe(output);
+
     </script>
 </html>

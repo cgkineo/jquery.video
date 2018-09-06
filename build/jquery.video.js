@@ -1,4 +1,4 @@
-(function($){$("<style>",{text:""}).appendTo("head");
+(function(window, $){if ($) $("<style>",{text:""}).appendTo("head");
 /*
 Library local storage variable.
  */
@@ -67,12 +67,14 @@ var debounce = function(func, time) {
 /*
 Check for touch devices.
  */
-STORE.isTouchCapable = false;
-var touchListener = function() {
-  window.removeEventListener("touchstart", touchListener);
-  STORE.isTouchCapable = true;
-};
-window.addEventListener("touchstart", touchListener);
+if (window.addEventListener) {
+    STORE.isTouchCapable = false;
+    var touchListener = function() {
+      window.removeEventListener("touchstart", touchListener);
+      STORE.isTouchCapable = true;
+    };
+    window.addEventListener("touchstart", touchListener);
+}
 
 var Events = {
 
@@ -276,28 +278,38 @@ var properties = function(cls) {
  * @param {Object} proto  An object describing the Class prototype properties.
  * @param {Object} parent An object describing the Class properties.
  */
-var Class = function(proto, cls) {
-  // Capture constructor function
-  var c = proto.constructor === Object ?
-    function() {} :
-    proto.constructor;
-  // Add Events and proto properties to contructor prototype
-  extend(c[p], Events, proto || {});
-  // Add Events and cls properties to constructor
-  extend(c, Events, cls || {});
+var ClassExtend = function(proto, cls) {
+  var parent = this;
+  var child;
+  // Create or pick constructor
+  if (proto && proto.hasOwnProperty("constructor")) child = proto.constructor;
+  else child = function Class() { return parent.apply(this, arguments); };
+  // Generate new prototype chain
+  child[p] = Object.create(parent[p]);
+  // Extend constructor.prototype with prototype chain
+  extend(child[p], proto);
+  // Reassign constructor
+  child[p].constructor = child;
+  // Extend constructor with parent functions and cls properties
+  extend(child, parent, cls, {
+    extend: ClassExtend
+  });
   // Apply properties pattern to constructor prototype
-  properties(c[p]);
+  properties(child[p]);
   // Apply properties pattern to constructor
-  properties(c);
-  return c;
+  properties(child);
+  return child;
 };
+  // Add Events properties to basic Class and Class.prototype
+var Class = ClassExtend.call(function Class(proto, cls) {}, Events, Events);
 
-var Video = Class({
+var Video = Class.extend({
 
   id: null,
   selector: null,
   el: null,
   options: null,
+  components: null,
   domEvents: [
     "loadstart",
     "process",
@@ -329,6 +341,7 @@ var Video = Class({
     this.id = ++Video._ids;
     this._ensureElement(selector);
     this.options = options || {};
+    this.components = {};
     this._proxyEvent = this._proxyEvent.bind(this);
     Video.players.push(this);
     Video.trigger("create", this);
@@ -392,22 +405,63 @@ var Video = Class({
   _ids: 0,
   _prop: "player",
 
-  players: []
+  players: [],
+  components: {}
 
 });
 
 window.Video = Video;
 
 /*
+TODO: Make sure to cascade wait for piping
+*/
+var Stream = Class.extend({
+
+  constructor: function Stream() {},
+
+  pipe: function(stream) {
+    this.next = this.next.bind(this);
+    this.start = this.start.bind(this);
+    this._to = stream;
+    delay(this.start, 1);
+    return stream;
+  },
+
+  start: function() {
+    this._start();
+  },
+
+  _start: function() {},
+
+  next: function(data) {
+    this._next(data, function(data) {
+      this.push(data);
+    }.bind(this));
+  },
+
+  _next: function(data, callback) {
+    callback(data);
+  },
+
+  push: function(data) {
+    this._to.next(data);
+  }
+
+});
+
+Video.Stream = Stream;
+
+
+/*
 This is needed for ie11, sometimes it doesn't call ended properly.
 It forces the ended event to trigger if the duration and current time are
 within 0.01 of each other and the video is paused.
  */
-var Ended = Class({
+var Ended = Class.extend({
 
   floorPrecision: 10,
 
-  constructor: function() {
+  constructor: function Ended() {
     this.listenTo(Video, {
       "play": this.onPlay,
       "pause": this.onPause,
@@ -443,16 +497,16 @@ Video.ended = new Ended();
 
 /*
 This makes timeupdate events trigger at greater frequency, every 62.5 milliseconds
-rather than 250ms in most browsers.
+(16fps) rather than 250ms (4fps) in most browsers.
 */
-var TimeUpdate = Class({
+var TimeUpdate = Class.extend({
 
   playing: null,
   interval: 62.5,
   isRaf: false,
   lastTickTime: null,
 
-  constructor: function() {
+  constructor: function TimeUpdate() {
     this.playing = [];
     this.listenTo(Video, {
       "play": this.onPlay,
@@ -541,11 +595,134 @@ $.fn.pause = function() {
 
 }
 
-var Buffer = Class({
+var CanvasOutput = Video.Stream.extend({
+
+  _canvas: null,
+  _context: null,
+  _size: {
+    time: 0,
+    width: 0,
+    height: 0
+  },
+
+  constructor: function CanvasOutput(canvas) {
+    this._canvas = canvas;
+    this._context = this._canvas.getContext('2d', { alpha: true });
+  },
+
+  _next: function(data, callback) {
+    if (this._size.time !== data.size.time) {
+    	this._canvas.width = data.size.width;
+    	this._canvas.height = data.size.height;
+      this._size = data.size;
+    }
+    this._context.drawImage(data.canvas, 0,0);
+  }
+
+});
+
+Video.Stream.CanvasOutput = CanvasOutput;
+
+var PixelTransform = Video.Stream.extend({
+
+  constructor: function PixelTransform() {
+  },
+
+  _eaches: [],
+  each: function(callback) {
+    this._eaches.push(callback);
+  },
+
+  _next: function(data, callback) {
+    var pixels = data.imageData.data;
+    // Loop through the pixels
+    var pixel = {r:0,g:0,b:0};
+    for (var i = 0, l = pixels.length; i < l; i+=4) {
+        for (var e = 0, el = this._eaches.length; e < el; e++) {
+            pixel.r = pixels[i];
+            pixel.g = pixels[i+1];
+            pixel.b = pixels[i+2];
+            this._eaches[e](pixel, pixels.length);
+            pixels[i] = pixel.r;
+            pixels[i+1] = pixel.g;
+            pixels[i+2] = pixel.b;
+        }
+    }
+    data.imageData.data = pixels;
+    data.context.putImageData(data.imageData, 0, 0);
+    callback(data);
+  }
+
+});
+
+Video.Stream.PixelTransform = PixelTransform;
+
+var VideoInput = Video.Stream.extend({
+
+  _from: null,
+  _canvas: null,
+  _context: null,
+  _size: null,
+
+  constructor: function VideoInput(video) {
+    if (video instanceof Video) this._from = video;
+    if (video instanceof HTMLMediaElement) this._from = video.player;
+    this._canvas = document.createElement('canvas');
+    this._context = this._canvas.getContext('2d', { alpha: true });
+    this._capture = this._capture.bind(this);
+    this._resize();
+    this.listenTo(this._from, {
+      "resize": this._resize,
+      "timeupdate": this._capture
+    });
+  },
+
+  _resize: function() {
+    this._size = this._getSize();
+    this._canvas.width = this._size.width;
+    this._canvas.height = this._size.height;
+    this._capture();
+  },
+
+  _getSize: function() {
+    return {
+      time: Date.now(),
+      height: this._from.el.clientHeight,
+      width: this._from.el.clientWidth
+    };
+  },
+
+  _capture: function() {
+    this._context.drawImage(this._from.el, 0, 0, this._size.width, this._size.height);
+    if (this._isStart) return this._continue();
+    this._isWaiting = true;
+  },
+
+  _start: function() {
+    this._isStart = true;
+    if (!this._isWaiting) return;
+    return this._continue();
+    this._isWaiting = false;
+  },
+
+  _continue: function() {
+    this.push({
+      size: this._size,
+      canvas: this._canvas,
+      context: this._context,
+      imageData: this._context.getImageData(0, 0, this._size.width, this._size.height)
+    });
+  }
+
+});
+
+Video.Stream.VideoInput = VideoInput;
+
+var Buffer = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Buffer(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -581,13 +758,13 @@ var Buffer = Class({
 
 Video.components.Buffer = Buffer;
 
-var Captions = Class({
+var Captions = Class.extend({
 
   video: null,
   languages: null,
   defaultLang: null,
 
-  constructor: function(video) {
+  constructor: function Captions(video) {
     this.video = video;
     this.getLangs(this.onCaptionsLoaded.bind(this));
     this.listenTo(this.video, {
@@ -834,17 +1011,17 @@ var Captions = Class({
 
 Video.components.Captions = Captions;
 
-var Controller = Class({
+var Controller = Class.extend({
 
-  constructor: function() {
-  this.listenTo(Video, {
-    "created": this.onCreated
-  });
+  constructor: function Controller() {
+    this.listenTo(Video, {
+      "created": this.onCreated
+    });
   },
 
   onCreated: function(video) {
     for (var k in Video.components) {
-      this[k] = new Video.components[k](video);
+      video.components[k] = new Video.components[k](video);
     }
   }
 
@@ -857,12 +1034,12 @@ Video.controller = new Controller();
  Video.dom.refresh();
  var UIElements = Video.dom.fetch(video)
  */
-var DOM = Class({
+var DOM = Class.extend({
 
   _videos: null,
   _elements: null,
 
-  constructor: function() {
+  constructor: function DOM() {
     this._videos = [];
     this._elements = {};
     this.listenTo(Video, {
@@ -954,7 +1131,7 @@ var DOM = Class({
 
 Video.dom = new DOM();
 
-var Lang = Class({
+var Lang = Class.extend({
 
   _cues: null,
   _styles: null,
@@ -965,7 +1142,7 @@ var Lang = Class({
   lang: null,
   src: null,
 
-  constructor: function(options, callback) {
+  constructor: function Lang(options, callback) {
     extend(this, options);
     this._fetch(callback);
   },
@@ -1182,11 +1359,11 @@ var Lang = Class({
 Video.Lang = Lang;
 
 
-var Rail = Class({
+var Rail = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Rail(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -1214,11 +1391,11 @@ var Rail = Class({
 
 Video.components.Rail = Rail;
 
-var Ratio = Class({
+var Ratio = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Ratio(video) {
     this.video = video;
     this.onResize = this.onResize.bind(this);
     this.listenTo(video, {
@@ -1348,13 +1525,13 @@ var Ratio = Class({
 
 Video.components.Ratio = Ratio;
 
-var State = Class({
+var State = Class.extend({
 
   floorPrecision: 10,
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function State(video) {
     this.video = video;
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
@@ -1399,11 +1576,11 @@ var State = Class({
 
 Video.components.State = State;
 
-var Toggle = Class({
+var Toggle = Class.extend({
 
   video: null,
 
-  constructor: function(video) {
+  constructor: function Toggle(video) {
     this.video = video;
     this.listenTo(video, {
       "pause play": this.onUpdate
@@ -1543,4 +1720,4 @@ var lastIndexOfRegex = function(value, regex, fromIndex){
   var match = str.match(regex);
   return match ? str.lastIndexOf(match[match.length-1]) : -1;
 };
-})(jQuery);
+})(this,this.jQuery);
