@@ -5,23 +5,26 @@ var Shader = Class.extend({
   texCoordAttribute: null,
 
   vertexSource: '\
-    attribute vec2 vertex;\
-    attribute vec2 _texCoord;\
-    varying vec2 texCoord;\
+    attribute vec2 aVertexPosition;\
+    attribute vec2 aTextureCoord;\
+    varying vec2 vTextureCoord;\
+    varying vec2 vVertexPosition;\
     void main() {\
-        texCoord = _texCoord;\
-        gl_Position = vec4(vertex * 2.0 - 1.0, 0.0, 1.0);\
+        vTextureCoord = aTextureCoord;\
+        vVertexPosition = aVertexPosition;\
+        gl_Position = vec4(aVertexPosition * 2.0 - 1.0, 0.0, 1.0);\
     }',
 
   fragmentSource: '\
     uniform sampler2D texture;\
-    varying vec2 texCoord;\
+    varying vec2 vTextureCoord;\
     void main() {\
-        gl_FragColor = texture2D(texture, texCoord);\
+        gl_FragColor = texture2D(texture, vTextureCoord);\
     }',
 
   constructor: function Shader(context, vertexSource, fragmentSource) {
     this.vertexSource = vertexSource || this.vertexSource;
+    this.vertexSource = 'precision highp float;' + this.vertexSource;
     this.fragmentSource = fragmentSource || this.fragmentSource;
     this.fragmentSource = 'precision highp float;' + this.fragmentSource; // annoying requirement is annoying
     this.context = context;
@@ -93,16 +96,22 @@ var Shader = Class.extend({
   // textures are uniforms too but for some reason can't be specified by this.context.uniform1f,
   // even though floating point numbers represent the integers 0 through 7 exactly
   textures: function(textures) {
+    if (!textures) return this;
     this.context.useProgram(this.program);
-    for (var name in textures) {
-      if (!textures.hasOwnProperty(name)) continue;
-      this.context.uniform1i(this.context.getUniformLocation(this.program, name), textures[name]);
+    for (var i = 0, l = textures.length; i < l; i++) {
+      var tex = textures[i];
+      var texture = tex.texture;
+      texture.setContext(this.context);
+      texture.use(i);
+      var location = this.context.getUniformLocation(this.program, tex.name);
+      this.context.uniform1i(location, i);
     }
     // allow chaining
     return this;
   },
 
   drawRect: function(left, top, right, bottom) {
+
     var undefined;
     var viewport = this.context.getParameter(this.context.VIEWPORT);
     top = top !== undefined ? (top - viewport[1]) / viewport[3] : 0;
@@ -120,11 +129,11 @@ var Shader = Class.extend({
       this.context.bufferData(this.context.ARRAY_BUFFER, new Float32Array([ 0, 0, 0, 1, 1, 0, 1, 1 ]), this.context.STATIC_DRAW);
     }
     if (this.vertexAttribute == null) {
-      this.vertexAttribute = this.context.getAttribLocation(this.program, 'vertex');
+      this.vertexAttribute = this.context.getAttribLocation(this.program, 'aVertexPosition');
       this.context.enableVertexAttribArray(this.vertexAttribute);
     }
     if (this.texCoordAttribute == null) {
-      this.texCoordAttribute = this.context.getAttribLocation(this.program, '_texCoord');
+      this.texCoordAttribute = this.context.getAttribLocation(this.program, 'aTextureCoord');
       this.context.enableVertexAttribArray(this.texCoordAttribute);
     }
     this.context.useProgram(this.program);
@@ -132,6 +141,7 @@ var Shader = Class.extend({
     this.context.vertexAttribPointer(this.vertexAttribute, 2, this.context.FLOAT, false, 0, 0);
     this.context.bindBuffer(this.context.ARRAY_BUFFER, this.context.texCoordBuffer);
     this.context.vertexAttribPointer(this.texCoordAttribute, 2, this.context.FLOAT, false, 0, 0);
+
     this.context.drawArrays(this.context.TRIANGLE_STRIP, 0, 4);
   },
 

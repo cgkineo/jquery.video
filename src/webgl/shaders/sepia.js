@@ -7,9 +7,9 @@ var SepiaShader = Video.Shader.extend({
   fragmentSource: '\
     uniform sampler2D texture;\
     uniform float amount;\
-    varying vec2 texCoord;\
+    varying vec2 vTextureCoord;\
     void main() {\
-      vec4 color = texture2D(texture, texCoord);\
+      vec4 color = texture2D(texture, vTextureCoord);\
       float r = color.r;\
       float g = color.g;\
       float b = color.b;\

@@ -1,23 +1,12 @@
-var CopyStream = Video.Stream.extend({
+var CopyModifyStream = Video.Stream.extend({
 
-  constructor: function CopyStream() {},
-
-  _frame: null,
-  _size: null,
+  constructor: function CopyModifyStream() {},
 
   next: function(data, fromStream) {
-    if (!this._size || this._size.time !== data.size.time) {
-      if (!this._frame) {
-        this._frame = new Video.Frame(data.size, data.canvas);
-      } else {
-        this._frame.setSize(data.size);
-      }
-      this._size = data.size;
-    }
-    this._frame.update();
-    this.push(this._frame);
+    this.frame.copy(data);
+    this.push(this.frame);
   }
 
 });
 
-Video.CopyStream = CopyStream;
+Video.CopyModifyStream = CopyModifyStream;

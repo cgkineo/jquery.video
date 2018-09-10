@@ -1,33 +1,42 @@
 var Frame = Class.extend({
 
   source: null,
-  size: null,
-  webgl: null,
+  height: 0,
+  width: 0,
   canvas: null,
   context: null,
-  webglTexture: null,
 
-  constructor: function Frame(size, source) {
-    this.source = source;
-    this.webgl = new WebGL();
+  constructor: function Frame() {
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
-    this.setSize(size);
   },
 
-  setSize: function(size) {
-    this.size = size;
-    this.canvas.height = size.height;
-    this.canvas.width = size.width;
+  setSize: function(width, height) {
+    if (this.width === width && this.height === height) return;
+    this.width = width;
+    this.height = height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+  },
+
+  copy: function(frame) {
+    this.updateFromElement(frame.canvas);
+  },
+
+  updateFromElement: function(element) {
+    var width = element.videoWidth || element.originalWidth || element.width || element.clientWidth;
+    var height = element.videoHeight || element.originalHeight || element.height || element.clientHeight;
+    this.setSize(width, height);
+    this.source = element;
+    this.update();
   },
 
   update: function() {
-    this.context.drawImage(this.source, 0, 0, this.size.width, this.size.height);
-    if (!this.webglTexture) {
-      this.webglTexture = this.webgl.texture(this.canvas);
-    } else {
-      this.webglTexture.loadContentsOf(this.canvas);
-    }
+    this.context.drawImage(this.source, 0, 0, this.width, this.height);
+  },
+
+  clear: function() {
+    this.context.clearRect(0, 0, this.width, this.height);
   }
 
 });

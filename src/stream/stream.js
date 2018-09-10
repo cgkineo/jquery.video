@@ -1,26 +1,46 @@
-/*
-TODO: Make sure to cascade wait for piping
-*/
 var Stream = Class.extend({
 
   _sources: null,
-  _destinations: null,
+  _frame: null,
+
+  sources$get: function() {
+    return this._sources = this._sources || [];
+  },
+
+  destinations$get: function() {
+    return this._destinations = this._destinations || [];
+  },
 
   constructor: function Stream() {},
 
-  pipe: function(stream) {
-    if (!this._destinations) this._destinations = [];
-    this._destinations.push(stream);
-    stream._into(this);
-    return stream;
+  frame$get: function() {
+    return this._frame = this._frame || new Video.Frame();
   },
 
-  _into: function(sourceStream) {
-    if (!this._sources) this._sources = [];
-    if (this.next) {
+  pipe: function(destinationStream, index) {
+    this.destinations.push(destinationStream);
+    destinationStream.into(this, index);
+    return destinationStream;
+  },
+
+  into: function(sourceStream, index) {
+    if (index === undefined) {
+      this.sources.push(sourceStream);
+    } else {
+      if (this.sources.length < index+1) {
+        this.sources.length = index+1;
+      }
+      if (this.sources[index] !== undefined) {
+        this.stopListening(this.sources[index]);
+      }
+      this.sources[index] = sourceStream;
+    }
+    if (this.data) {
+      this.listenTo(sourceStream, "data", this.data);
+    } else if (this.next) {
       this.listenTo(sourceStream, "data", this.next);
     }
-    this._sources.push(sourceStream);
+    return sourceStream;
   },
 
   push: function(data) {

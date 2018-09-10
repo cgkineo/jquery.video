@@ -23,22 +23,27 @@
     <script src="../src/webgl/webgl.js"></script>
     <script src="../src/webgl/shader.js"></script>
     <script src="../src/webgl/texture.js"></script>
-    <script src="../src/webgl/shaders/huesaturation.js"></script>
     <script src="../src/webgl/shaders/brightnesscontrast.js"></script>
+    <script src="../src/webgl/shaders/displacement2.js"></script>
+    <script src="../src/webgl/shaders/fade2.js"></script>
+    <script src="../src/webgl/shaders/huesaturation.js"></script>
     <script src="../src/webgl/shaders/sepia.js"></script>
 
     <script src="../src/stream/stream.js"></script>
     <script src="../src/stream/frame.js"></script>
+    <script src="../src/stream/liveoptions.js"></script>
+    <script src="../src/stream/streams/autostream.js"></script>
     <script src="../src/stream/streams/blend.js"></script>
-    <script src="../src/stream/streams/canvasoutput.js"></script>
+    <script src="../src/stream/streams/outputs/canvasoutput.js"></script>
     <script src="../src/stream/streams/copy.js"></script>
-    <script src="../src/stream/streams/modify.js"></script>
-    <script src="../src/stream/streams/videoinput.js"></script>
+    <script src="../src/stream/streams/inputs/videoinput.js"></script>
 
-    <script src="../src/stream/streams/blends/fade.js"></script>
+    <script src="../src/stream/streams/blends/displacement2.js"></script>
+    <script src="../src/stream/streams/blends/fade2.js"></script>
     <script src="../src/stream/streams/blends/split.js"></script>
-    <script src="../src/stream/streams/modifiers/greyscale.js"></script>
+    <script src="../src/stream/streams/modifiers/brightnesscontrast.js"></script>
     <script src="../src/stream/streams/modifiers/greenscreen.js"></script>
+    <script src="../src/stream/streams/modifiers/huesaturation.js"></script>
     <script src="../src/stream/streams/modifiers/sepia.js"></script>
 
     <script src="../src/ui/ui.js"></script>
@@ -63,8 +68,10 @@
             margin: 0;
         }
 
-        .video-container {
+        .video-container,
+        .canvas-container {
             display: inline-block;
+            position: relative;
         }
 
         .video-container .rail {
@@ -76,13 +83,26 @@
             background: red;
         }
 
-        .video-container
+        .video-container .captions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .video-container .controls {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
 
     </style>
 </head>
     <body>
         <div class="video-container">
-
+            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="640px auto" ratio="16:9" style=""><track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch"><track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English"></video>
             <div class="captions" for="c-40" kind="captions" srclang="en"></div>
             <div class="poster" for="c-40" kind="poster"></div>
             <div class="waiting" for="c-40" kind="waiting"></div>
@@ -107,24 +127,76 @@
         </div>
     </body>
     <script>
-        var $video = $('<video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="300px auto" ratio="16:9" style=""><track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch"><track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English"></video>').videos();
-        //$("video").videos({captions:true});
-        var input1 = new Video.VideoInputStream($video[0]);
-        var output = new Video.CanvasOutputStream($("canvas")[0]);
-        //input1.pipe(output);
+        var $video = $('video').videos();
 
-        var copy = new Video.CopyStream();
-        var modify = new Video.ModifyStream();
-        //var greenscreen = new Video.Modify.GreenScreen();
-        //modify.add(greenscreen);
-        var sepia = new Video.SepiaModify();
-        modify.add(sepia);
-        var i1 = input1.pipe(copy).pipe(modify);
+        var fadeOptions = new Video.LiveOptions({
+            "amount": 0
+        });
+        var modifierOptions = new Video.LiveOptions({
+            "contrast": 0.5,
+            "brightness": -0.5
+        });
+        var config = {
+            "streams": [
+                {
+                    "name": "Video1",
+                    "options": $video[0],
+                    "class": "VideoInputStream"
+                },
+                {
+                    "name": "Copy1",
+                    "options": null,
+                    "class": "CopyModifyStream"
+                },
+                {
+                    "name": "Modify1",
+                    "options": modifierOptions,
+                    "class": "BrightnessContrastModifyStream"
+                },
+                {
+                    "name": "Fade1",
+                    "options": fadeOptions,
+                    "class": "Fade2BlendStream"
+                },
+                {
+                    "name": "Output1",
+                    "options": $("canvas")[0],
+                    "class": "CanvasOutputStream"
+                }
+            ],
+            "pipes": [
+                {
+                    "from": "Video1",
+                    "to": "Copy1"
+                },
+                {
+                    "from": "Copy1",
+                    "to": "Modify1"
+                },
+                {
+                    "from": "Modify1",
+                    "to": "Fade1"
+                },
+                {
+                    "from": "Video1",
+                    "to": "Fade1"
+                },
+                {
+                    "from": "Fade1",
+                    "to": "Output1"
+                }
+            ]
+        };
 
-        var md1 = new Video.BlendStream([input1, i1]);
-        var split = new Video.SplitBlend();
-        md1.add(split);
-        md1.pipe(output);
+        var auto = new Video.AutoStream(config);
 
+        var bounceOut = true; var waitTime = 0; setInterval(function() {
+            var now = Date.now();
+            if (waitTime + 2000 > now) return;
+            if (fadeOptions.amount >= 1) { bounceOut = false; waitTime = now; }
+            else if (fadeOptions.amount <= 0) { bounceOut = true; waitTime = now; }
+            if (bounceOut) fadeOptions.amount+=0.01;
+            else fadeOptions.amount-=0.01;
+        }, 20);
     </script>
 </html>

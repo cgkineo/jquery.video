@@ -53,4 +53,4 @@ var RailComponent = Video.Component.extend({
 });
 
 Video.RailComponent = RailComponent;
-Video.ui.components.add("CaptionsComponent");
+Video.ui.components.add("RailComponent");

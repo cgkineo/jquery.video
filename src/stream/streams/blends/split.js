@@ -1,8 +1,8 @@
-var SplitBlend = Video.Blend.extend({
+var SplitBlend = Video.BlendStream.extend({
 
   constructor: function SplitBlend() {},
 
-  blend: function(destination, sources) {
+  next: function() {
 
     var size = destination.size;
     var halfHeight = size.height / 2;

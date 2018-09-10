@@ -1,68 +1,59 @@
 var BlendStream = Video.Stream.extend({
 
-  _sources: null,
   _sourceDatas: null,
 
-  constructor: function BlendStream(sources) {
-    this._sources = sources;
-    this._sourceDatas = new Array(this._sources.length);
-    this._frame = new Video.Frame(sources[0].size);
-    for (var i = 0, l = this._sources.length; i < l; i++) {
-      var source = this._sources[i];
-      this.listenTo(source, "data", this.next);
+  constructor: function BlendStream() {},
+
+  datas$get: function() {
+    this._sourceDatas = this._sourceDatas || [];
+    this._sourceDatas.length = this.sources.length;
+    return this._sourceDatas;
+  },
+
+  isFullyPopulated$get: function() {
+    var datas = this.datas;
+    var isFullyPopulated = Boolean(datas.length);
+    for (var i = 0, l = datas.length; i < l; i++) {
+      if (datas[i]) continue;
+      isFullyPopulated = false;
+      break;
     }
+    return isFullyPopulated;
   },
 
-  _blenders: null,
-  add: function(blender) {
-    if (!this._blenders) this._blenders = [];
-    this._blenders.push(blender);
-  },
-
-  _size: null,
   _lastTick: 0,
-  next: function(data, fromStream) {
-    if (!this._frame.size || this._frame.size.time !== data.size.time) {
-      this._frame.setSize(data.size);
-      this._size = data.size;
-    }
-
+  data: function(data, fromStream) {
+    var sources = this.sources;
     var sourceIndex = 0;
-    for (var i = 0, l = this._sources.length; i < l; i++) {
-      var source = this._sources[i];
+    for (var i = 0, l = sources.length; i < l; i++) {
+      var source = sources[i];
       if (source === fromStream) {
         sourceIndex = i;
         break;
       }
     }
 
-    this._sourceDatas[sourceIndex] = data;
+    this.datas[sourceIndex] = data;
 
-    var isFullyPopulated = true;
-    for (var i = 0, l = this._sourceDatas.length; i < l; i++) {
-      if (this._sourceDatas[i]) continue;
-      isFullyPopulated = false;
-      break;
-    }
+    this.render();
+  },
 
-    if (!isFullyPopulated) return;
-
-    var bl = this._blenders && this._blenders.length;
-    if (!bl) return;
+  render: function() {
+    if (!this.isFullyPopulated) return;
 
     var now = Date.now();
-    if (this._lastTick > now - 66) return;
+    if (this._lastTick > now - (1000/60)) return;
     this._lastTick = now;
 
-    // Loop through the modifiers
-    for (var b = 0; b < bl; b++) {
-      this._blenders[b].blend(this._frame, this._sourceDatas);
+    if (this.next) {
+      this.next();
     }
+  },
 
-    this.push(this._frame);
+  changed: function() {
+    this.render();
   }
 
 });
 
 Video.BlendStream = BlendStream;
-Video.Blend = Class.extend({});

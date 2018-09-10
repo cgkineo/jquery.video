@@ -8,9 +8,9 @@ var BrightnessContrastShader = Video.Shader.extend({
     uniform sampler2D texture;\
     uniform float brightness;\
     uniform float contrast;\
-    varying vec2 texCoord;\
+    varying vec2 vTextureCoord;\
     void main() {\
-      vec4 color = texture2D(texture, texCoord);\
+      vec4 color = texture2D(texture, vTextureCoord);\
       color.rgb += brightness;\
       if (contrast > 0.0) {\
         color.rgb = (color.rgb - 0.5) / (1.0 - contrast) + 0.5;\

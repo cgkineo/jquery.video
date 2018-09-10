@@ -1,8 +1,8 @@
-var GreenScreenModify = Video.Modify.extend({
+var GreenScreenModifyStream = Video.Stream.extend({
 
-  constructor: function GreenScreenModify() {},
+  constructor: function GreenScreenModifyStream() {},
 
-  modify: function(pixel) {
+  next: function(pixel) {
     pixel.a = (pixel.g > 100 && pixel.r > 100 && pixel.b < 43) ?
       0 :
       pixel.a;
@@ -10,4 +10,4 @@ var GreenScreenModify = Video.Modify.extend({
 
 });
 
-Video.GreenScreenModify = GreenScreenModify;
+Video.GreenScreenModifyStream = GreenScreenModifyStream;

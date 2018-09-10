@@ -8,9 +8,9 @@ var HueSaturationShader = Video.Shader.extend({
     uniform sampler2D texture;\
     uniform float hue;\
     uniform float saturation;\
-    varying vec2 texCoord;\
+    varying vec2 vTextureCoord;\
     void main() {\
-      vec4 color = texture2D(texture, texCoord);\
+      vec4 color = texture2D(texture, vTextureCoord);\
       \
       /* hue adjustment, wolfram alpha: RotationTransform[angle, {1, 1, 1}][{x, y, z}] */\
       float angle = hue * 3.14159265;\
