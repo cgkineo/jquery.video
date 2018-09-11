@@ -12,3 +12,14 @@ var debounce = function(func, time) {
     }.bind(this), time || 0);
   }
 };
+
+var bindAll = function(subject, names) {
+  if (!(names instanceof Array)) {
+    names = toArray(arguments, 1);
+  }
+  for (var i = 0, l = names.length; i < l; i++) {
+    var name = names[i];
+    if (!(subject[name] instanceof Function)) continue;
+    subject[name] = subject[name].bind(subject);
+  }
+};

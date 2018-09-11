@@ -25,4 +25,4 @@ var Components = Class.extend({
 
 });
 
-Video.ui.components = new Components();
+Video.dom.components = new Components();

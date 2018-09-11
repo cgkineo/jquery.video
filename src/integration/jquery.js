@@ -17,9 +17,22 @@ $.fn.videos = function(options) {
       return $videos;
   }
 
+  options = defaults(options, {
+    ui: {
+      isEnabled: true,
+      replaceWith: true
+    },
+    dom: {
+      isEnabled: true
+    }
+  });
+
   $videos.each(function(index, item) {
     if (item[Video._prop]) return;
     new Video(item, options);
+    if (options.ui && options.ui.isEnabled) {
+      new Video.UI(item, options.ui);
+    }
   });
   return $videos;
 

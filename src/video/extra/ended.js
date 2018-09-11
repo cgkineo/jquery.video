@@ -16,21 +16,21 @@ var Ended = Class.extend({
   },
 
   onPlay: function(video) {
-    video._isAtEnd = false;
+    video._hasFiredEnded = false;
   },
 
   onPause: function(video) {
     if (!this.isEnded(video) || video._isAtEnd) return;
     setTimeout(function() {
       if (!video.el) return;
-      if (video._isAtEnd) return;
+      if (video._hasFiredEnded) return;
       if (!this.isEnded(video)) return;
       video.el.dispatchEvent(new Event('ended'));
     }.bind(this), 150);
   },
 
   onEnded: function(video) {
-    video._isAtEnd = true;
+    this._hasFiredEnded = true;
   },
 
   isEnded: function(video) {

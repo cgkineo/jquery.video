@@ -3,25 +3,33 @@ var StateComponent = Video.Component.extend({
   floorPrecision: 10,
 
   video: null,
+  state: null,
 
   constructor: function StateComponent(video) {
     this.video = video;
+    this.listenTo(Video, {
+      "uicreate": this.onUICreate
+    });
     this.listenTo(video, {
       "timeupdate": this.onTimeUpdate,
       "destroyed": this.onDestroyed
     });
+    this.onUICreate();
     this.onTimeUpdate();
   },
 
+  onUICreate: function() {
+    var groups = Video.dom.fetchElements(this.video);
+    this.state = groups.state;
+  },
+
   onTimeUpdate: function() {
-    var groups = Video.ui.fetch(this.video);
-    if (!groups.state) return;
-    var states = groups.state;
+    if (!this.state) return;
     var isAtStart = this.isAtStart();
     var isAtEnd = this.isAtEnd();
     var isPaused = this.video.el.paused;
-    for (var i = 0, l = states.length; i < l; i++) {
-      var state = states[i];
+    for (var i = 0, l = this.state.length; i < l; i++) {
+      var state = this.state[i];
       toggleClass(state, "is-playing", !isPaused);
       toggleClass(state, "is-paused", isPaused);
       toggleClass(state, "is-start", isAtStart);
@@ -42,10 +50,10 @@ var StateComponent = Video.Component.extend({
   },
 
   onDestroyed: function() {
-    debugger;
+    this.stopListening();
   }
 
 });
 
 Video.StateComponent = StateComponent;
-Video.ui.components.add("StateComponent");
+Video.dom.components.add("StateComponent");

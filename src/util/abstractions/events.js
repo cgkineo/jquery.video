@@ -1,151 +1,163 @@
+var EventsInitialize = function(subject) {
+  subject._eventsId = subject._eventsId || ++Events._eventsId;
+  subject._events = subject._events || [];
+};
+
+var EventsArgumentsNotation = function(args, cb, that) {
+  args = toArray(args);
+  if (args[0] instanceof Object) {
+    var subject = args[1] || this;
+    for (var k in args[0]) {
+      var names = k.split(" ");
+      for (var i = 0, l = names.length; i < l; i++) {
+        var name = names[i];
+        var callback = args[0][k];
+        cb.call(that, name, callback, subject);
+      }
+    }
+  } else if (typeof args[0] === "string") {
+    var subject = args[2] || this;
+    var names = args[0].split(" ");
+    for (var i = 0, l = names.length; i < l; i++) {
+      var name = names[i];
+      var callback = args[1];
+      cb.call(that, name, callback, subject);
+    }
+  } else if (args.length === 0) {
+    return cb.call(that, null, null, null);
+  }
+};
+
+var EventRegister = function(options) {
+  if (!options.name) return;
+  if (!options.callback) return;
+  EventsInitialize(options.from);
+  EventsInitialize(options.to);
+  this.from = options.from;
+  this.to = options.to;
+  this.context = options.context;
+  this.name = options.name;
+  this.callback = options.callback;
+  this.once = options.once;
+  this.from._events.push(this);
+  if (this.from === this.to) return;
+  this.to._events.push(this);
+};
+EventRegister.prototype.destroy = function() {
+  this.from._events = this.from._events.filter(function(event) {
+    return event !== this;
+  }.bind(this));
+  if (this.from === this.to) return;
+  this.to._events = this.to._events.filter(function(event) {
+    return event !== this;
+  }.bind(this));
+};
+
 var Events = {
 
-  _listeningTo: null,
   _eventsId: 0,
   _events: null,
 
   listenTo: function(subject, name, callback) {
-    if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    if (!this._listeningTo) this._listeningTo = {};
-    this._listeningTo[subject._eventsId] = subject;
-    subject.on(name, callback, this);
-    this._listeningTo[subject.id] = true;
-    return this;
+    var args = toArray(arguments, 1);
+    args.push(subject);
+    EventsArgumentsNotation(args, function(name, callback, subject) {
+      new EventRegister({
+        from: subject,
+        to: this,
+        context: this,
+        name: name,
+        callback: callback,
+        once: false
+      });
+    }, this);
   },
 
   listenToOnce: function(subject, name, callback) {
-    if (!subject._eventsId) subject._eventsId = ++Events._eventsId;
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    if (!this._listeningTo) this._listeningTo = {};
-    this._listeningTo[subject._eventsId] = subject;
-    subject.once(name, callback, this);
-    this._listeningTo[subject.id] = true;
-    return this;
+    var args = toArray(arguments, 1);
+    args.push(subject);
+    EventsArgumentsNotation(args, function(name, callback, subject) {
+      new EventRegister({
+        from: subject,
+        to: this,
+        context: this,
+        name: name,
+        callback: callback,
+        once: true
+      });
+    }, this);
   },
 
   stopListening: function(subject, name, callback) {
-    // check turn on listening on subject and this
-    if (!subject) {
-      if (!this._listeningTo) return;
-      for (var k in this._listeningTo) {
-        this._listeningTo[k].off(name, callback, this);
-        // do clearup here
+    var args = toArray(arguments, 1);
+    args.push(subject);
+    EventsArgumentsNotation(args, function(name, callback, subject) {
+      for (var i = this._events.length - 1; i > -1; i--) {
+        var event = this._events[i];
+        if (event.to !== this) continue;
+        if (name !== null && event.name !== name) continue;
+        if (callback !== null && event.callback !== callback) continue;
+        event.destroy();
       }
-      return;
-    }
-    if (!name) {
-      if (!this._listeningTo[subject._eventsId]) return;
-      this._listeningTo[subject._eventsId].off(name, callback, this);
-      // do clearup
-      return;
-    }
-    subject.off(name, callback);
-    return this;
+    }, this);
   },
 
-  on: function(name, callback, subject) {
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    switch (typeof name) {
-      case "string":
-        var events = name.split(" ");
-        if (events.length > 1) {
-          events.forEach(function(name) {
-            this.on(name, callback, subject);
-          }.bind(this));
-          return this;
-        }
-        break;
-      case "object":
-        for (var k in name) this.on(k, name[k], subject || callback);
-        return this;
-    }
-    this._events = this._events || {};
-    this._events[name] = this._events[name] || [];
-    this._events[name].push({
-      subject: subject || this,
-      callback: callback,
-      once: false
-    });
-    return this;
+  on: function(name, callback, context) {
+    EventsArgumentsNotation(arguments, function(name, callback, context) {
+      new EventRegister({
+        from: this,
+        to: this,
+        context: context,
+        name: name,
+        callback: callback,
+        once: false
+      });
+    }, this);
   },
 
-  once: function(name, callback, subject) {
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    switch (typeof name) {
-      case "string":
-        var events = name.split(" ");
-        if (events.length > 1) {
-          events.forEach(function(name) {
-            this.once(name, callback, subject);
-          }.bind(this));
-          return this;
-        }
-        break;
-      case "object":
-        for (var k in name) this.on(k, name[k], subject || callback);
-        return this;
-    }
-    this._events = this._events || {};
-    this._events[name] = this._events[name] || [];
-    this._events[name].push({
-      subject: subject || this,
-      callback: callback,
-      once: true
-    });
-    return this;
+  once: function(name, callback, context) {
+    EventsArgumentsNotation(arguments, function(name, callback, context) {
+      new EventRegister({
+        from: this,
+        to: this,
+        context: context,
+        name: name,
+        callback: callback,
+        once: true
+      });
+    }, this);
   },
 
-  off: function(name, callback, subject) {
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    switch (typeof name) {
-      case "string":
-        var events = name.split(" ");
-        if (events.length > 1) {
-          events.forEach(function(name) {
-            this.off(name, callback, subject);
-          }.bind(this));
-          return this;
-        }
-        break;
-      case "object":
-        for (var k in name) this.off(k, name[k], subject);
-        return this;
-    }
-    if (!name) {
-      this._events = null;
-      return this;
-    }
-    if (!this._events) return this;
-    if (!this._events[name]) return this;
-    for (var i = this._events[name].length-1; i > -1; i--) {
-      if (callback && this._events[name][i].callback !== callback) continue;
-      if (subject && this._events[name][i].subject !== subject) continue;
-      this._events[name].splice(0, i);
-    }
-    if (!this._events[name].length) delete this._events[name];
-    return this;
+  off: function(name, callback, context) {
+    EventsArgumentsNotation(arguments, function(name, callback, context) {
+      for (var i = this._events.length - 1; i > -1; i--) {
+        var event = this._events[i];
+        if (event.from !== this) continue;
+        if (name !== null && event.name !== name) continue;
+        if (callback !== null && event.callback !== callback) continue;
+        event.destroy();
+      }
+    }, this);
   },
 
   trigger: function(name) {
-    if (!this._eventsId) this._eventsId = ++Events._eventsId;
-    if (!name) return this;
-    if (!this._events) return this;
-    if (!this._events[name]) return;
+    EventsInitialize(this);
     var args = toArray(arguments, 1);
-    var remove = [];
-    for (var i = 0, l = this._events[name].length; i < l; i++) {
-      var handler = this._events[name][i];
-      handler.callback.apply(handler.subject, args);
-      if (handler.once) remove.unshift(i);
+    var events = this._events.filter(function(event) {
+      if (event.from !== this) return;
+      if (event.name !== name) return;
+      return true;
+    }.bind(this)).reverse();
+    for (var i = events.length - 1; i > -1; i--) {
+      var event = events[i];
+      event.callback.apply(event.context, args);
+      if (!event.once) continue;
+      event.destroy();
     }
-    for (var i = 0, l = remove.length; i < l; i++) {
-      this._events[name].splice(remove[i], 1);
-    }
-    if (!this._events[name].length) delete this._events[name];
   },
 
   destroy: function() {
+    this.stopListening();
     this.off();
   }
 

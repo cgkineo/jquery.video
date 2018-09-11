@@ -5,7 +5,7 @@ This makes timeupdate events trigger at greater frequency, every 62.5 millisecon
 var TimeUpdate = Class.extend({
 
   playing: null,
-  interval: (1000/15),
+  interval: (1000/25),
   inRaf: false,
   lastTickTime: null,
 
@@ -37,10 +37,7 @@ var TimeUpdate = Class.extend({
     }
     this.lastTickTime = now;
     for (var i = 0, l = this.playing.length; i < l; i++) {
-      var event = createEvent('timeupdate');
-      event.fake = true;
-      event.realtime = true;
-      this.playing[i].el.dispatchEvent(event);
+      this.playing[i].dispatchEvent('timeupdate');
     }
     return rAF(this.onRaf);
   },

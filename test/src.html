@@ -13,6 +13,7 @@
     <script src="../src/util/abstractions/properties.js"></script>
     <script src="../src/util/abstractions/events.js"></script>
     <script src="../src/util/abstractions/class.js"></script>
+    <script src="../src/util/abstractions/elements.js"></script>
 
     <script src="../src/video/video.js"></script>
     <script src="../src/video/extra/device.js"></script>
@@ -35,7 +36,6 @@
     <script src="../src/stream/streams/autostream.js"></script>
     <script src="../src/stream/streams/blend.js"></script>
     <script src="../src/stream/streams/outputs/canvasoutput.js"></script>
-    <script src="../src/stream/streams/copy.js"></script>
     <script src="../src/stream/streams/inputs/videoinput.js"></script>
 
     <script src="../src/stream/streams/blends/displacement2.js"></script>
@@ -46,17 +46,21 @@
     <script src="../src/stream/streams/modifiers/huesaturation.js"></script>
     <script src="../src/stream/streams/modifiers/sepia.js"></script>
 
+    <script src="../src/dom/dom.js"></script>
+    <script src="../src/dom/component.js"></script>
+    <script src="../src/dom/components.js"></script>
+    <script src="../src/dom/components/captions/captions.js"></script>
+    <script src="../src/dom/components/captions/lang.js"></script>
+    <script src="../src/dom/components/rail/rail.js"></script>
+    <script src="../src/dom/components/rail/raildurationevents.js"></script>
+    <script src="../src/dom/components/output.js"></script>
+    <script src="../src/dom/components/poster.js"></script>
+    <script src="../src/dom/components/size.js"></script>
+    <script src="../src/dom/components/state.js"></script>
+    <script src="../src/dom/components/playpausetoggle.js"></script>
+    <script src="../src/dom/components/waiting.js"></script>
+
     <script src="../src/ui/ui.js"></script>
-    <script src="../src/ui/component.js"></script>
-    <script src="../src/ui/components.js"></script>
-    <script src="../src/ui/components/captions/captions.js"></script>
-    <script src="../src/ui/components/captions/lang.js"></script>
-    <script src="../src/ui/components/poster.js"></script>
-    <script src="../src/ui/components/rail.js"></script>
-    <script src="../src/ui/components/resize.js"></script>
-    <script src="../src/ui/components/state.js"></script>
-    <script src="../src/ui/components/toggle.js"></script>
-    <script src="../src/ui/components/waiting.js"></script>
 
     <script src="../src/integration/jquery.js"></script>
     <style>
@@ -68,19 +72,13 @@
             margin: 0;
         }
 
-        .video-container,
-        .canvas-container {
+        .video-container {
             display: inline-block;
             position: relative;
         }
 
         .video-container .rail {
             height: 16px;
-        }
-        .video-container .rail-inner,
-        .video-container .buffer-inner {
-            height:  100%;
-            background: red;
         }
 
         .video-container .captions {
@@ -92,103 +90,171 @@
         }
 
         .video-container .controls {
+            display: inline-block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+
+        .video-container .scrub {
+            display: flex;
+            flex-direction: row;
             position: absolute;
             left: 0;
             bottom: 0;
             right: 0;
         }
 
+        .video-container .scrub .little-mute {
+            height: 16px;
+            width: 16px;
+        }
+
+        .video-container .scrub .little-playpause {
+            height: 16px;
+            width: 16px;
+        }
+
+        .video-container .scrub .little-fullscreen {
+            height: 16px;
+            width: 16px;
+        }
+
+        .video-container .scrub .railduration {
+            position: relative;
+            height: 16px;
+            flex-grow: 1;
+        }
+
+        .video-container .scrub .railback {
+            background: orange;
+        }
+
+        .video-container .scrub .railbuffered {
+            background: red;
+        }
+
+        .video-container .scrub .railcurrent {
+            background: green;
+        }
+
+        .video-container .scrub .railback,
+        .video-container .scrub .railbuffered,
+        .video-container .scrub .railcurrent {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .video-container .scrub .little-captions {
+            height: 16px;
+            width: 16px;
+        }
+
+        .canvas-container {
+            display: inline-block;
+            position: relative;
+        }
+
     </style>
 </head>
     <body>
-        <div class="video-container">
-            <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg" size="640px auto" ratio="16:9" style=""><track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch"><track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English"></video>
-            <div class="captions" for="c-40" kind="captions" srclang="en"></div>
-            <div class="poster" for="c-40" kind="poster"></div>
-            <div class="waiting" for="c-40" kind="waiting"></div>
-            <div class="controls">
-                <button class="big-play" for="c-40" kind="toggle">Play</button>
-                <div class="scrub" for="c-40" kind="state">
-                    <div class="little-playpause" for="c-40" kind="toggle"></div>
-                    <div class="rail">
-                        <div class="rail-back">
-                        </div>
-                        <div class="rail-inner" for="c-40" kind="rail">
-                        </div>
-                        <div class="buffer-inner" for="c-40" kind="buffer">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+        <video preload="none" id="c-40" src="c-40.mp4" muted="true" poster="c-40.jpg">
+            <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
+            <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
+        </video>
+
+        <video preload="none" id="c-160" src="c-160.mp4" muted="true" poster="c-40.jpg" size="100% auto" ratio="16:9" kind="size">
+            <track kind="captions" src="c-40-de.vtt" type="text/vtt" srclang="de" label="Deutsch">
+            <track kind="captions" src="c-40.vtt" type="text/vtt" srclang="en" label="English">
+        </video>
 
         <div class="canvas-container">
             <canvas id="canvas1"></canvas>
         </div>
+
     </body>
     <script>
+        // var config = {
+        //     "streams": [
+        //         {
+        //             "name": "Video1",
+        //             "options": $video[0],
+        //             "class": "VideoInputStream"
+        //         },
+        //         {
+        //             "name": "Copy1",
+        //             "options": null,
+        //             "class": "CopyModifyStream"
+        //         },
+        //         {
+        //             "name": "Modify1",
+        //             "options": modifierOptions,
+        //             "class": "BrightnessContrastModifyStream"
+        //         },
+        //         {
+        //             "name": "Fade1",
+        //             "options": fadeOptions,
+        //             "class": "Fade2BlendStream"
+        //         },
+        //         {
+        //             "name": "Output1",
+        //             "options": $("canvas")[0],
+        //             "class": "CanvasOutputStream"
+        //         }
+        //     ],
+        //     "pipes": [
+        //         {
+        //             "from": "Video1",
+        //             "to": "Copy1"
+        //         },
+        //         {
+        //             "from": "Copy1",
+        //             "to": "Modify1"
+        //         },
+        //         {
+        //             "from": "Modify1",
+        //             "to": "Fade1"
+        //         },
+        //         {
+        //             "from": "Video1",
+        //             "to": "Fade1"
+        //         },
+        //         {
+        //             "from": "Fade1",
+        //             "to": "Output1"
+        //         }
+        //     ]
+        // };
+        //
+        //var auto = new Video.AutoStream(config);
+        //
+        //
         var $video = $('video').videos();
 
         var fadeOptions = new Video.LiveOptions({
             "amount": 0
         });
-        var modifierOptions = new Video.LiveOptions({
-            "contrast": 0.5,
-            "brightness": -0.5
-        });
-        var config = {
-            "streams": [
-                {
-                    "name": "Video1",
-                    "options": $video[0],
-                    "class": "VideoInputStream"
-                },
-                {
-                    "name": "Copy1",
-                    "options": null,
-                    "class": "CopyModifyStream"
-                },
-                {
-                    "name": "Modify1",
-                    "options": modifierOptions,
-                    "class": "BrightnessContrastModifyStream"
-                },
-                {
-                    "name": "Fade1",
-                    "options": fadeOptions,
-                    "class": "Fade2BlendStream"
-                },
-                {
-                    "name": "Output1",
-                    "options": $("canvas")[0],
-                    "class": "CanvasOutputStream"
-                }
-            ],
-            "pipes": [
-                {
-                    "from": "Video1",
-                    "to": "Copy1"
-                },
-                {
-                    "from": "Copy1",
-                    "to": "Modify1"
-                },
-                {
-                    "from": "Modify1",
-                    "to": "Fade1"
-                },
-                {
-                    "from": "Video1",
-                    "to": "Fade1"
-                },
-                {
-                    "from": "Fade1",
-                    "to": "Output1"
-                }
-            ]
-        };
 
-        var auto = new Video.AutoStream(config);
+        var modifierOptions = new Video.LiveOptions({
+            "hue": 0,
+            "saturation": -1
+        });
+
+        var video1 = new Video.VideoInputStream($video[0]);
+        var video2 = new Video.VideoInputStream($video[1]);
+        var modify1 = new HueSaturationModifyStream(modifierOptions);
+        var fade1 = new Displacement2BlendStream(fadeOptions);
+        var output1 = new Video.CanvasOutputStream($('#canvas1')[0]);
+
+        video1.pipe(modify1).pipe(fade1);
+        video2.pipe(fade1);
+        fade1.pipe(output1);
 
         var bounceOut = true; var waitTime = 0; setInterval(function() {
             var now = Date.now();
@@ -198,5 +264,6 @@
             if (bounceOut) fadeOptions.amount+=0.01;
             else fadeOptions.amount-=0.01;
         }, 20);
+
     </script>
 </html>

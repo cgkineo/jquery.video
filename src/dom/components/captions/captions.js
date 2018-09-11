@@ -38,7 +38,7 @@ var CaptionsComponent = Video.Component.extend({
     var liveLangElements = {}
     var liveLangsCount = 0;
 
-    var groups = Video.ui.fetch(this.video);
+    var groups = Video.dom.fetchElements(this.video);
     groups.captions && groups.captions.forEach(function(el) {
       var lang = el.getAttribute("srclang")
       if (!this.languages[lang]) return;
@@ -253,4 +253,4 @@ var CaptionsComponent = Video.Component.extend({
 });
 
 Video.CaptionsComponent = CaptionsComponent;
-Video.ui.components.add("CaptionsComponent");
+Video.dom.components.add("CaptionsComponent");

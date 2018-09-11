@@ -6,9 +6,10 @@ var Video = Class.extend({
   options: null,
 
   constructor: function Video(selector, options) {
+    this.super.constructor.call(this);
     this.id = ++Video._ids;
     this._ensureElement(selector);
-    this.options = options || {};
+    this.options = defaults(options, {});
     this.components = {};
     this._proxyEvent = this._proxyEvent.bind(this);
     Video.players.push(this);
@@ -16,7 +17,13 @@ var Video = Class.extend({
     this._attachEvents();
     delay(function() {
       Video.trigger("created", this);
+      this._playingCheck();
     }.bind(this), 1);
+  },
+
+  _playingCheck: function() {
+    if (this.el.paused) return;
+    this.dispatchEvent("play");
   },
 
   _ensureElement: function(selector) {
@@ -36,6 +43,13 @@ var Video = Class.extend({
     for (var i = 0, l = Video.domEvents.length; i < l; i++) {
       this.el.addEventListener(Video.domEvents[i], this._proxyEvent);
     }
+  },
+
+  dispatchEvent: function(name) {
+    var event = createEvent(name);
+    event.fake = true;
+    event.realtime = true;
+    this.el.dispatchEvent(event);
   },
 
   _proxyEvent: function(event) {
@@ -61,14 +75,13 @@ var Video = Class.extend({
     delay(function() {
       Video.trigger("destroyed", this);
     }.bind(this), 1);
+    this.super.destroy.call(this);
   },
 
   _detachEvents: function() {
     for (var i = 0, l = Video.domEvents.length; i < l; i++) {
       this.el.removeEventListener(Video.domEvents[i], this._proxyEvent);
     }
-    this.stopListening();
-    this.off();
   }
 
 }, {

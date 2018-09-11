@@ -12,7 +12,7 @@
  * @param {Object} proto  An object describing the Class prototype properties.
  * @param {Object} parent An object describing the Class properties.
  */
-var ClassExtend = function(proto, cls) {
+var ClassExtend = function(proto, cls, options) {
   var parent = this;
   var child;
   // Create or pick constructor
@@ -32,7 +32,15 @@ var ClassExtend = function(proto, cls) {
   properties(child.prototype);
   // Apply properties pattern to constructor
   properties(child);
+  child.prototype.super = parent.prototype;
   return child;
 };
-  // Add Events properties to basic Class and Class.prototype
-var Class = ClassExtend.call(function Class(proto, cls) {}, Events, Events);
+
+var ClassParent = function Class(proto, cls) {};
+var ListParent = function List(proto, cls) {};
+ListParent.prototype = new Array();
+
+// Create base Class and List prototypes
+// Add Events system to both class and instances
+var Class = ClassExtend.call(ClassParent, Events, Events);
+Class.List = ClassExtend.call(ListParent, Events, Events);
