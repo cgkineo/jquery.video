@@ -15,10 +15,10 @@
     <script src="../src/util/abstractions/class.js"></script>
     <script src="../src/util/abstractions/elements.js"></script>
 
-    <script src="../src/video/video.js"></script>
-    <script src="../src/video/extra/device.js"></script>
-    <script src="../src/video/extra/ended.js"></script>
-    <script src="../src/video/extra/timeupdate.js"></script>
+    <script src="../src/media/media.js"></script>
+    <script src="../src/media/extra/device.js"></script>
+    <script src="../src/media/extra/ended.js"></script>
+    <script src="../src/media/extra/timeupdate.js"></script>
 
     <script src="../src/webgl/polyfills/OES_texture_float_linear-polyfill.js"></script>
     <script src="../src/webgl/webgl.js"></script>
@@ -35,6 +35,8 @@
     <script src="../src/stream/liveoptions.js"></script>
     <script src="../src/stream/streams/autostream.js"></script>
     <script src="../src/stream/streams/blend.js"></script>
+    <script src="../src/stream/streams/input.js"></script>
+    <script src="../src/stream/streams/output.js"></script>
     <script src="../src/stream/streams/outputs/canvasoutput.js"></script>
     <script src="../src/stream/streams/inputs/videoinput.js"></script>
 
@@ -46,18 +48,25 @@
     <script src="../src/stream/streams/modifiers/huesaturation.js"></script>
     <script src="../src/stream/streams/modifiers/sepia.js"></script>
 
+    <script src="../src/dom/polyfills/fullscreen.js"></script>
     <script src="../src/dom/dom.js"></script>
     <script src="../src/dom/component.js"></script>
     <script src="../src/dom/components.js"></script>
     <script src="../src/dom/components/captions/captions.js"></script>
+    <script src="../src/dom/components/captions/captionsstate.js"></script>
+    <script src="../src/dom/components/captions/captionstoggle.js"></script>
     <script src="../src/dom/components/captions/lang.js"></script>
     <script src="../src/dom/components/rail/rail.js"></script>
+    <script src="../src/dom/components/fullscreen/fullscreenstate.js"></script>
+    <script src="../src/dom/components/fullscreen/fullscreentoggle.js"></script>
     <script src="../src/dom/components/rail/raildurationevents.js"></script>
+    <script src="../src/dom/components/skip/skipcontrol.js"></script>
+    <script src="../src/dom/components/skip/skipstate.js"></script>
     <script src="../src/dom/components/output.js"></script>
     <script src="../src/dom/components/poster.js"></script>
     <script src="../src/dom/components/size.js"></script>
-    <script src="../src/dom/components/state.js"></script>
-    <script src="../src/dom/components/playpausetoggle.js"></script>
+    <script src="../src/dom/components/playpause/playpausestate.js"></script>
+    <script src="../src/dom/components/playpause/playpausetoggle.js"></script>
     <script src="../src/dom/components/waiting.js"></script>
 
     <script src="../src/ui/ui.js"></script>
@@ -72,16 +81,16 @@
             margin: 0;
         }
 
-        .video-container {
+        .media--main {
             display: inline-block;
             position: relative;
         }
 
-        .video-container .rail {
+        .media--railduration {
             height: 16px;
         }
 
-        .video-container .captions {
+        .media--captions {
             position: absolute;
             top: 0;
             left: 0;
@@ -89,7 +98,7 @@
             right: 0;
         }
 
-        .video-container .controls {
+        .media--controls {
             display: inline-block;
             position: absolute;
             top: 0;
@@ -98,7 +107,7 @@
             right: 0;
         }
 
-        .video-container .scrub {
+        .media--scrub {
             display: flex;
             flex-direction: row;
             position: absolute;
@@ -107,42 +116,42 @@
             right: 0;
         }
 
-        .video-container .scrub .little-mute {
+        .media--littlemute {
             height: 16px;
             width: 16px;
         }
 
-        .video-container .scrub .little-playpause {
+        .media--littleplaypause {
             height: 16px;
             width: 16px;
         }
 
-        .video-container .scrub .little-fullscreen {
+        .media--littlefullscreen {
             height: 16px;
             width: 16px;
         }
 
-        .video-container .scrub .railduration {
+        .media--railduration {
             position: relative;
             height: 16px;
             flex-grow: 1;
         }
 
-        .video-container .scrub .railback {
+        .media--railback {
             background: orange;
         }
 
-        .video-container .scrub .railbuffered {
+        .media--railbuffered {
             background: red;
         }
 
-        .video-container .scrub .railcurrent {
+        .media--railcurrent {
             background: green;
         }
 
-        .video-container .scrub .railback,
-        .video-container .scrub .railbuffered,
-        .video-container .scrub .railcurrent {
+        .media--railback,
+        .media--railbuffered,
+        .media--railcurrent {
             position: absolute;
             top: 0;
             left: 0;
@@ -150,7 +159,7 @@
             bottom: 0;
         }
 
-        .video-container .scrub .little-captions {
+        .media--littlecaptions {
             height: 16px;
             width: 16px;
         }
@@ -183,9 +192,9 @@
         // var config = {
         //     "streams": [
         //         {
-        //             "name": "Video1",
+        //             "name": "Media1",
         //             "options": $video[0],
-        //             "class": "VideoInputStream"
+        //             "class": "MediaInputStream"
         //         },
         //         {
         //             "name": "Copy1",
@@ -210,7 +219,7 @@
         //     ],
         //     "pipes": [
         //         {
-        //             "from": "Video1",
+        //             "from": "Media1",
         //             "to": "Copy1"
         //         },
         //         {
@@ -222,7 +231,7 @@
         //             "to": "Fade1"
         //         },
         //         {
-        //             "from": "Video1",
+        //             "from": "Media1",
         //             "to": "Fade1"
         //         },
         //         {
@@ -232,25 +241,25 @@
         //     ]
         // };
         //
-        //var auto = new Video.AutoStream(config);
+        //var auto = new Media.AutoStream(config);
         //
         //
-        var $video = $('video').videos();
+        var $video = $('video').medias();
 
-        var fadeOptions = new Video.LiveOptions({
+        var fadeOptions = new Media.LiveOptions({
             "amount": 0
         });
 
-        var modifierOptions = new Video.LiveOptions({
+        var modifierOptions = new Media.LiveOptions({
             "hue": 0,
             "saturation": -1
         });
 
-        var video1 = new Video.VideoInputStream($video[0]);
-        var video2 = new Video.VideoInputStream($video[1]);
+        var video1 = new Media.VideoInputStream($video[0]);
+        var video2 = new Media.VideoInputStream($video[1]);
         var modify1 = new HueSaturationModifyStream(modifierOptions);
         var fade1 = new Displacement2BlendStream(fadeOptions);
-        var output1 = new Video.CanvasOutputStream($('#canvas1')[0]);
+        var output1 = new Media.CanvasOutputStream($('#canvas1')[0]);
 
         video1.pipe(modify1).pipe(fade1);
         video2.pipe(fade1);

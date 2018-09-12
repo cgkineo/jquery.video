@@ -37,12 +37,12 @@ var Stream = Class.extend({
       }
       this.sources[index] = sourceStream;
     }
-    if (this.data) {
-      this.listenTo(sourceStream, "data", this.data);
-    } else if (this.next) {
-      this.listenTo(sourceStream, "data", this.next);
-    }
+    this.listenTo(sourceStream, "data", this.data);
     return sourceStream;
+  },
+
+  data: function() {
+    this.next.apply(this, arguments);
   },
 
   push: function(data) {

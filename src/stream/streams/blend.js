@@ -1,14 +1,15 @@
 var BlendStream = Media.Stream.extend({
 
-  sourceDatas: null,
+  _datas: null,
+  _lastTick: 0,
 
   constructor: function BlendStream() {
   },
 
   datas$get: function() {
-    this.sourceDatas = this.sourceDatas || [];
-    this.sourceDatas.length = this.sources.length;
-    return this.sourceDatas;
+    this._datas = this._datas || [];
+    this._datas.length = this.sources.length;
+    return this._datas;
   },
 
   isFullyPopulated$get: function() {
@@ -22,7 +23,6 @@ var BlendStream = Media.Stream.extend({
     return isFullyPopulated;
   },
 
-  lastTick: 0,
   data: function(data, fromStream) {
     var sources = this.sources;
     var sourceIndex = 0;
@@ -43,13 +43,13 @@ var BlendStream = Media.Stream.extend({
     if (!this.isFullyPopulated) return;
 
     var now = Date.now();
-    if (this.lastTick > now - (1000/60)) return;
-    this.lastTick = now;
+    if (this._lastTick > now - (1000/60)) return;
+    this._lastTick = now;
 
-    if (this.next) {
-      this.next();
-    }
+    this.next();
   },
+
+  next: function() {},
 
   changed: function() {
     this.render();
