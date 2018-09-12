@@ -45,6 +45,8 @@ var Stream = Class.extend({
     this.next.apply(this, arguments);
   },
 
+  next: function() {},
+
   push: function(data) {
     this.trigger("data", data, this);
   }
