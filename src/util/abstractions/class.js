@@ -13,6 +13,12 @@
  * @param {Object} parent An object describing the Class properties.
  */
 var ClassExtend = function(proto, cls, options) {
+  options = defaults(options, {
+    extend: true,
+    classEvents: false,
+    instanceEvents: false,
+    properties: true
+  });
   var parent = this;
   var child;
   // Create or pick constructor
@@ -24,14 +30,28 @@ var ClassExtend = function(proto, cls, options) {
   extend(child.prototype, proto);
   // Reassign constructor
   child.prototype.constructor = child;
-  // Extend constructor with parent functions and cls properties
-  extend(child, parent, cls, {
-    extend: ClassExtend
-  });
-  // Apply properties pattern to constructor prototype
-  properties(child.prototype);
-  // Apply properties pattern to constructor
-  properties(child);
+
+  if (options.extend) {
+    // Extend constructor with parent functions and cls properties
+    extend(child, parent, cls, {
+      extend: ClassExtend
+    });
+  }
+
+  if (options.classEvents) {
+    defaults(child, Events);
+  }
+
+  if (options.instanceEvents) {
+    defaults(child.prototype, Events);
+  }
+
+  if (options.properties) {
+    // Apply properties pattern to constructor prototype
+    properties(child.prototype);
+    // Apply properties pattern to constructor
+    properties(child);
+  }
   return child;
 };
 
@@ -41,5 +61,5 @@ ListParent.prototype = new Array();
 
 // Create base Class and List prototypes
 // Add Events system to both class and instances
-var Class = ClassExtend.call(ClassParent, Events, Events);
-Class.List = ClassExtend.call(ListParent, Events, Events);
+var Class = ClassExtend.call(ClassParent, {}, {}, { classEvents: false, instanceEvents: false });
+var List = ClassExtend.call(ListParent, {}, {}, { classEvents: false, instanceEvents: false });

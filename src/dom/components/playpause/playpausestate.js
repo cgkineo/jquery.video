@@ -56,4 +56,4 @@ var PlayPauseStateComponent = Media.Component.extend({
 });
 
 Media.PlayPauseStateComponent = PlayPauseStateComponent;
-Media.dom.components.add("PlayPauseStateComponent");
+Media.dom.register("PlayPauseStateComponent");

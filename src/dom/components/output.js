@@ -48,4 +48,4 @@ var OutputComponent = Media.Component.extend({
 });
 
 Media.OutputComponent = OutputComponent;
-Media.dom.components.add("OutputComponent");
+Media.dom.register("OutputComponent");

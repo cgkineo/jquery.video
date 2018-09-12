@@ -1,4 +1,4 @@
-var Elements = Class.List.extend({
+var Elements = List.extend({
 
   subject: document,
 

@@ -116,6 +116,8 @@ var RailDurationEvents = Class.extend({
     this.railduration = null;
   }
 
+}, null, {
+  instanceEvents: true
 });
 
 Media.RailDurationEvents = RailDurationEvents;

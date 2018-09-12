@@ -13,7 +13,7 @@ var RailComponent = Media.Component.extend({
       "dom:create": this.onDOMCreate
     });
     this.listenTo(media, {
-      "timeupdate ended": this.onTimeUpdate,
+      "timeupdate resize ended": this.onTimeUpdate,
       "destroyed": this.destroy
     });
     this.onDOMCreate();
@@ -67,4 +67,4 @@ var RailComponent = Media.Component.extend({
 });
 
 Media.RailComponent = RailComponent;
-Media.dom.components.add("RailComponent");
+Media.dom.register("RailComponent");

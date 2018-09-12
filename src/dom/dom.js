@@ -7,6 +7,7 @@ var DOM = Class.extend({
 
   medias: null,
   groups: null,
+  registered: null,
 
   defaults: {
     skipon: "touchend"
@@ -16,10 +17,11 @@ var DOM = Class.extend({
     this.medias = [];
     this.groups = {};
     this.listenTo(Media, {
-      "create": this.onCreated,
+      "create": this.onCreate,
+      "created": this.onCreated,
       "destroyed": this.onDestroyed
     });
-    bindAll(this, "start", "refreshElements");
+    bindAll(this, "start", "refreshElements", "onDocumentMutation");
     if (document.body) {
       delay(this.start, 1);
     } else {
@@ -27,20 +29,35 @@ var DOM = Class.extend({
     }
   },
 
+  register: function(name) {
+    this.registered = this.registered || [];
+    this.registered.push(name);
+  },
+
   start: function() {
-    this.addMutationObserver();
+    this.addDocumentMutationObserver();
     this.refreshElements();
   },
 
-  addMutationObserver: function() {
-    var observer = new MutationObserver(this.onMutation);
+  addDocumentMutationObserver: function() {
+    var observer = new MutationObserver(this.onDocumentMutation);
     observer.observe(document.body, { childList:true, subtree: true });
   },
 
-  onCreated: function(media) {
+  onCreate: function(media) {
     if (!media.options.domenabled) return;
     defaults(media.options, this.defaults);
     this.medias.push(media);
+  },
+
+  onCreated: function(media) {
+    media.dom = media.dom || {};
+    media.dom.components = media.dom.components || {};
+    for (var i = 0, l = this.registered.length; i < l; i++) {
+      var name = this.registered[i];
+      var constructor = Media[name];
+      media.components[name] = new constructor(media);
+    }
   },
 
   onDestroyed: function(media) {
@@ -50,7 +67,7 @@ var DOM = Class.extend({
     }
   },
 
-  onMutation: function(mutationList) {
+  onDocumentMutation: function(mutationList) {
     var changedNodes = [];
     for (var i = 0, l = mutationList.length; i < l; i++) {
       var mutationItem = mutationList[i];
@@ -96,6 +113,9 @@ var DOM = Class.extend({
     return ids;
   }
 
+}, null, {
+  instanceEvents: true
 });
 
+Media.DOM = DOM;
 Media.dom = new DOM();

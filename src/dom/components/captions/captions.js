@@ -252,4 +252,4 @@ var CaptionsComponent = Media.Component.extend({
 });
 
 Media.CaptionsComponent = CaptionsComponent;
-Media.dom.components.add("CaptionsComponent");
+Media.dom.register("CaptionsComponent");

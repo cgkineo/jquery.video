@@ -1,6 +1,7 @@
 var EventsInitialize = function(subject) {
   subject._eventsId = subject._eventsId || ++Events._eventsId;
   subject._events = subject._events || [];
+  subject.trigger = subject.trigger || Events.trigger;
 };
 
 var EventsArgumentsNotation = function(args, cb, that) {

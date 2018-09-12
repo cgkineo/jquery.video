@@ -17,6 +17,8 @@ var Device = Class.extend({
     window.addEventListener("touchstart", touchListener);
   }
 
+}, null, {
+  instanceEvents: true
 });
 
 Media.Device = Device;

@@ -29,7 +29,11 @@ var FullScreenToggleComponent = Media.Component.extend({
   },
 
   onClick: function() {
-    this.fullscreen[0].requestFullscreen();
+    if (document.fullscreenElement2) {
+      document.exitFullscreen2();
+      return;
+    }
+    this.fullscreen[0].requestFullscreen2();
   },
 
   onDestroyed: function() {
@@ -41,4 +45,4 @@ var FullScreenToggleComponent = Media.Component.extend({
 });
 
 Media.FullScreenToggleComponent = FullScreenToggleComponent;
-Media.dom.components.add("FullScreenToggleComponent");
+Media.dom.register("FullScreenToggleComponent");

@@ -1,1 +1,3 @@
-Media.Component = Class.extend({});
+Media.Component = Class.extend({}, null, {
+  instanceEvents: true
+});

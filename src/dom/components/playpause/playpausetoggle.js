@@ -54,4 +54,4 @@ var PlayPauseToggleComponent = Media.Component.extend({
 });
 
 Media.PlayPauseToggleComponent = PlayPauseToggleComponent;
-Media.dom.components.add("PlayPauseToggleComponent");
+Media.dom.register("PlayPauseToggleComponent");

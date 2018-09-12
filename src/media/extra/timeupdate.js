@@ -48,6 +48,8 @@ var TimeUpdate = Class.extend({
     }
   }
 
+}, null, {
+  instanceEvents: true
 });
 
 Media.TimeUpdate = TimeUpdate;

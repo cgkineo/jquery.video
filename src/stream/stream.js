@@ -51,6 +51,8 @@ var Stream = Class.extend({
     this.trigger("data", data, this);
   }
 
+}, null, {
+  instanceEvents: true
 });
 
 Media.Stream = Stream;

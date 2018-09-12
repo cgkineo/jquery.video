@@ -33,7 +33,9 @@ var SizeComponent = Media.Component.extend({
     window.addEventListener("resize", this.onResize);
   },
 
-  onResize: function() {
+  onResize: function(event) {
+    if (event && event.circular) return;
+    this.media.dispatchEvent("resize", { circular: true });
     if (!this.size) return;
 
     this.size.forEach(function(el) {
@@ -161,4 +163,4 @@ var SizeComponent = Media.Component.extend({
 
 Media.domEvents.push("resize");
 Media.SizeComponent = SizeComponent;
-Media.dom.components.add("SizeComponent");
+Media.dom.register("SizeComponent");

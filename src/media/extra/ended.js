@@ -25,7 +25,7 @@ var Ended = Class.extend({
       if (!media.el) return;
       if (media.hasFiredEnded) return;
       if (!this.isEnded(media)) return;
-      media.el.dispatchEvent(new Event('ended'));
+      media.el.dispatchEvent(createEvent('ended'));
     }.bind(this), 150);
   },
 
@@ -37,6 +37,8 @@ var Ended = Class.extend({
     return (Math.abs(Math.floor(media.el.currentTime*this.floorPrecision) - Math.floor(media.el.duration*this.floorPrecision)) <= 1);
   }
 
+}, null, {
+  instanceEvents: true
 });
 
 Media.Ended = Ended;

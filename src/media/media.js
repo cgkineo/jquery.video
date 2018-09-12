@@ -112,6 +112,15 @@ var Media = Class.extend({
     "waiting"
   ]
 
+},{
+  classEvents: true,
+  instanceEvents: true
 });
 
 window.Media = Media;
+Media.Class = Class;
+Media.List = List;
+Media.Events = Events;
+Media.Elements = Elements;
+Media.elements = elements;
+Media.properties = properties;

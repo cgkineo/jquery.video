@@ -41,4 +41,4 @@ var SkipStateComponent = Media.Component.extend({
 });
 
 Media.SkipStateComponent = SkipStateComponent;
-Media.dom.components.add("SkipStateComponent");
+Media.dom.register("SkipStateComponent");

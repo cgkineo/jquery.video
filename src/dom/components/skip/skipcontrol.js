@@ -136,4 +136,4 @@ var SkipControlComponent = Media.Component.extend({
 
 Media.domEvents.push("skip");
 Media.SkipControlComponent = SkipControlComponent;
-Media.dom.components.add("SkipControlComponent");
+Media.dom.register("SkipControlComponent");
