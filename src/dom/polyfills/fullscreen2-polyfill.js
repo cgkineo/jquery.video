@@ -235,8 +235,8 @@
   }
 
   function fixRequestFullScreen() {
-    if (applied.requestFullscreen) return;
-    applied.requestFullscreen = true;
+    if (applied.requestFullscreen2) return;
+    applied.requestFullscreen2 = true;
     Element.prototype.requestFullscreen2 = function(options) {
       requestByFullscreen2 = defaults(extend({}, options), {
         style: "contain",
@@ -440,8 +440,8 @@
     window.addEventListener("keyup", onKeyUp);
   }
 
-  window['polyfillFullscreen2'] = {};
-  Object.defineProperties(window['polyfillFullscreen2'], {
+  window['fullscreen2Polyfill'] = {};
+  Object.defineProperties(window['fullscreen2Polyfill'], {
     isFullWindow: {
       get: function() {
         return isFullWindow;
