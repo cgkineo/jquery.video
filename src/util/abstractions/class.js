@@ -32,7 +32,6 @@ var ClassExtend = function(proto, cls, options) {
   properties(child.prototype);
   // Apply properties pattern to constructor
   properties(child);
-  child.prototype.super = parent.prototype;
   return child;
 };
 

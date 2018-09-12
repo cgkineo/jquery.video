@@ -1,35 +1,35 @@
-var SepiaModifyStream = Video.Stream.extend({
+var SepiaModifyStream = Media.Stream.extend({
 
-  _amount: 1,
+  amount: 1,
 
   constructor: function SepiaModifyStream() {
-    this._webgl = new Video.WebGL();
-    this._texture = this._webgl.createTexture();
+    this.webgl = new Media.WebGL();
+    this.texture = this.webgl.createTexture();
   },
 
   next: function(data) {
-    this._webgl.setSize(data.width, data.height);
-    this._texture.loadContentsOf(data.canvas);
-    this._webgl.runShader("SepiaShader", {
-        amount: this._amount
+    this.webgl.setSize(data.width, data.height);
+    this.texture.loadContentsOf(data.canvas);
+    this.webgl.runShader("SepiaShader", {
+        amount: this.amount
       }, [
         {
           name: "texture",
-          texture: this._texture
+          texture: this.texture
         }
       ]);
-    this.frame.updateFromElement(this._webgl.canvas);
+    this.frame.updateFromElement(this.webgl.canvas);
     this.push(data);
   },
 
   amount$get: function() {
-    return this._amount;
+    return this.amount;
   },
 
   amount$set: function(value) {
-    this._amount = value;
+    this.amount = value;
   }
 
 });
 
-Video.SepiaModifyStream = SepiaModifyStream;
+Media.SepiaModifyStream = SepiaModifyStream;

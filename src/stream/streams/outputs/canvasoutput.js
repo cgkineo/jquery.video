@@ -1,25 +1,26 @@
-var CanvasOutputStream = Video.Stream.extend({
+var CanvasOutputStream = Media.OutputStream.extend({
 
-  _canvas: null,
-  _context: null,
-  _width: 0,
-  _height: 0,
+  canvas: null,
+  context: null,
+  width: 0,
+  height: 0,
 
   constructor: function CanvasOutputStream(canvas) {
-    this._canvas = canvas;
-    this._context = this._canvas.getContext('2d', { alpha: true });
+    Media.OutputStream.prototype.constructor.apply(this, arguments);
+    this.canvas = canvas;
+    this.context = this.canvas.getContext('2d', { alpha: true });
   },
 
   next: function(data) {
-    if (this._width !== data.width || this._height !== data.height) {
-      this._canvas.width = data.width;
-      this._canvas.height = data.height;
-      this._width = data.width;
-      this._height = data.height;
+    if (this.width !== data.width || this.height !== data.height) {
+      this.canvas.width = data.width;
+      this.canvas.height = data.height;
+      this.width = data.width;
+      this.height = data.height;
     }
-    this._context.drawImage(data.canvas, 0, 0, this._width, this._height);
+    this.context.drawImage(data.canvas, 0, 0, this.width, this.height);
   }
 
 });
 
-Video.CanvasOutputStream = CanvasOutputStream;
+Media.CanvasOutputStream = CanvasOutputStream;

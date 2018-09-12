@@ -38,8 +38,8 @@ var Texture = Class.extend({
   },
 
   loadContentsOf: function(element) {
-    this.width = element.width || element.videoWidth;
-    this.height = element.height || element.videoHeight;
+    this.width = element.width || element.mediaWidth;
+    this.height = element.height || element.mediaHeight;
     this.context.bindTexture(this.context.TEXTURE_2D, this.id);
     this.context.texImage2D(this.context.TEXTURE_2D, 0, this.format, this.format, this.type, element);
   },
@@ -66,7 +66,7 @@ var Texture = Class.extend({
 },{
 
   fromElement: function(context, element) {
-    var texture = new Video.Texture(context, 0, 0, context.RGBA, context.UNSIGNED_BYTE);
+    var texture = new Media.Texture(context, 0, 0, context.RGBA, context.UNSIGNED_BYTE);
     if (element) {
       texture.loadContentsOf(element);
     }
@@ -75,4 +75,4 @@ var Texture = Class.extend({
 
 });
 
-Video.Texture = Texture;
+Media.Texture = Texture;

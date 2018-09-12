@@ -1,12 +1,12 @@
 var RailDurationEvents = Class.extend({
 
-  video: null,
+  media: null,
   railduration: null,
-  _wasPlaying: false,
-  _inMouse: false,
-  _inTouch: false,
+  wasPlaying: false,
+  inMouse: false,
+  inTouch: false,
 
-  constructor: function RailDurationEvents(video, railduration) {
+  constructor: function RailDurationEvents(media, railduration) {
     bindAll(this, [
       "onClick",
       "onMouseDown",
@@ -16,12 +16,12 @@ var RailDurationEvents = Class.extend({
       "onTouchMove",
       "onTouchEnd"
     ]);
-    this.video = video;
+    this.media = media;
     this.railduration = railduration;
-    this.listenTo(Video, {
-      "uidestroy": this.onDestroyed
+    this.listenTo(Media, {
+      "dom:destroy": this.onDestroyed
     });
-    this.listenTo(video, {
+    this.listenTo(media, {
       "destroyed": this.onDestroyed
     });
     this.addEventListeners();
@@ -45,53 +45,53 @@ var RailDurationEvents = Class.extend({
   },
 
   onMouseDown: function(event) {
-    this._wasPlaying = !this.video.el.paused;
-    this._inMouse = true;
-    this.video.el.pause();
+    this.wasPlaying = !this.media.el.paused;
+    this.inMouse = true;
+    this.media.el.pause();
     var left = event.offsetX
     this.setTimeFromLeft(left);
   },
 
   onMouseMove: function(event) {
-    if (!this._inMouse) return;
+    if (!this.inMouse) return;
     var left = event.offsetX
     this.setTimeFromLeft(left);
   },
 
   onMouseUp: function(event) {
-    this._inMouse = false;
-    if (!this._wasPlaying) return;
-    this._wasPlaying = false;
-    this.video.el.play();
+    this.inMouse = false;
+    if (!this.wasPlaying) return;
+    this.wasPlaying = false;
+    this.media.el.play();
   },
 
   onTouchStart: function(event) {
-    this._wasPlaying = !this.video.el.paused;
-    this._inTouch = true;
-    this.video.el.pause();
+    this.wasPlaying = !this.media.el.paused;
+    this.inTouch = true;
+    this.media.el.pause();
     var left = event.touches[0].offsetX
     this.setTimeFromLeft(left);
   },
 
   onTouchMove: function(event) {
-    if (!this._inTouch) return;
+    if (!this.inTouch) return;
     var left = event.touches[0].offsetX
     this.setTimeFromLeft(left);
   },
 
   onTouchEnd: function(event) {
-    this._inTouch = false;
-    if (!this._wasPlaying) return;
-    this._wasPlaying = false;
-    this.video.el.play();
+    this.inTouch = false;
+    if (!this.wasPlaying) return;
+    this.wasPlaying = false;
+    this.media.el.play();
   },
 
   setTimeFromLeft: function(left) {
     var ratio = left / this.railduration.clientWidth;
-    var currentTime = this.video.el.duration * ratio;
-    if (!this.video.el.duration) return;
-    this.video.el.currentTime = currentTime;
-    this.video.dispatchEvent('timeupdate');
+    var currentTime = this.media.el.duration * ratio;
+    if (!this.media.el.duration) return;
+    this.media.el.currentTime = currentTime;
+    this.media.dispatchEvent('timeupdate');
   },
 
   removeEventListeners: function() {
@@ -112,10 +112,10 @@ var RailDurationEvents = Class.extend({
   onDestroyed: function() {
     this.removeEventListeners();
     this.stopListening();
-    this.video = null;
+    this.media = null;
     this.railduration = null;
   }
 
 });
 
-Video.RailDurationEvents = RailDurationEvents;
+Media.RailDurationEvents = RailDurationEvents;

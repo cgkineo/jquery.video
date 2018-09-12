@@ -1,48 +1,48 @@
-var BrightnessContrastModifyStream = Video.Stream.extend({
+var BrightnessContrastModifyStream = Media.Stream.extend({
 
-  _options: null,
+  options: null,
 
   constructor: function BrightnessContrastModifyStream(options) {
-    this._webgl = new Video.WebGL();
-    this._texture = this._webgl.createTexture();
-    this._options = defaults(options, {
+    this.webgl = new Media.WebGL();
+    this.texture = this.webgl.createTexture();
+    this.options = defaults(options, {
       brightness: 0,
       contrast: 0
     });
   },
 
   next: function(data) {
-    this._webgl.setSize(data.width, data.height);
-    this._texture.loadContentsOf(data.canvas);
-    this._webgl.runShader("BrightnessContrastShader", {
-        brightness: this._options.brightness,
-        contrast: this._options.contrast
+    this.webgl.setSize(data.width, data.height);
+    this.texture.loadContentsOf(data.canvas);
+    this.webgl.runShader("BrightnessContrastShader", {
+        brightness: this.options.brightness,
+        contrast: this.options.contrast
       }, [
         {
           name: "texture",
-          texture: this._texture
+          texture: this.texture
         }
       ]);
-    this.frame.updateFromElement(this._webgl.canvas);
+    this.frame.updateFromElement(this.webgl.canvas);
     this.push(this.frame);
   },
 
   brightness$get: function() {
-    return this._options.brightness;
+    return this.options.brightness;
   },
 
   brightness$set: function(value) {
-    this._options.brightness = value;
+    this.options.brightness = value;
   },
 
   contrast$get: function() {
-    return this._options.contrast;
+    return this.options.contrast;
   },
 
   contrast$set: function(value) {
-    this._options.contrast = value;
+    this.options.contrast = value;
   }
 
 });
 
-Video.BrightnessContrastModifyStream = BrightnessContrastModifyStream;
+Media.BrightnessContrastModifyStream = BrightnessContrastModifyStream;

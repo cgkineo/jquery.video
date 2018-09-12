@@ -1,9 +1,9 @@
 var CaptionsComponentLang = Class.extend({
 
-  _cues: null,
-  _styles: null,
-  _loaded: false,
-  _errored: false,
+  cues: null,
+  styles: null,
+  loaded: false,
+  errored: false,
   default: null,
   label: null,
   lang: null,
@@ -11,26 +11,26 @@ var CaptionsComponentLang = Class.extend({
 
   constructor: function CaptionsComponentLang(options, callback) {
     extend(this, options);
-    this._fetch(callback);
+    this.fetch(callback);
   },
 
-  _fetch: function(callback) {
+  fetch: function(callback) {
     $.ajax({
       url: this.src,
       dataType: "text",
       success: function(data) {
 
-        this._parse(data);
+        this.parse(data);
 
-        this._error = false;
-        this._loaded = true;
+        this.error = false;
+        this.loaded = true;
 
         if (callback) callback(this);
 
       }.bind(this),
       error: function(err) {
-        this._error = err;
-        this._loaded = true;
+        this.error = err;
+        this.loaded = true;
 
         if (callback) callback(this);
       }.bind(this)
@@ -38,16 +38,16 @@ var CaptionsComponentLang = Class.extend({
   },
 
   isReady: function() {
-    return (this._loaded && !this._error);
+    return (this.loaded && !this.error);
   },
 
-  _parse: function(raw) {
+  parse: function(raw) {
 
     var eolChars = raw.indexOf("\r\n") > -1 ? "\r\n" : "\n";
     var lines = raw.split(eolChars);
 
-    this._cues = [];
-    this._styles = [];
+    this.cues = [];
+    this.styles = [];
 
     var group = [];
     //get groups by line breaks
@@ -71,8 +71,8 @@ var CaptionsComponentLang = Class.extend({
           if (!group.length) continue;
         }
 
-        this._cues.push({
-          id: "c" + ++CaptionsComponentLang._cueid,
+        this.cues.push({
+          id: "c" + ++CaptionsComponentLang.cueid,
           title: "",
           start: null,
           end: null,
@@ -92,14 +92,14 @@ var CaptionsComponentLang = Class.extend({
     }
 
     //remove NOTEs and STYLES
-    this._cues = this._cues.filter(function(group) {
+    this.cues = this.cues.filter(function(group) {
       var isNode = (group.lines[0].indexOf("NOTE") === 0);
       if (isNode) return;
 
       var isStyle = (group.lines[0].indexOf("STYLE") === 0);
       if (isStyle) {
         group.lines.splice(0,1);
-        this._styles.push(group.lines.join("\n"));
+        this.styles.push(group.lines.join("\n"));
         return;
       }
 
@@ -111,7 +111,7 @@ var CaptionsComponentLang = Class.extend({
       if (group.lines[0].indexOf("-->") === -1) {
         throw "Error";
       } else {
-        extend(group, this._parseTimePlacement(group.lines[0]));
+        extend(group, this.parseTimePlacement(group.lines[0]));
         group.lines.shift();
       }
 
@@ -123,7 +123,7 @@ var CaptionsComponentLang = Class.extend({
 
   },
 
-  _parseTimePlacement: function(line) {
+  parseTimePlacement: function(line) {
 
     line = line.trim();
 
@@ -142,27 +142,27 @@ var CaptionsComponentLang = Class.extend({
     line = line.slice(breakpoint);
 
     return {
-      start: this._parseTime(start),
-      end: this._parseTime(end),
-      placement: this._parsePlacement(line)
+      start: this.parseTime(start),
+      end: this.parseTime(end),
+      placement: this.parsePlacement(line)
     };
 
   },
 
-  _timeUnits: [1/1000, 1, 60, 360],
-  _parseTime: function(time) {
+  timeUnits: [1/1000, 1, 60, 360],
+  parseTime: function(time) {
 
     var blocks = time.split(/[\:\.\,]{1}/g).reverse();
     if (blocks.length < 3) throw "Time declaration error, mm:ss.ttt or hh:mm:ss.tt";
     var seconds = 0;
     for (var i = 0, l = blocks.length; i < l; i++) {
-      seconds += this._timeUnits[i]*parseInt(blocks[i]);
+      seconds += this.timeUnits[i]*parseInt(blocks[i]);
     }
     return seconds;
 
   },
 
-  _parsePlacement: function(line) {
+  parsePlacement: function(line) {
 
     var items = line.split(" ").filter(function(item) {return item;});
     var parsed = {
@@ -217,10 +217,10 @@ var CaptionsComponentLang = Class.extend({
     return parsed;
   }
 
-},{
+}, {
 
-  _cueid: 0
+  cueid: 0
 
 });
 
-Video.CaptionsComponentLang = CaptionsComponentLang;
+Media.CaptionsComponentLang = CaptionsComponentLang;

@@ -1,13 +1,13 @@
-var CaptionsComponent = Video.Component.extend({
+var CaptionsComponent = Media.Component.extend({
 
-  video: null,
+  media: null,
   languages: null,
   defaultLang: null,
 
-  constructor: function CaptionsComponent(video) {
-    this.video = video;
+  constructor: function CaptionsComponent(media) {
+    this.media = media;
     this.getLangs(this.onCaptionsLoaded.bind(this));
-    this.listenTo(this.video, {
+    this.listenTo(this.media, {
       "timeupdate": this.onTimeUpdate,
       "destroyed": this.onDestroyed
     });
@@ -24,21 +24,20 @@ var CaptionsComponent = Video.Component.extend({
     }
   },
 
-  _lastCall: 0,
+  lastCall: 0,
   onTimeUpdate: function(event) {
-
     var now = Date.now();
-    if (this._lastCall > now - 66) return;
-    this._lastCall = now;
+    if (this.lastCall > now - 66) return;
+    this.lastCall = now;
 
     if (!this.languages) return;
 
-    var ct = this.video.el.currentTime;
+    var ct = this.media.el.currentTime;
 
     var liveLangElements = {}
     var liveLangsCount = 0;
 
-    var groups = Video.dom.fetchElements(this.video);
+    var groups = Media.dom.fetchElements(this.media);
     groups.captions && groups.captions.forEach(function(el) {
       var lang = el.getAttribute("srclang")
       if (!this.languages[lang]) return;
@@ -56,11 +55,11 @@ var CaptionsComponent = Video.Component.extend({
       var elements = liveLangElements[lang];
       var captionLang = this.languages[lang];
 
-      var newLiveCues = captionLang._cues.filter(function(cue) {
+      var newLiveCues = captionLang.cues.filter(function(cue) {
         return (cue.start <= ct && cue.end >= ct && !cue.live);
       });
 
-      var toRemove = captionLang._cues.filter(function(cue) {
+      var toRemove = captionLang.cues.filter(function(cue) {
         return (cue.start > ct || cue.end < ct) && cue.live;
       });
 
@@ -223,7 +222,7 @@ var CaptionsComponent = Video.Component.extend({
 
     var langs = {};
 
-    var tracks = this.video.el.querySelectorAll("track[type='text/vtt']");
+    var tracks = this.media.el.querySelectorAll("track[type='text/vtt']");
     toArray(tracks).forEach(function(el) {
       var lang = el.getAttribute("srclang");
       var src = el.getAttribute("src");
@@ -232,7 +231,7 @@ var CaptionsComponent = Video.Component.extend({
           return;
         }
         counted++;
-        langs[lang] = new Video.CaptionsComponentLang({
+        langs[lang] = new Media.CaptionsComponentLang({
           default: (el.getAttribute("default")!==undefined),
           lang: lang,
           src: src,
@@ -252,5 +251,5 @@ var CaptionsComponent = Video.Component.extend({
 
 });
 
-Video.CaptionsComponent = CaptionsComponent;
-Video.dom.components.add("CaptionsComponent");
+Media.CaptionsComponent = CaptionsComponent;
+Media.dom.components.add("CaptionsComponent");

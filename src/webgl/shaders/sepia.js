@@ -1,7 +1,7 @@
-var SepiaShader = Video.Shader.extend({
+var SepiaShader = Media.Shader.extend({
 
   constructor: function SepiaShader() {
-    Video.Shader.apply(this, arguments);
+    Media.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -30,4 +30,4 @@ var SepiaShader = Video.Shader.extend({
 
 });
 
-Video.SepiaShader = SepiaShader;
+Media.SepiaShader = SepiaShader;

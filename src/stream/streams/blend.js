@@ -1,13 +1,14 @@
-var BlendStream = Video.Stream.extend({
+var BlendStream = Media.Stream.extend({
 
-  _sourceDatas: null,
+  sourceDatas: null,
 
-  constructor: function BlendStream() {},
+  constructor: function BlendStream() {
+  },
 
   datas$get: function() {
-    this._sourceDatas = this._sourceDatas || [];
-    this._sourceDatas.length = this.sources.length;
-    return this._sourceDatas;
+    this.sourceDatas = this.sourceDatas || [];
+    this.sourceDatas.length = this.sources.length;
+    return this.sourceDatas;
   },
 
   isFullyPopulated$get: function() {
@@ -21,7 +22,7 @@ var BlendStream = Video.Stream.extend({
     return isFullyPopulated;
   },
 
-  _lastTick: 0,
+  lastTick: 0,
   data: function(data, fromStream) {
     var sources = this.sources;
     var sourceIndex = 0;
@@ -42,8 +43,8 @@ var BlendStream = Video.Stream.extend({
     if (!this.isFullyPopulated) return;
 
     var now = Date.now();
-    if (this._lastTick > now - (1000/60)) return;
-    this._lastTick = now;
+    if (this.lastTick > now - (1000/60)) return;
+    this.lastTick = now;
 
     if (this.next) {
       this.next();
@@ -56,4 +57,4 @@ var BlendStream = Video.Stream.extend({
 
 });
 
-Video.BlendStream = BlendStream;
+Media.BlendStream = BlendStream;

@@ -1,7 +1,7 @@
-var Displacement2Shader = Video.Shader.extend({
+var Displacement2Shader = Media.Shader.extend({
 
   constructor: function Displacement2Shader() {
-    Video.Shader.apply(this, arguments);
+    Media.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -45,4 +45,4 @@ var Displacement2Shader = Video.Shader.extend({
 
 });
 
-Video.Displacement2Shader = Displacement2Shader;
+Media.Displacement2Shader = Displacement2Shader;

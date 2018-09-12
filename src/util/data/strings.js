@@ -17,3 +17,15 @@ var includes = function(value, search, start) {
   if (typeof value === "string" && start + search.length > value.length) return false;
   return value.indexOf(search, start) !== -1;
 };
+
+var replace = function(string, attributes, options) {
+  var options = options || { clean: true };
+  for (var k in attributes) {
+    var regex = new RegExp("\\$\\{"+k+"\\}", "gi");
+    string = string.replace(regex, attributes[k]);
+  }
+  if (options.clean) {
+    string = string.replace(/\$\{[^\}]+\}/g, "");
+  }
+  return string;
+};

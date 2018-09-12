@@ -1,20 +1,23 @@
-var VideoInputStream = Video.Stream.extend({
+var VideoInputStream = Media.InputStream.extend({
 
-  video: null,
-  _frame: null,
+  media: null,
+  frame: null,
 
-  constructor: function VideoInputStream(video) {
-    if (video instanceof Video) this.video = video;
-    if (video instanceof HTMLMediaElement) this.video = video.player;
+  constructor: function VideoInputStream(media) {
+    Media.InputStream.prototype.constructor.apply(this, arguments);
+    if (media instanceof Media) this.media = media;
+    else if (media instanceof HTMLVideoElement) this.media = media.player;
+    else throw "Cannot use element type";
     this.update = this.update.bind(this);
-    this.listenTo(this.video, "timeupdate", this.update);
+    this.listenTo(this.media, "timeupdate", this.update);
   },
 
-  update: function() {
-    this.frame.updateFromElement(this.video.el);
+  update: function(event) {
+    if (!event.fake) return;
+    this.frame.updateFromElement(this.media.el);
     this.push(this.frame);
   }
 
 });
 
-Video.VideoInputStream = VideoInputStream;
+Media.VideoInputStream = VideoInputStream;

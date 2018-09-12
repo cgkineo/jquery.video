@@ -1,5 +1,6 @@
 var Stream = Class.extend({
 
+  _destinations: null,
   _sources: null,
   _frame: null,
 
@@ -11,10 +12,11 @@ var Stream = Class.extend({
     return this._destinations = this._destinations || [];
   },
 
-  constructor: function Stream() {},
+  constructor: function Stream() {
+  },
 
   frame$get: function() {
-    return this._frame = this._frame || new Video.Frame();
+    return this._frame = this._frame || new Media.Frame();
   },
 
   pipe: function(destinationStream, index) {
@@ -49,5 +51,5 @@ var Stream = Class.extend({
 
 });
 
-Video.Stream = Stream;
+Media.Stream = Stream;
 

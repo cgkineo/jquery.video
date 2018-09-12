@@ -24,8 +24,8 @@ var Frame = Class.extend({
   },
 
   updateFromElement: function(element) {
-    var width = element.videoWidth || element.originalWidth || element.width || element.clientWidth;
-    var height = element.videoHeight || element.originalHeight || element.height || element.clientHeight;
+    var width = element.mediaWidth || element.originalWidth || element.width || element.clientWidth;
+    var height = element.mediaHeight || element.originalHeight || element.height || element.clientHeight;
     this.setSize(width, height);
     this.source = element;
     this.update();
@@ -41,4 +41,4 @@ var Frame = Class.extend({
 
 });
 
-Video.Frame = Frame;
+Media.Frame = Frame;

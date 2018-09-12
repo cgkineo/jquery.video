@@ -22,4 +22,4 @@ var LiveOptions = Class.extend({
 
 });
 
-Video.LiveOptions = LiveOptions;
+Media.LiveOptions = LiveOptions;

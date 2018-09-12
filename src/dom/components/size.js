@@ -1,26 +1,31 @@
-var SizeComponent = Video.Component.extend({
+var SizeComponent = Media.Component.extend({
 
-  video: null,
+  media: null,
   size: null,
 
-  constructor: function SizeComponent(video) {
-    this.video = video;
+  constructor: function SizeComponent(media) {
+    this.media = media;
     this.onResize = this.onResize.bind(this);
-    this.listenTo(Video, {
-      "uicreate": this.onUICreate
+    this.listenTo(Media, {
+      "dom:create": this.onDOMCreate,
+      "dom:destroy": this.onDOMDestroy
     });
-    this.listenTo(video, {
+    this.listenTo(media, {
       "resize": this.onResize,
       "destroyed": this.onDestroyed
     });
-    this.onUICreate();
+    this.onDOMCreate();
     this.attachEventListeners();
     this.onResize();
   },
 
-  onUICreate: function() {
-    var groups = Video.dom.fetchElements(this.video);
+  onDOMCreate: function() {
+    var groups = Media.dom.fetchElements(this.media);
     this.size = groups.size;
+  },
+
+  onDOMDestroy: function() {
+    this.size = null;
   },
 
   attachEventListeners: function() {
@@ -36,6 +41,14 @@ var SizeComponent = Video.Component.extend({
 
       var size = this.getSize(el);
       var parent = this.getParent(el);
+
+      // TODO: Addition modes
+      //  contain
+      //  cover
+      //  keepsize cover
+      //  kepsize contain
+      // el.style['max-height'] = "100%";
+      // el.style['max-width'] = "100%";
 
       switch (size.width.unit) {
         case "contain":
@@ -146,5 +159,6 @@ var SizeComponent = Video.Component.extend({
 
 });
 
-Video.SizeComponent = SizeComponent;
-Video.dom.components.add("SizeComponent");
+Media.domEvents.push("resize");
+Media.SizeComponent = SizeComponent;
+Media.dom.components.add("SizeComponent");

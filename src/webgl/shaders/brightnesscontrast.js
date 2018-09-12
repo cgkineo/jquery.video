@@ -1,7 +1,7 @@
-var BrightnessContrastShader = Video.Shader.extend({
+var BrightnessContrastShader = Media.Shader.extend({
 
   constructor: function BrightnessContrastShader() {
-    Video.Shader.apply(this, arguments);
+    Media.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -30,4 +30,4 @@ var BrightnessContrastShader = Video.Shader.extend({
 
 });
 
-Video.BrightnessContrastShader = BrightnessContrastShader;
+Media.BrightnessContrastShader = BrightnessContrastShader;

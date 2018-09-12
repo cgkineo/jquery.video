@@ -1,7 +1,7 @@
-var HueSaturationShader = Video.Shader.extend({
+var HueSaturationShader = Media.Shader.extend({
 
   constructor: function HueSaturationShader() {
-    Video.Shader.apply(this, arguments);
+    Media.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -44,4 +44,4 @@ var HueSaturationShader = Video.Shader.extend({
 
 });
 
-Video.HueSaturationShader = HueSaturationShader;
+Media.HueSaturationShader = HueSaturationShader;

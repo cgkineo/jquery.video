@@ -1,6 +1,7 @@
-var GreenScreenModifyStream = Video.Stream.extend({
+var GreenScreenModifyStream = Media.Stream.extend({
 
-  constructor: function GreenScreenModifyStream() {},
+  constructor: function GreenScreenModifyStream() {
+  },
 
   next: function(pixel) {
     pixel.a = (pixel.g > 100 && pixel.r > 100 && pixel.b < 43) ?
@@ -10,4 +11,4 @@ var GreenScreenModifyStream = Video.Stream.extend({
 
 });
 
-Video.GreenScreenModifyStream = GreenScreenModifyStream;
+Media.GreenScreenModifyStream = GreenScreenModifyStream;

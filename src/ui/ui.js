@@ -1,49 +1,52 @@
 /*
- Creates a user interface for a video.
+ Creates a user interface for a media.
  */
 var UI = Class.extend({
 
-  canvasTemplate: '<canvas class="output" for="${id}" kind="output size" size="900px auto" ratio="16:9"></canvas>',
-  mainTemplate: '\
-    <div class="video-container">\
-      <div class="captions" for="${id}" kind="captions" srclang="en"></div>\
-      <div class="poster" for="${id}" kind="poster"></div>\
-      <div class="waiting" for="${id}" kind="waiting"></div>\
-      <div class="controls">\
-          <button class="big-play" for="${id}" kind="playpausetoggle">Play</button>\
-          <div class="scrub" for="${id}" kind="state">\
-              <button class="little-playpause" for="${id}" kind="playpausetoggle">Play</button>\
-              <div class="railduration" for="${id}" kind="railduration">\
-                  <div class="railback">\
-                  </div>\
-                  <div class="railbuffered" for="${id}" kind="railbuffered">\
-                  </div>\
-                  <div class="railcurrent" for="${id}" kind="railcurrent">\
-                  </div>\
-              </div>\
-              <button class="little-mute" for="${id}" kind="mutetoggle">Mute</button>\
-              <button class="little-captions" for="${id}" kind="captionstoggle">Captions</button>\
-              <button class="little-fullscreen" for="${id}" kind="fullscreentoggle">Fullscreen</button>\
-          </div>\
-      </div>\
-    </div>\
-  ',
+  templates: {
+    main: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    canvas: '<canvas class="${domclassprefix}${name}" for="${id}" kind="${kind}" size="900px auto" ratio="16:9"></canvas>',
+    captions: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}" srclang="en"></div>',
+    poster: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    waiting: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    controls: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    bigplaypause: '<button class="${domclassprefix}${name}" for="${id}" kind="${kind}">Play</button>',
+    skip: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    scrub: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    littleplaypause: '<button class="${domclassprefix}${name}" for="${id}" kind="${kind}">Play</button>',
+    railduration: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    railback: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    railbuffered: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}"></div>',
+    railcurrent: '<div class="${domclassprefix}${name}" for="${id}" kind="${kind}">',
+    littlemute: '<button class="${domclassprefix}${name}" for="${id}" kind="${kind}">Mute</button>',
+    littlecaptions: '<button class="${domclassprefix}${name}" for="${id}" kind="${kind}">Captions</button>',
+    littlefullscreen: '<button class="${domclassprefix}${name}" for="${id}" kind="${kind}">Fullscreen</button>',
+  },
 
-  options: {
-    replaceWith: true,
-    playsInline: true,
-    canvas: false,
-    poster: true,
-    waiting: true,
-    controls: true,
-    skip: true,
-    bigPlayPause: true,
-    scrub: [
-      "playpause",
-      "rail",
-      "captions",
-      "fullscreen"
-    ]
+  defaults: {
+    uienabled: true,
+    uireplace: true,
+    mediaplaysinline: true,
+    domclassprefix: "media--",
+    uilayout: {
+      main: { kind: "fullscreen" },
+      canvas: { parent: "main", order: 1, enabled: false, kind: "output" },
+      captions: { parent: "main", order: 2, enabled: true, kind: "captions captionsstate" },
+      poster: { parent: "main", order: 3, enabled: true, kind: "poster" },
+      waiting: { parent: "main", order: 4, enabled: true, kind: "waiting" },
+      controls: { parent: "main", order: 5, enabled: true, kind: "skipcontrol" },
+      skip: { parent: "controls", order: 1, enabled: true, kind: "skipstate" },
+      bigplaypause: { parent: "controls", order: 2, enabled: true, kind: "playpausetoggle playpausestate" },
+      scrub: { parent: "controls", order: 3, enabled: true, kind: "" },
+      littleplaypause: { parent: "scrub", order: 1, enabled: true, kind: "playpausetoggle playpausestate" },
+      railduration: { parent: "scrub", order: 2, enabled: true, kind: "railduration" },
+      railback: { parent: "railduration", order: 1, enabled: true, kind: "" },
+      railbuffered: { parent: "railduration", order: 2, enabled: true, kind: "railbuffered" },
+      railcurrent: { parent: "railduration", order: 3, enabled: true, kind: "railcurrent" },
+      littlemute: { parent: "scrub", order: 3, enabled: true, kind: "mute mutestate" },
+      littlecaptions: { parent: "scrub", order: 4, enabled: true, kind: "captionstoggle captionsstate" },
+      littlefullscreen: { parent: "scrub", order: 5, enabled: true, kind: "fullscreentoggle fullscreenstate" }
+    }
   },
 
   selector: null,
@@ -51,47 +54,74 @@ var UI = Class.extend({
   source: null,
 
   constructor: function UI(selector, options) {
+    if (!options.uienabled) return;
     this.selector = selector;
-    this.options = defaults(options, this.options);
+    this.options = defaults(options, this.defaults);
     this.source = elements(selector)[0];
-    this._ensureElement();
-    this._processOptions();
-    Video.dom && Video.dom.refreshElements();
+    this.ensureElement();
+    this.processOptions();
   },
 
-  _ensureElement: function() {
-    this.el = this._getRenderedTemplate('mainTemplate');
+  ensureElement: function() {
+    this.el = this.getRenderedTemplate('main', extend({
+      name: 'main'
+    }, this.options.uilayout.main));
+    this.constructUserInterface();
   },
 
-  _getRenderedTemplate: function(name) {
-    var attributes = {
-      id: this.source.id
-    };
-    var template = this[name];
-    for (var k in attributes) {
-      var regex = new RegExp("\\$\\{"+k+"\\}", "gi");
-      template = template.replace(regex, attributes[k]);
+  constructUserInterface: function() {
+    var configs = [];
+    for (var k in this.options.uilayout) {
+      var item = this.options.uilayout[k];
+      if (k === "main") continue;
+      if (!item.enabled) continue;
+      item.name = k;
+      configs.push(item);
     }
+    configs.sort(function(a,b) {
+      return b.parent.localeCompare(a.parent) ||
+        b.order - a.order;
+    });
+    var ticks = 0;
+    var containers = { main: this.el };
+    var i = -1;
+    do {
+      if (i < 0) { ticks++; i = configs.length - 1; }
+      var item = configs[i];
+      if (item.parent && !containers[item.parent])
+        { i--; continue; }
+      var el = this.getRenderedTemplate(item.name, item);
+      if (!el) { configs.splice(i, 1); i--; continue;}
+      containers[item.name] = el;
+      containers[item.parent].appendChild(el);
+      configs.splice(i, 1);
+      i--;
+    } while (configs.length && ticks < 10)
+  },
+
+  getRenderedTemplate: function(name, attributes) {
+    var attributes = defaults(extend({}, attributes), this.options);
+    var template = this.templates[name];
+    if (!template) return;
+    template = replace(template, attributes);
     var element = document.createElement('div');
     element.innerHTML = template;
     return element.children[0];
   },
 
-  _processOptions: function() {
-    if (this.options.playsInline) {
+  processOptions: function() {
+    if (this.options.mediaplaysinline && this.source.tagName === "VIDEO") {
       this.source.setAttribute("playsinline", true);
     }
-    if (this.options.replaceWith) {
+    if (this.options.uireplace) {
       replaceWith(this.source, this.el);
       prependElement(this.el, this.source);
     }
-    if (this.options.canvas) {
+    if (this.options.uilayout.canvas.enabled) {
       this.source.style.display = "none";
-      var canvas = this._getRenderedTemplate('canvasTemplate');
-      prependElement(this.el, canvas);
     }
   }
 
 });
 
-Video.UI = UI;
+Media.UI = UI;

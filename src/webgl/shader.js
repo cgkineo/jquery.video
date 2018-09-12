@@ -154,10 +154,10 @@ var Shader = Class.extend({
 },{
 
   getDefaultShader: function(context) {
-    context.defaultShader = context.defaultShader || new Video.Shader(context);
+    context.defaultShader = context.defaultShader || new Media.Shader(context);
     return context.defaultShader;
   }
 
 });
 
-Video.Shader = Shader;
+Media.Shader = Shader;

@@ -1,28 +1,28 @@
 var Components = Class.extend({
 
-  _loadNames: null,
+  loadNames: null,
 
   constructor: function Components() {
-    this.listenTo(Video, {
+    this.listenTo(Media, {
       "created": this.onCreated
     });
   },
 
-  onCreated: function(video) {
-    video.ui = video.ui || {};
-    video.ui.components = video.ui.components || {};
-    for (var i = 0, l = this._loadNames.length; i < l; i++) {
-      var name = this._loadNames[i];
-      var constructor = Video[name];
-      video.components[name] = new constructor(video);
+  onCreated: function(media) {
+    media.ui = media.ui || {};
+    media.ui.components = media.ui.components || {};
+    for (var i = 0, l = this.loadNames.length; i < l; i++) {
+      var name = this.loadNames[i];
+      var constructor = Media[name];
+      media.components[name] = new constructor(media);
     }
   },
 
   add: function(name) {
-    this._loadNames = this._loadNames || [];
-    this._loadNames.push(name);
+    this.loadNames = this.loadNames || [];
+    this.loadNames.push(name);
   }
 
 });
 
-Video.dom.components = new Components();
+Media.dom.components = new Components();

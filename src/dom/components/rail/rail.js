@@ -1,34 +1,34 @@
-var RailComponent = Video.Component.extend({
+var RailComponent = Media.Component.extend({
 
   floorPrecision: 10,
 
-  video: null,
+  media: null,
   railduration: null,
   railcurrent: null,
   railbuffered: null,
 
-  constructor: function RailComponent(video) {
-    this.video = video;
-    this.listenTo(Video, {
-      "uicreate": this.onUICreate
+  constructor: function RailComponent(media) {
+    this.media = media;
+    this.listenTo(Media, {
+      "dom:create": this.onDOMCreate
     });
-    this.listenTo(video, {
+    this.listenTo(media, {
       "timeupdate ended": this.onTimeUpdate,
       "destroyed": this.destroy
     });
-    this.onUICreate();
+    this.onDOMCreate();
     this.onTimeUpdate();
   },
 
-  onUICreate: function() {
-    var groups = Video.dom.fetchElements(this.video);
+  onDOMCreate: function() {
+    var groups = Media.dom.fetchElements(this.media);
     this.railduration = groups.railduration;
     this.railcurrent = groups.railcurrent;
     this.railbuffered = groups.railbuffered;
     if (this.railduration) {
       for (var i = 0, l = this.railduration.length; i < l; i++) {
         var railduration = this.railduration[i];
-        new Video.RailDurationEvents(this.video, railduration);
+        new Media.RailDurationEvents(this.media, railduration);
       }
     }
   },
@@ -42,15 +42,15 @@ var RailComponent = Video.Component.extend({
     if (!this.railcurrent) return;
     for (var i = 0, l = this.railcurrent.length; i < l; i++) {
       var rail = this.railcurrent[i];
-      var position = (this.video.el.currentTime / this.video.el.duration) || 0;
+      var position = (this.media.el.currentTime / this.media.el.duration) || 0;
       rail.style.width = Math.round(rail.offsetParent.clientWidth * position) + "px";
     }
   },
 
   bufferedUpdate: function() {
     if (!this.railbuffered) return;
-    var duration = this.video.el.duration;
-    var buffered = this.video.el.buffered;
+    var duration = this.media.el.duration;
+    var buffered = this.media.el.buffered;
     var length = 0;
     for (var b = 0, bl = buffered.length; b < bl; b++) {
       var start = buffered.start(b);
@@ -66,5 +66,5 @@ var RailComponent = Video.Component.extend({
 
 });
 
-Video.RailComponent = RailComponent;
-Video.dom.components.add("RailComponent");
+Media.RailComponent = RailComponent;
+Media.dom.components.add("RailComponent");

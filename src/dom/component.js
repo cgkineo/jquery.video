@@ -1,1 +1,1 @@
-Video.Component = Class.extend({});
+Media.Component = Class.extend({});

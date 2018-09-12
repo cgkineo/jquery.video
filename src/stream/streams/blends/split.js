@@ -1,6 +1,7 @@
-var SplitBlend = Video.BlendStream.extend({
+var SplitBlend = Media.BlendStream.extend({
 
-  constructor: function SplitBlend() {},
+  constructor: function SplitBlend() {
+  },
 
   next: function() {
 
@@ -22,7 +23,7 @@ var SplitBlend = Video.BlendStream.extend({
 
 });
 
-Video.SplitBlend = SplitBlend;
+Media.SplitBlend = SplitBlend;
 
 
 

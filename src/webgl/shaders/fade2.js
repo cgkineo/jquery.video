@@ -1,7 +1,7 @@
-var Fade2Shader = Video.Shader.extend({
+var Fade2Shader = Media.Shader.extend({
 
   constructor: function Fade2Shader() {
-    Video.Shader.apply(this, arguments);
+    Media.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -36,4 +36,4 @@ var Fade2Shader = Video.Shader.extend({
 
 });
 
-Video.Fade2Shader = Fade2Shader;
+Media.Fade2Shader = Fade2Shader;
