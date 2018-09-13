@@ -1,4 +1,4 @@
-var RailComponent = Media.Component.extend({
+Media.DOM.RailComponent = Media.DOM.Component.extend({
 
   floorPrecision: 10,
 
@@ -9,8 +9,8 @@ var RailComponent = Media.Component.extend({
 
   constructor: function RailComponent(media) {
     this.media = media;
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate
     });
     this.listenTo(media, {
       "timeupdate resize ended": this.onTimeUpdate,
@@ -21,14 +21,14 @@ var RailComponent = Media.Component.extend({
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.railduration = groups.railduration;
     this.railcurrent = groups.railcurrent;
     this.railbuffered = groups.railbuffered;
     if (this.railduration) {
       for (var i = 0, l = this.railduration.length; i < l; i++) {
         var railduration = this.railduration[i];
-        new Media.RailDurationEvents(this.media, railduration);
+        new Media.DOM.RailDurationEvents(this.media, railduration);
       }
     }
   },
@@ -66,5 +66,4 @@ var RailComponent = Media.Component.extend({
 
 });
 
-Media.RailComponent = RailComponent;
-Media.dom.register("RailComponent");
+Media.DOM.register("RailComponent");

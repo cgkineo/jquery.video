@@ -8,50 +8,96 @@
  *  classFunction: function() {
  *    console.log("class function");
  *  }
+ * }, {
+ *    inheritClassEnumerables: false,
+ *    classEvents: false,
+ *    classProperties: true,
+ *    instanceEvents: false,
+ *    instanceProperties: true
  * });
  * @param {Object} proto  An object describing the Class prototype properties.
  * @param {Object} parent An object describing the Class properties.
  */
 var ClassExtend = function(proto, cls, options) {
-  options = defaults(options, {
-    extend: true,
-    classEvents: false,
-    instanceEvents: false,
-    properties: true
-  });
   var parent = this;
   var child;
+
   // Create or pick constructor
   if (proto && proto.hasOwnProperty("constructor")) child = proto.constructor;
   else child = function Class() { return parent.apply(this, arguments); };
+
+  Object.defineProperty(child, 'options', {
+    value: defaults(options, parent.options, {
+      extendFunction: true,
+      inheritClassEnumerables: false,
+      classEvents: false,
+      classProperties: true,
+      instanceEvents: false,
+      instanceProperties: true
+    }),
+    enumerable: false,
+    writable: true
+  });
+
   // Generate new prototype chain
   child.prototype = Object.create(parent.prototype);
+
   // Extend constructor.prototype with prototype chain
   extend(child.prototype, proto);
-  // Reassign constructor
-  child.prototype.constructor = child;
 
-  if (options.extend) {
-    // Extend constructor with parent functions and cls properties
-    extend(child, parent, cls, {
+  // Reassign constructor
+  extendNotEnumerable(child.prototype, {
+    constructor: child
+  });
+
+  // Extend constructor with parent functions and cls properties
+  if (child.options.inheritClassEnumerables) extend(child, parent);
+  extend(child, cls);
+
+  // Add extend function
+  if (child.options.extendFunction) {
+    extendNotEnumerable(child, {
       extend: ClassExtend
     });
   }
 
-  if (options.classEvents) {
-    defaults(child, Events);
+  // Add events system to Class
+  if (child.options.classEvents) {
+    extendNotEnumerable(child, Events);
   }
 
-  if (options.instanceEvents) {
-    defaults(child.prototype, Events);
+  // Add events system to prototype
+  if (child.options.instanceEvents) {
+    extendNotEnumerable(child.prototype, Events);
+    //defaults(child.prototype, Events);
   }
 
-  if (options.properties) {
-    // Apply properties pattern to constructor prototype
+  // Apply properties pattern to constructor prototype
+  if (child.options.instanceProperties) {
+    Object.defineProperty(child.prototype, "defineProperties", {
+      value: function(props) {
+        return properties(this, props);
+      },
+      enumerable: false,
+      writable: false,
+      configurable: false
+    });
     properties(child.prototype);
-    // Apply properties pattern to constructor
+  }
+
+  // Apply properties pattern to constructor
+  if (child.options.classProperties) {
+    Object.defineProperty(child, "defineProperties", {
+      value: function(props) {
+        return properties(this, props);
+      },
+      enumerable: false,
+      writable: false,
+      configurable: false
+    });
     properties(child);
   }
+
   return child;
 };
 

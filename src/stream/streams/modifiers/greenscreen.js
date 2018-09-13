@@ -1,6 +1,6 @@
-var GreenScreenModifyStream = Media.Stream.extend({
+Media.Stream.GreenScreenModify = Media.Stream.extend({
 
-  constructor: function GreenScreenModifyStream() {
+  constructor: function GreenScreenModify() {
   },
 
   next: function(pixel) {
@@ -10,5 +10,3 @@ var GreenScreenModifyStream = Media.Stream.extend({
   }
 
 });
-
-Media.GreenScreenModifyStream = GreenScreenModifyStream;

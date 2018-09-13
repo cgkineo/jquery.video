@@ -1,12 +1,12 @@
-var CanvasOutputStream = Media.OutputStream.extend({
+Media.Stream.CanvasOutput = Media.Stream.Output.extend({
 
   canvas: null,
   context: null,
   width: 0,
   height: 0,
 
-  constructor: function CanvasOutputStream(canvas) {
-    Media.OutputStream.prototype.constructor.apply(this, arguments);
+  constructor: function CanvasOutput(canvas) {
+    Media.Stream.Output.prototype.constructor.apply(this, arguments);
     this.canvas = canvas;
     this.context = this.canvas.getContext('2d', { alpha: true });
   },
@@ -22,5 +22,3 @@ var CanvasOutputStream = Media.OutputStream.extend({
   }
 
 });
-
-Media.CanvasOutputStream = CanvasOutputStream;

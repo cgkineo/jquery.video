@@ -1,48 +1,47 @@
-var FullScreenToggleComponent = Media.Component.extend({
+Media.DOM.FullScreenToggleComponent = Media.DOM.Component.extend({
 
   media: null,
-  events: null,
+  domEvents: null,
   fullscreentoggle: null,
 
   constructor: function FullScreenToggleComponent(media) {
     this.media = media;
-    this.events = {
+    this.domEvents = {
       'click': this.onClick.bind(this)
     };
     this.media = media;
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.onDOMCreate();
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.fullscreentoggle = groups.fullscreentoggle;
     this.fullscreen = groups.fullscreen;
-    elements(this.fullscreentoggle).off(this.events).on(this.events);
+    elements(this.fullscreentoggle).off(this.domEvents).on(this.domEvents);
   },
 
   onDOMDestroy: function() {
-    elements(this.fullscreentoggle).off(this.events);
+    elements(this.fullscreentoggle).off(this.domEvents);
   },
 
   onClick: function() {
-    if (document.fullscreenElement2) {
-      document.exitFullscreen2();
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
       return;
     }
-    this.fullscreen[0].requestFullscreen2();
+    this.fullscreen[0].requestFullscreen();
   },
 
   onDestroyed: function() {
     this.onDOMDestroy();
     this.media = null;
-    Media.Component.prototype.destroy.call(this);
+    Media.DOM.Component.prototype.destroy.call(this);
   }
 
 });
 
-Media.FullScreenToggleComponent = FullScreenToggleComponent;
-Media.dom.register("FullScreenToggleComponent");
+Media.DOM.register("FullScreenToggleComponent");

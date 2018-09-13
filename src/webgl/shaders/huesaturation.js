@@ -1,7 +1,7 @@
-var HueSaturationShader = Media.Shader.extend({
+Media.WebGL.HueSaturationShader = Media.WebGL.Shader.extend({
 
   constructor: function HueSaturationShader() {
-    Media.Shader.prototype.constructor.apply(this, arguments);
+    Media.WebGL.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -44,4 +44,3 @@ var HueSaturationShader = Media.Shader.extend({
 
 });
 
-Media.HueSaturationShader = HueSaturationShader;

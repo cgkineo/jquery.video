@@ -1,4 +1,4 @@
-var SkipStateComponent = Media.Component.extend({
+Media.DOM.SkipStateComponent = Media.DOM.Component.extend({
 
   floorPrecision: 10,
 
@@ -7,9 +7,9 @@ var SkipStateComponent = Media.Component.extend({
 
   constructor: function SkipStateComponent(media) {
     this.media = media;
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.listenTo(media, {
       "skip": this.onSkip,
@@ -19,7 +19,7 @@ var SkipStateComponent = Media.Component.extend({
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.skipstate = groups.skipstate;
   },
 
@@ -30,15 +30,15 @@ var SkipStateComponent = Media.Component.extend({
   onSkip: function(event) {
     if (!this.skipstate) return;
     if (!event.skipAmount) return;
+    // TODO: add classes to show skip ui
   },
 
   onDestroyed: function() {
     this.media = null;
     this.skipstate = null;
-    Media.Component.prototype.destroy.call(this);
+    Media.DOM.Component.prototype.destroy.call(this);
   }
 
 });
 
-Media.SkipStateComponent = SkipStateComponent;
-Media.dom.register("SkipStateComponent");
+Media.DOM.register("SkipStateComponent");

@@ -1,9 +1,7 @@
-var OutputStream = Media.Stream.extend({
+Media.Stream.Output = Media.Stream.extend({
 
-  constructor: function OutputStream(canvas) {
+  constructor: function Output(canvas) {
 
   }
 
 });
-
-Media.OutputStream = OutputStream;

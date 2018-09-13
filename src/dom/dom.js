@@ -1,27 +1,26 @@
 /*
  Captures DOM elements and groups them according to their for and kind attributes.
- Media.dom.refresh();
- var UIElements = Media.dom.fetch(media)
+ Media.DOM.refresh();
+ var UIElements = Media.DOM.fetch(media)
  */
-var DOM = Class.extend({
+Media.DOM = Class.extend({
 
-  medias: null,
-  groups: null,
-  registered: null,
-
-  defaults: {
-    skipon: "touchend"
-  },
+  medias$write: null,
+  index$write: null,
+  registered$write: null,
 
   constructor: function DOM() {
-    this.medias = [];
-    this.groups = {};
+    this.defineProperties({
+      "medias$write": [],
+      "index$write": {},
+      "registered$write": []
+    });
     this.listenTo(Media, {
       "create": this.onCreate,
       "created": this.onCreated,
       "destroyed": this.onDestroyed
     });
-    bindAll(this, "start", "refreshElements", "onDocumentMutation");
+    bindAll(this, "start", "onDocumentMutation");
     if (document.body) {
       delay(this.start, 1);
     } else {
@@ -34,40 +33,41 @@ var DOM = Class.extend({
     this.registered.push(name);
   },
 
-  start: function() {
+  start$value: function() {
     this.addDocumentMutationObserver();
     this.refreshElements();
   },
 
-  addDocumentMutationObserver: function() {
+  addDocumentMutationObserver$value: function() {
     var observer = new MutationObserver(this.onDocumentMutation);
     observer.observe(document.body, { childList:true, subtree: true });
   },
 
-  onCreate: function(media) {
+  onCreate$value: function(media) {
     if (!media.options.domenabled) return;
-    defaults(media.options, this.defaults);
     this.medias.push(media);
   },
 
-  onCreated: function(media) {
-    media.dom = media.dom || {};
+  onCreated$value: function(media) {
+    media.defineProperties({
+      dom: {}
+    })
     media.dom.components = media.dom.components || {};
     for (var i = 0, l = this.registered.length; i < l; i++) {
       var name = this.registered[i];
-      var constructor = Media[name];
-      media.components[name] = new constructor(media);
+      var constructor = Media.DOM[name];
+      media.dom.components[name] = new constructor(media);
     }
   },
 
-  onDestroyed: function(media) {
+  onDestroyed$value: function(media) {
     for (var i = this.medias.length - 1; i >= 0; i--) {
       if (this.medias[i].id !== media.id) continue;
       this.medias.splice(i, 1);
     }
   },
 
-  onDocumentMutation: function(mutationList) {
+  onDocumentMutation$value: function(mutationList) {
     var changedNodes = [];
     for (var i = 0, l = mutationList.length; i < l; i++) {
       var mutationItem = mutationList[i];
@@ -84,28 +84,28 @@ var DOM = Class.extend({
     this.refreshElements();
   },
 
-  refreshElements: function(mutationList) {
-    Media.trigger("dom:destroy");
+  refreshElements: function() {
+    Media.DOM.trigger("destroy");
     this.getNodes();
-    Media.trigger("dom:create");
+    Media.DOM.trigger("create");
   },
 
   fetchElements: function(media) {
     var id;
-    if (media.el) id =media.el.id;
-    return this.groups[id] || {};
+    if (media.el) id = media.el.id;
+    return this.index[id] || {};
   },
 
-  getNodes: function() {
+  getNodes$value: function() {
     var ids = this.getIds();
     var eles = elements("[for][kind], [id][kind]").filter(function(ele) {
       var id = ele.getAttribute('for') || ele.getAttribute('id');
       return ids[id];
     });
-    this.groups = elements(eles).groupByAttributes('for id', 'kind');
+    this.index = elements(eles).groupByAttributes('for id', 'kind');
   },
 
-  getIds: function() {
+  getIds$value: function() {
     var ids = {};
     for (var i = 0, l = this.medias.length; i < l; i++) {
       ids[this.medias[i].el.id] = true;
@@ -117,5 +117,9 @@ var DOM = Class.extend({
   instanceEvents: true
 });
 
-Media.DOM = DOM;
-Media.dom = new DOM();
+Media.DOM = new Media.DOM();
+Media.DefaultOptions.add({
+  classprefix: "media--",
+  domenabled: false
+});
+

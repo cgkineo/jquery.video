@@ -1,6 +1,5 @@
-var Frame = Class.extend({
+Media.Stream.Frame = Class.extend({
 
-  source: null,
   height: 0,
   width: 0,
   canvas: null,
@@ -11,28 +10,18 @@ var Frame = Class.extend({
     this.context = this.canvas.getContext("2d");
   },
 
-  setSize: function(width, height) {
-    if (this.width === width && this.height === height) return;
-    this.width = width;
-    this.height = height;
-    this.canvas.width = width;
-    this.canvas.height = height;
-  },
-
-  copy: function(frame) {
-    this.updateFromElement(frame.canvas);
-  },
-
   updateFromElement: function(element) {
+    if (element instanceof Media.Stream.Frame) element = element.canvas;
     // TODO : work out precedence
     var width = element.videoWidth || element.originalWidth || element.width || element.clientWidth;
     var height = element.videoHeight || element.originalHeight || element.height || element.clientHeight;
-    this.setSize(width, height);
+    if (this.width !== width || this.height !== height) {
+      this.width = width;
+      this.height = height;
+      this.canvas.width = width;
+      this.canvas.height = height;
+    }
     this.source = element;
-    this.update();
-  },
-
-  update: function() {
     this.context.drawImage(this.source, 0, 0, this.width, this.height);
   },
 
@@ -41,5 +30,3 @@ var Frame = Class.extend({
   }
 
 });
-
-Media.Frame = Frame;

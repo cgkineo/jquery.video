@@ -1,4 +1,4 @@
-var WebGL = Class.extend({
+Media.WebGL = Class.extend({
 
   canvas: null,
   context: null,
@@ -21,7 +21,7 @@ var WebGL = Class.extend({
   },
 
   createTexture: function(element) {
-    return Media.Texture.fromElement(this.context, element);
+    return Media.WebGL.Texture.fromElement(this.context, element);
   },
 
   setSize: function(width, height) {
@@ -35,7 +35,7 @@ var WebGL = Class.extend({
   },
 
   runShader: function(shaderName, uniforms, textures) {
-    var ShaderClass = Media[shaderName];
+    var ShaderClass = Media.WebGL[shaderName];
     if (!ShaderClass) {
       throw "Shader not defined " + shaderName;
     }
@@ -44,8 +44,8 @@ var WebGL = Class.extend({
       this.shaders[shaderName] ||
       new ShaderClass(this.context);
 
-    if (!(shader instanceof Media.Shader)) {
-      throw "Instance is not a Media.Shader " + shaderName;
+    if (!(shader instanceof Media.WebGL.Shader)) {
+      throw "Instance is not a Media.WebGL.Shader " + shaderName;
     }
 
     shader.uniforms(shader.parseUniforms(uniforms)).textures(textures).drawRect();
@@ -54,5 +54,3 @@ var WebGL = Class.extend({
   }
 
 });
-
-Media.WebGL = WebGL;

@@ -1,39 +1,38 @@
-var SkipControlComponent = Media.Component.extend({
+Media.DOM.SkipControlComponent = Media.DOM.Component.extend({
 
   floorPrecision: 10,
 
   media: null,
-  events: null,
+  domEvents: null,
   interactions: null,
   skipcontrol: null,
   lastEvent: 0,
   skipped: 0,
 
   constructor: function SkipControlComponent(media) {
-    var skipon = media.options.skipon || "touchend mouseup";
-    if (!skipon) return;
+    if (!media.options.skipon) return;
 
     this.interactions = [];
     this.clear = debounce(this.clear.bind(this), 500);
     this.media = media;
-    this.events = {};
-    this.events[media.options.skipon] = this.onUp.bind(this),
+    this.domEvents = {};
+    this.domEvents[media.options.skipon] = this.onUp.bind(this),
     this.media = media;
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.onDOMCreate();
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.skipcontrol = groups.skipcontrol;
-    elements(this.skipcontrol).off(this.events).on(this.events);
+    elements(this.skipcontrol).off(this.domEvents).on(this.domEvents);
   },
 
   onDOMDestroy: function() {
-    elements(this.skipcontrol).off(this.events);
+    elements(this.skipcontrol).off(this.domEvents);
   },
 
   onUp: function(event) {
@@ -129,11 +128,13 @@ var SkipControlComponent = Media.Component.extend({
   onDestroyed: function() {
     this.onDOMDestroy();
     this.media = null;
-    Media.Component.prototype.destroy.call(this);
+    Media.DOM.Component.prototype.destroy.call(this);
   }
 
 });
 
-Media.domEvents.push("skip");
-Media.SkipControlComponent = SkipControlComponent;
-Media.dom.register("SkipControlComponent");
+Media.DefaultOptions.add({
+  skipon: "touchend mouseup"
+});
+Media.DOMEvents.add("skip");
+Media.DOM.register("SkipControlComponent");

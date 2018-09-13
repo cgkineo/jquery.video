@@ -1,8 +1,12 @@
-var LiveOptions = Class.extend({
+Media.Stream.LiveOptions = Class.extend({
 
   constructor: function LiveOptions(options) {
     var createProperty = function(name, value) {
-      this['_'+name] = value;
+      Object.defineProperty(this, '_'+name, {
+        value: value,
+        writable: true,
+        enumerable: false
+      });
       return {
         set: function(value) {
           this['_'+name] = value;
@@ -10,7 +14,8 @@ var LiveOptions = Class.extend({
         },
         get: function() {
           return this['_'+name];
-        }
+        },
+        enumerable: true
       };
     }.bind(this);
     var props = {};
@@ -21,5 +26,3 @@ var LiveOptions = Class.extend({
   }
 
 });
-
-Media.LiveOptions = LiveOptions;

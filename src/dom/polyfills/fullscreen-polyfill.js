@@ -138,11 +138,11 @@
     if (proxiedEventListeners) return;
     proxiedEventListeners = true;
     var redirectFullScreenChange = function (event) {
-      event = defaults(createEvent('fullscreenchange2'), event);
+      event = defaults(createEvent('fullscreenchange'), event);
       document.dispatchEvent(event);
     };
     var redirectFullScreenError = function (event) {
-      event = defaults(createEvent('fullscreenerror2'), event);
+      event = defaults(createEvent('fullscreenerror'), event);
       document.dispatchEvent(event);
     };
     for (var i = 0, l = alternativeNames.onfullscreenchange.length; i < l; i++) {
@@ -179,55 +179,55 @@
   var fullWindowElement = null;
   var addToElements = [];
   var removeFromElements = [];
-  var requestByFullscreen2 = false;
+  var requestByFullscreen = false;
 
   var applied = {
-    fullscreenElement2: false,
-    fullscreenEnabled2: false,
-    exitFullscreen2: false,
-    requestFullscreen2: false,
-    onfullscreenchange2: false,
-    onfullscreenerror2: false
+    fullscreenElement: false,
+    fullscreenEnabled: false,
+    exitFullscreen: false,
+    requestFullscreen: false,
+    onfullscreenchange: false,
+    onfullscreenerror: false
   };
 
   function fixFullScreenElement() {
-    if (applied.fullscreenElement2) return;
-    applied.fullscreenElement2 = true;
-    Object.defineProperty(document, "fullscreenElement2", {
+    if (applied.fullscreenElement) return;
+    applied.fullscreenElement = true;
+    Object.defineProperty(document, "fullscreenElement", {
       get: function() {
         if (isFullWindow) {
-          debug && console.log("get fullscreenElement2", fullWindowElement);
+          debug && console.log("get fullscreenElement", fullWindowElement);
           return fullWindowElement;
         }
-        debug && console.log("get fullscreenElement2", document[api["fullscreenElement"]]);
+        debug && console.log("get fullscreenElement", document[api["fullscreenElement"]]);
         return document[api["fullscreenElement"]];
       }
     });
   }
 
   function fixFullScreenEnabled() {
-    if (applied.fullscreenEnabled2) return;
-    applied.fullscreenEnabled2 = true;
-    Object.defineProperty(document, "fullscreenEnabled2", {
+    if (applied.fullscreenEnabled) return;
+    applied.fullscreenEnabled = true;
+    Object.defineProperty(document, "fullscreenEnabled", {
       get: function() {
         if (isFullWindow) {
-          debug && console.log("get fullscreenEnabled2", true);
+          debug && console.log("get fullscreenEnabled", true);
           return true;
         }
-        debug && console.log("get fullscreenEnabled2", document[api["fullscreenEnabled"]]);
+        debug && console.log("get fullscreenEnabled", document[api["fullscreenEnabled"]]);
         return document[api["fullscreenEnabled"]];
       }
     });
   }
 
   function fixExitFullScreen() {
-    if (applied.exitFullscreen2) return;
-    applied.exitFullscreen2 = true;
-    document.exitFullscreen2 = function() {
-      debug && console.log("exitFullscreen2");
+    if (applied.exitFullscreen) return;
+    applied.exitFullscreen = true;
+    document.exitFullscreen = function() {
+      debug && console.log("exitFullscreen");
       if (isFullWindow) {
         fullWindowElement = null;
-        document.dispatchEvent(createEvent("fullscreenchange2"));
+        document.dispatchEvent(createEvent("fullscreenchange"));
         return;
       }
       return document[api.exitFullscreen].apply(this, arguments);
@@ -235,19 +235,19 @@
   }
 
   function fixRequestFullScreen() {
-    if (applied.requestFullscreen2) return;
-    applied.requestFullscreen2 = true;
-    Element.prototype.requestFullscreen2 = function(options) {
-      requestByFullscreen2 = defaults(extend({}, options), {
+    if (applied.requestFullscreen) return;
+    applied.requestFullscreen = true;
+    Element.prototype.requestFullscreen = function(options) {
+      requestByFullscreen = defaults(extend({}, options), {
         style: "contain",
         height: this.clientHeight,
         width: this.clientWidth,
         element: this
       });
-      debug && console.log("requestFullscreen2", this);
+      debug && console.log("requestFullscreen", this);
       if (isFullWindow) {
         fullWindowElement = this;
-        document.dispatchEvent(createEvent("fullscreenchange2"));
+        document.dispatchEvent(createEvent("fullscreenchange"));
         return;
       }
       return this[api.requestFullscreen].apply(this, arguments);
@@ -255,30 +255,30 @@
   }
 
   function fixOnFullScreenChange() {
-    if (applied.onfullscreenchange2) return;
-    applied.onfullscreenchange2 = true;
-    Object.defineProperty(document, "onfullscreenchange2", {
+    if (applied.onfullscreenchange) return;
+    applied.onfullscreenchange = true;
+    Object.defineProperty(document, "onfullscreenchange", {
       get: function() {
-        debug && console.log("get onfullscreenchange2", document[api["onfullscreenchange"]]);
+        debug && console.log("get onfullscreenchange", document[api["onfullscreenchange"]]);
         return document[api["onfullscreenchange"]];
       },
       set: function(value) {
-        debug && console.log("set onfullscreenchange2", document[api["onfullscreenchange"]]);
+        debug && console.log("set onfullscreenchange", document[api["onfullscreenchange"]]);
         document[api["onfullscreenchange"]] = value;
       }
     });
   }
 
   function fixOnFullScreenError() {
-    if (applied.onfullscreenerror2) return;
-    applied.onfullscreenerror2 = true;
-    Object.defineProperty(document, "onfullscreenerror2", {
+    if (applied.onfullscreenerror) return;
+    applied.onfullscreenerror = true;
+    Object.defineProperty(document, "onfullscreenerror", {
       get: function() {
-        debug && console.log("get onfullscreenerror2", document[api["onfullscreenerror"]]);
+        debug && console.log("get onfullscreenerror", document[api["onfullscreenerror"]]);
         return document[api["onfullscreenerror"]];
       },
       set: function(value) {
-        debug && console.log("set onfullscreenerror2", document[api["onfullscreenerror"]]);
+        debug && console.log("set onfullscreenerror", document[api["onfullscreenerror"]]);
         document[api["onfullscreenerror"]] = value;
       }
     });
@@ -289,17 +289,11 @@
     var style = document.createElement("style");
     style.setAttribute("id", "polyfill--fullscreen");
     style.textContent = '\
+.polyfill--fullscreen-overflowhidden-fullwindow,\
 .polyfill--fullscreen-overflowhidden {\
   overflow: hidden !important;\
 }\
-.polyfill--fullscreen2-wrapper {\
-  display: inline-block;\
-  position: fixed;\
-  top: 50%;\
-  left: 50%;\
-  transform: translate(-50%,-50%);\
-}\
-.polyfill--fullscreen2:before {\
+.polyfill--fullscreen:before {\
   content: " ";\
   position: fixed;\
   top: 0;\
@@ -309,7 +303,7 @@
   background: black;\
   z-index: -1;\
 }\
-.polyfill--fullscreen2 {\
+.polyfill--fullscreen {\
   position: fixed;\
   top: 0;\
   left: 0;\
@@ -318,7 +312,7 @@
   background: black;\
   z-index: 999;\
 }\
-.polyfill--fullscreen2-fullwindow:before {\
+.polyfill--fullscreen-fullwindow:before {\
   content: " ";\
   position: fixed;\
   top: 0;\
@@ -328,7 +322,7 @@
   background: black;\
   z-index: -1;\
 }\
-.polyfill--fullscreen2-fullwindow {\
+.polyfill--fullscreen-fullwindow {\
   position: fixed;\
   top: 0;\
   left: 0;\
@@ -342,83 +336,39 @@
   }
 
   function wrapElement(element) {
-    toggleClass(element, "polyfill--fullscreen2" + (isFullWindow ? "-fullwindow" : ""), true);
-    var wrapper = document.createElement('div');
-    wrapper.classList.add("polyfill--fullscreen2-wrapper");
-    do {
-      wrapper.appendChild(element.childNodes[0]);
-    } while (element.childNodes.length)
-    element.appendChild(wrapper);
-    if (!requestByFullscreen2 || !requestByFullscreen2.height || !requestByFullscreen2.width) return;
-    setTimeout(fullscreenResize, 100);
+    toggleClass(element, "polyfill--fullscreen" + (isFullWindow ? "-fullwindow" : ""), true);
+    toggleClass(document.body, "polyfill--fullscreen-overflowhidden" + (isFullWindow ? "-fullwindow" : ""), true);
   }
-
-  function fullscreenResize() {
-    var element = document.fullscreenElement2;
-    if (!element || !requestByFullscreen2) return;
-    var wrapper = element.querySelector(".polyfill--fullscreen2-wrapper");
-    if (!wrapper) return;
-    switch (requestByFullscreen2.style) {
-      case "cover":
-        wrapper.style.height = "100%";
-        wrapper.style.width = "100%";
-        break;
-      default:
-        var ratio = requestByFullscreen2.width / requestByFullscreen2.height;
-        var elRatio = element.clientWidth / element.clientHeight;
-        var width;
-        var height;
-        if (ratio > elRatio) {
-          width = element.clientWidth;
-          height = width / ratio;
-        } else {
-          height = element.clientHeight;
-          width = height * ratio;
-        }
-        wrapper.style.height = height+"px";
-        wrapper.style.width = width+"px";
-        break;
-    }
-    toggleClass(document.body, "polyfill--fullscreen-overflowhidden", true);
-  }
-
-  window.addEventListener("resize", fullscreenResize);
 
   function unwrapElement(element) {
     toggleClass(document.body, "polyfill--fullscreen-overflowhidden", false);
-    toggleClass(element, "polyfill--fullscreen2", false);
-    toggleClass(element, "polyfill--fullscreen2" + (isFullWindow ? "-fullwindow" : ""), false);
-    var wrapper = element.querySelector(".polyfill--fullscreen2-wrapper");
-    if (!wrapper) return;
-    do {
-      element.appendChild(wrapper.childNodes[0]);
-    } while (wrapper.childNodes.length)
-    removeElement(wrapper);
+    toggleClass(document.body, "polyfill--fullscreen-overflowhidden-fullwindow", false);
+    toggleClass(element, "polyfill--fullscreen", false);
+    toggleClass(element, "polyfill--fullscreen" + (isFullWindow ? "-fullwindow" : ""), false);
   }
 
-  document.addEventListener("fullscreenchange2", function(event) {
+  document.addEventListener("fullscreenchange", function(event) {
     if (removeFromElements.length) {
       for (var i = 0, l = removeFromElements.length; i < l; i++) {
         unwrapElement(removeFromElements[i]);
       }
       removeFromElements.length = 0;
     }
-    if (document.fullscreenElement2 && requestByFullscreen2) {
-      var element = document.fullscreenElement2;
+    if (document.fullscreenElement && requestByFullscreen) {
+      var element = document.fullscreenElement;
       wrapElement(element);
       removeFromElements.push(element);
-    } else {
-      requestByFullscreen2 = false;
+      requestByFullscreen = false;
     }
-    debug && console.log("fullscreenchange2", document.fullscreenElement2, event);
+    debug && console.log("fullscreenchange", document.fullscreenElement, event);
   });
 
-  document.addEventListener("fullscreenerror2", function(event) {
-    requestByFullscreen2 = false;
-    debug && console.log("fullscreenerror2", document.fullscreenElement2, event);
+  document.addEventListener("fullscreenerror", function(event) {
+    requestByFullscreen = false;
+    debug && console.log("fullscreenerror", document.fullscreenElement, event);
     isFullWindow = true;
+    //document.exitFullscreen && document.exitFullscreen();
     document.exitFullscreen && document.exitFullscreen();
-    document.exitFullscreen2 && document.exitFullscreen2();
   });
 
   check(document, "fullscreenElement");
@@ -432,7 +382,7 @@
     if (event.keyCode !== 27) return;
     if (!fullWindowElement) return;
     if (!isFullWindow) return;
-    document.exitFullscreen2();
+    document.exitFullscreen();
   }
 
   function fixEscapeKey() {
@@ -440,8 +390,26 @@
     window.addEventListener("keyup", onKeyUp);
   }
 
-  window['fullscreen2Polyfill'] = {};
-  Object.defineProperties(window['fullscreen2Polyfill'], {
+  proxyEventListener();
+
+  if (document.body) {
+    setTimeout(fixFullScreenStyle, 1);
+  } else {
+    window.addEventListener('load', fixFullScreenStyle);
+  }
+
+  fixFullScreenElement();
+  fixFullScreenEnabled();
+  fixExitFullScreen();
+  fixRequestFullScreen();
+  fixOnFullScreenChange();
+  fixOnFullScreenError();
+  fixEscapeKey();
+
+  isFullWindow = !document.fullscreenEnabled;
+
+  window['fullscreenPolyfill'] = {};
+  Object.defineProperties(window['fullscreenPolyfill'], {
     isFullWindow: {
       get: function() {
         return isFullWindow;
@@ -474,27 +442,11 @@
   });
 
   if (!isAllFound) {
-    console.log("Fullscreen2 API (from broken API).");
+    console.log("Fullscreen API (from broken API).");
   } else if (isAllSame) {
-    console.log("Fullscreen2 API (from perfect API).");
+    console.log("Fullscreen API (from perfect API).");
   } else {
-    console.log("Fullscreen2 API (from partially implemented API).");
+    console.log("Fullscreen API (from partially implemented API).");
   }
-
-  proxyEventListener();
-
-  if (document.body) {
-    setTimeout(fixFullScreenStyle, 1);
-  } else {
-    window.addEventListener('load', fixFullScreenStyle);
-  }
-
-  fixFullScreenElement();
-  fixFullScreenEnabled();
-  fixExitFullScreen();
-  fixRequestFullScreen();
-  fixOnFullScreenChange();
-  fixOnFullScreenError();
-  fixEscapeKey();
 
 })();

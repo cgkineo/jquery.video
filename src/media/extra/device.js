@@ -2,18 +2,18 @@
 Check for touch devices.
  */
 
-var Device = Class.extend({
+Media.Device = Class.extend({
 
   constructor: function Device() {
     this.checkTouchDevice();
   },
 
   checkTouchDevice: function() {
-    Media.isTouchCapable = false;
+    this.isTouchCapable = false;
     var touchListener = function() {
       window.removeEventListener("touchstart", touchListener);
-      Media.isTouchCapable = true;
-    };
+      this.isTouchCapable = true;
+    }.bind(this);
     window.addEventListener("touchstart", touchListener);
   }
 
@@ -21,5 +21,4 @@ var Device = Class.extend({
   instanceEvents: true
 });
 
-Media.Device = Device;
-Media.device = new Device();
+Media.Device = new Media.Device();

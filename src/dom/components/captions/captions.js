@@ -1,4 +1,4 @@
-var CaptionsComponent = Media.Component.extend({
+Media.DOM.CaptionsComponent = Media.DOM.Component.extend({
 
   media: null,
   languages: null,
@@ -37,7 +37,7 @@ var CaptionsComponent = Media.Component.extend({
     var liveLangElements = {}
     var liveLangsCount = 0;
 
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     groups.captions && groups.captions.forEach(function(el) {
       var lang = el.getAttribute("srclang")
       if (!this.languages[lang]) return;
@@ -231,7 +231,7 @@ var CaptionsComponent = Media.Component.extend({
           return;
         }
         counted++;
-        langs[lang] = new Media.CaptionsComponentLang({
+        langs[lang] = new Media.DOM.CaptionsComponentLang({
           default: (el.getAttribute("default")!==undefined),
           lang: lang,
           src: src,
@@ -251,5 +251,4 @@ var CaptionsComponent = Media.Component.extend({
 
 });
 
-Media.CaptionsComponent = CaptionsComponent;
-Media.dom.register("CaptionsComponent");
+Media.DOM.register("CaptionsComponent");

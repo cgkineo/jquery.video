@@ -1,8 +1,8 @@
-var BrightnessContrastModifyStream = Media.Stream.extend({
+Media.Stream.BrightnessContrastModify = Media.Stream.extend({
 
   options: null,
 
-  constructor: function BrightnessContrastModifyStream(options) {
+  constructor: function BrightnessContrastModify(options) {
     this.webgl = new Media.WebGL();
     this.texture = this.webgl.createTexture();
     this.options = defaults(options, {
@@ -27,22 +27,21 @@ var BrightnessContrastModifyStream = Media.Stream.extend({
     this.push(this.frame);
   },
 
-  brightness$get: function() {
+  brightness$get$enum: function() {
     return this.options.brightness;
   },
 
-  brightness$set: function(value) {
+  brightness$set$enum: function(value) {
     this.options.brightness = value;
   },
 
-  contrast$get: function() {
+  contrast$get$enum: function() {
     return this.options.contrast;
   },
 
-  contrast$set: function(value) {
+  contrast$set$enum: function(value) {
     this.options.contrast = value;
   }
 
 });
 
-Media.BrightnessContrastModifyStream = BrightnessContrastModifyStream;

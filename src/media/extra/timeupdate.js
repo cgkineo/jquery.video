@@ -2,7 +2,7 @@
 This makes timeupdate events trigger at greater frequency, every 62.5 milliseconds
 (15fps) rather than 250ms (4fps) in most browsers.
 */
-var TimeUpdate = Class.extend({
+Media.TimeUpdate = Class.extend({
 
   playing: null,
   interval: (1000/25),
@@ -52,5 +52,6 @@ var TimeUpdate = Class.extend({
   instanceEvents: true
 });
 
-Media.TimeUpdate = TimeUpdate;
-Media.timeupdate = new TimeUpdate();
+Media.defineProperties({
+  "TimeUpdate$write": new Media.TimeUpdate()
+});

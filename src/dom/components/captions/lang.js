@@ -1,4 +1,4 @@
-var CaptionsComponentLang = Class.extend({
+Media.DOM.CaptionsComponentLang = Class.extend({
 
   cues: null,
   styles: null,
@@ -72,7 +72,7 @@ var CaptionsComponentLang = Class.extend({
         }
 
         this.cues.push({
-          id: "c" + ++CaptionsComponentLang.cueid,
+          id: "c" + ++Media.DOM.CaptionsComponentLang.cueid,
           title: "",
           start: null,
           end: null,
@@ -222,5 +222,3 @@ var CaptionsComponentLang = Class.extend({
   cueid: 0
 
 });
-
-Media.CaptionsComponentLang = CaptionsComponentLang;

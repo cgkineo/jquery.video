@@ -1,12 +1,11 @@
-var VideoInputStream = Media.InputStream.extend({
+Media.Stream.MediaInput = Media.Stream.Input.extend({
 
   media: null,
-  frame: null,
 
-  constructor: function VideoInputStream(media) {
-    Media.InputStream.prototype.constructor.apply(this, arguments);
+  constructor: function MediaInput(media) {
+    Media.Stream.Input.prototype.constructor.apply(this, arguments);
     if (media instanceof Media) this.media = media;
-    else if (media instanceof HTMLVideoElement) this.media = media.player;
+    else if (media instanceof HTMLVideoElement) this.media = media[Media.propName];
     else throw "Cannot use element type";
     this.update = this.update.bind(this);
     this.listenTo(this.media, "timeupdate", this.update);
@@ -20,4 +19,3 @@ var VideoInputStream = Media.InputStream.extend({
 
 });
 
-Media.VideoInputStream = VideoInputStream;

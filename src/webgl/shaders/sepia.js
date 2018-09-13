@@ -1,7 +1,7 @@
-var SepiaShader = Media.Shader.extend({
+Media.WebGL.SepiaShader = Media.WebGL.Shader.extend({
 
   constructor: function SepiaShader() {
-    Media.Shader.prototype.constructor.apply(this, arguments);
+    Media.WebGL.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -29,5 +29,3 @@ var SepiaShader = Media.Shader.extend({
   }
 
 });
-
-Media.SepiaShader = SepiaShader;

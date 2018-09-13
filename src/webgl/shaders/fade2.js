@@ -1,7 +1,7 @@
-var Fade2Shader = Media.Shader.extend({
+Media.WebGL.Fade2Shader = Media.WebGL.Shader.extend({
 
   constructor: function Fade2Shader() {
-    Media.Shader.prototype.constructor.apply(this, arguments);
+    Media.WebGL.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -35,5 +35,3 @@ var Fade2Shader = Media.Shader.extend({
   }
 
 });
-
-Media.Fade2Shader = Fade2Shader;

@@ -1,10 +1,12 @@
 var EventsInitialize = function(subject) {
-  subject._eventsId = subject._eventsId || ++Events._eventsId;
-  subject._events = subject._events || [];
-  subject.trigger = subject.trigger || Events.trigger;
+  if (subject.events && subject.trigger) return;
+  var extendWith = {};
+  if (!subject.events) extendWith.events = new EventsRegistry();
+  if (!subject.trigger) extendWith.trigger = Events.trigger;
+  extendNotEnumerable(subject, extendWith);
 };
 
-var EventsArgumentsNotation = function(args, cb, that) {
+var EventsArgumentsNotation = function(args, callback, that) {
   args = toArray(args);
   if (args[0] instanceof Object) {
     var subject = args[1] || this;
@@ -12,8 +14,8 @@ var EventsArgumentsNotation = function(args, cb, that) {
       var names = k.split(" ");
       for (var i = 0, l = names.length; i < l; i++) {
         var name = names[i];
-        var callback = args[0][k];
-        cb.call(that, name, callback, subject);
+        var cb = args[0][k];
+        callback.call(that, name, cb, subject);
       }
     }
   } else if (typeof args[0] === "string") {
@@ -21,13 +23,16 @@ var EventsArgumentsNotation = function(args, cb, that) {
     var names = args[0].split(" ");
     for (var i = 0, l = names.length; i < l; i++) {
       var name = names[i];
-      var callback = args[1];
-      cb.call(that, name, callback, subject);
+      var cb = args[1];
+      callback.call(that, name, cb, subject);
     }
   } else if (args.length === 0) {
-    return cb.call(that, null, null, null);
+    return callback.call(that, null, null, null);
   }
 };
+
+var EventsRegistry = function() {};
+EventsRegistry.prototype = new Array();
 
 var EventRegister = function(options) {
   if (!options.name) return;
@@ -40,24 +45,23 @@ var EventRegister = function(options) {
   this.name = options.name;
   this.callback = options.callback;
   this.once = options.once;
-  this.from._events.push(this);
+  this.from.events.push(this);
   if (this.from === this.to) return;
-  this.to._events.push(this);
+  this.to.events.push(this);
 };
 EventRegister.prototype.destroy = function() {
-  this.from._events = this.from._events.filter(function(event) {
+  this.from.events = this.from.events.filter(function(event) {
     return event !== this;
   }.bind(this));
   if (this.from === this.to) return;
-  this.to._events = this.to._events.filter(function(event) {
+  this.to.events = this.to.events.filter(function(event) {
     return event !== this;
   }.bind(this));
 };
 
 var Events = {
 
-  _eventsId: 0,
-  _events: null,
+  events: null,
 
   listenTo: function(subject, name, callback) {
     var args = toArray(arguments, 1);
@@ -93,8 +97,8 @@ var Events = {
     var args = toArray(arguments, 1);
     args.push(subject);
     EventsArgumentsNotation(args, function(name, callback, subject) {
-      for (var i = this._events.length - 1; i > -1; i--) {
-        var event = this._events[i];
+      for (var i = this.events.length - 1; i > -1; i--) {
+        var event = this.events[i];
         if (event.to !== this) continue;
         if (name !== null && event.name !== name) continue;
         if (callback !== null && event.callback !== callback) continue;
@@ -131,8 +135,8 @@ var Events = {
 
   off: function(name, callback, context) {
     EventsArgumentsNotation(arguments, function(name, callback, context) {
-      for (var i = this._events.length - 1; i > -1; i--) {
-        var event = this._events[i];
+      for (var i = this.events.length - 1; i > -1; i--) {
+        var event = this.events[i];
         if (event.from !== this) continue;
         if (name !== null && event.name !== name) continue;
         if (callback !== null && event.callback !== callback) continue;
@@ -144,7 +148,7 @@ var Events = {
   trigger: function(name) {
     EventsInitialize(this);
     var args = toArray(arguments, 1);
-    var events = this._events.filter(function(event) {
+    var events = this.events.filter(function(event) {
       if (event.from !== this) return;
       if (event.name !== name) return;
       return true;

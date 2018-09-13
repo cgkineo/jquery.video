@@ -1,4 +1,4 @@
-var SizeComponent = Media.Component.extend({
+Media.DOM.SizeComponent = Media.DOM.Component.extend({
 
   media: null,
   size: null,
@@ -6,9 +6,9 @@ var SizeComponent = Media.Component.extend({
   constructor: function SizeComponent(media) {
     this.media = media;
     this.onResize = this.onResize.bind(this);
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.listenTo(media, {
       "resize": this.onResize,
@@ -20,7 +20,7 @@ var SizeComponent = Media.Component.extend({
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.size = groups.size;
   },
 
@@ -161,6 +161,5 @@ var SizeComponent = Media.Component.extend({
 
 });
 
-Media.domEvents.push("resize");
-Media.SizeComponent = SizeComponent;
-Media.dom.register("SizeComponent");
+Media.DOMEvents.add("resize");
+Media.DOM.register("SizeComponent");

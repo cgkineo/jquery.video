@@ -16,9 +16,12 @@
     <script src="../src/util/abstractions/elements.js"></script>
 
     <script src="../src/media/media.js"></script>
+    <script src="../src/media/defaultoptions.js"></script>
+    <script src="../src/media/domevents.js"></script>
     <script src="../src/media/extra/device.js"></script>
-    <script src="../src/media/extra/ended.js"></script>
     <script src="../src/media/extra/timeupdate.js"></script>
+    <script src="../src/media/extra/utils.js"></script>
+    <script src="../src/media/fixes/ended.js"></script>
 
     <script src="../src/webgl/polyfills/OES_texture_float_linear-polyfill.js"></script>
     <script src="../src/webgl/webgl.js"></script>
@@ -33,12 +36,12 @@
     <script src="../src/stream/stream.js"></script>
     <script src="../src/stream/frame.js"></script>
     <script src="../src/stream/liveoptions.js"></script>
-    <script src="../src/stream/streams/autostream.js"></script>
+    <script src="../src/stream/streams/auto.js"></script>
     <script src="../src/stream/streams/blend.js"></script>
     <script src="../src/stream/streams/input.js"></script>
     <script src="../src/stream/streams/output.js"></script>
     <script src="../src/stream/streams/outputs/canvasoutput.js"></script>
-    <script src="../src/stream/streams/inputs/videoinput.js"></script>
+    <script src="../src/stream/streams/inputs/mediainput.js"></script>
 
     <script src="../src/stream/streams/blends/displacement2.js"></script>
     <script src="../src/stream/streams/blends/fade2.js"></script>
@@ -48,7 +51,7 @@
     <script src="../src/stream/streams/modifiers/huesaturation.js"></script>
     <script src="../src/stream/streams/modifiers/sepia.js"></script>
 
-    <script src="../src/dom/polyfills/fullscreen2-polyfill.js"></script>
+    <script src="../src/dom/polyfills/fullscreen-polyfill.js"></script>
     <script src="../src/dom/dom.js"></script>
     <script src="../src/dom/component.js"></script>
     <script src="../src/dom/components/captions/captions.js"></script>
@@ -56,6 +59,7 @@
     <script src="../src/dom/components/captions/captionstoggle.js"></script>
     <script src="../src/dom/components/captions/lang.js"></script>
     <script src="../src/dom/components/rail/rail.js"></script>
+    <script src="../src/dom/components/fullscreen/fullscreencontroller.js"></script>
     <script src="../src/dom/components/fullscreen/fullscreenstate.js"></script>
     <script src="../src/dom/components/fullscreen/fullscreentoggle.js"></script>
     <script src="../src/dom/components/rail/raildurationevents.js"></script>
@@ -245,20 +249,20 @@
         //
         var $video = $('video').medias();
 
-        var fadeOptions = new Media.LiveOptions({
+        var fadeOptions = new Media.Stream.LiveOptions({
             "amount": 0
         });
 
-        var modifierOptions = new Media.LiveOptions({
+        var modifierOptions = new Media.Stream.LiveOptions({
             "hue": 0,
             "saturation": -1
         });
 
-        var video1 = new Media.VideoInputStream($video[0]);
-        var video2 = new Media.VideoInputStream($video[1]);
-        var modify1 = new HueSaturationModifyStream(modifierOptions);
-        var fade1 = new Displacement2BlendStream(fadeOptions);
-        var output1 = new Media.CanvasOutputStream($('#canvas1')[0]);
+        var video1 = new Media.Stream.MediaInput($video[0]);
+        var video2 = new Media.Stream.MediaInput($video[1]);
+        var modify1 = new Media.Stream.HueSaturationModify(modifierOptions);
+        var fade1 = new Media.Stream.Displacement2Blend(fadeOptions);
+        var output1 = new Media.Stream.CanvasOutput($('#canvas1')[0]);
 
         video1.pipe(modify1).pipe(fade1);
         video2.pipe(fade1);

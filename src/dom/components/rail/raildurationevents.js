@@ -1,4 +1,4 @@
-var RailDurationEvents = Class.extend({
+Media.DOM.RailDurationEvents = Class.extend({
 
   media: null,
   railduration: null,
@@ -18,8 +18,8 @@ var RailDurationEvents = Class.extend({
     ]);
     this.media = media;
     this.railduration = railduration;
-    this.listenTo(Media, {
-      "dom:destroy": this.onDestroyed
+    this.listenTo(Media.DOM, {
+      "destroy": this.onDestroyed
     });
     this.listenTo(media, {
       "destroyed": this.onDestroyed
@@ -119,5 +119,3 @@ var RailDurationEvents = Class.extend({
 }, null, {
   instanceEvents: true
 });
-
-Media.RailDurationEvents = RailDurationEvents;

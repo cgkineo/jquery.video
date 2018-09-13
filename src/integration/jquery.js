@@ -1,5 +1,14 @@
 if ($ && $.fn) {
 // jQuery API
+Media.JQueryDefaultOptions = Media.DefaultOptions.extend({
+  constructor: function JQueryDefaultOptions() {}
+});
+Media.JQueryDefaultOptions.add({
+  uienabled: true,
+  uireplace: true,
+  domenabled: true
+});
+
 $.fn.medias = function(options) {
 
   // Get all media tags selected and make Media instances for them
@@ -17,14 +26,9 @@ $.fn.medias = function(options) {
       return $medias;
   }
 
-  options = defaults(options, {
-    uienabled: true,
-    uireplace: true,
-    domenabled: true
-  });
-
   $medias.each(function(index, item) {
     if (item[Media._prop]) return;
+    options = new Media.JQueryDefaultOptions(options);
     var media = new Media(item, options);
     new Media.UI(item, media.options);
   });

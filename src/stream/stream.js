@@ -1,22 +1,22 @@
-var Stream = Class.extend({
+Media.Stream = Class.extend({
 
-  _destinations: null,
-  _sources: null,
-  _frame: null,
+  _destinations$write: null,
+  _sources$write: null,
+  _frame$write: null,
 
-  sources$get: function() {
+  sources$get$enum: function() {
     return this._sources = this._sources || [];
   },
 
-  destinations$get: function() {
+  destinations$get$enum: function() {
     return this._destinations = this._destinations || [];
   },
 
   constructor: function Stream() {
   },
 
-  frame$get: function() {
-    return this._frame = this._frame || new Media.Frame();
+  frame$get$enum: function() {
+    return this._frame = this._frame || new Media.Stream.Frame();
   },
 
   pipe: function(destinationStream, index) {
@@ -54,6 +54,4 @@ var Stream = Class.extend({
 }, null, {
   instanceEvents: true
 });
-
-Media.Stream = Stream;
 

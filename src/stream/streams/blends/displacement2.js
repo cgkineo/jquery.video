@@ -1,4 +1,4 @@
-var Displacement2BlendStream = Media.BlendStream.extend({
+Media.Stream.Displacement2Blend = Media.Stream.Blend.extend({
 
   webgl: null,
   options: null,
@@ -9,7 +9,7 @@ var Displacement2BlendStream = Media.BlendStream.extend({
   width: 0,
   height: 0,
 
-  constructor: function Displacement2BlendStream(options) {
+  constructor: function Displacement2Blend(options) {
     this.webgl = new Media.WebGL();
     this.options = defaults(options, {
       amount: 0.5,
@@ -23,7 +23,7 @@ var Displacement2BlendStream = Media.BlendStream.extend({
     this.firstTexture = this.webgl.createTexture();
     this.secondTexture = this.webgl.createTexture();
     this.displacementTexture = this.webgl.createTexture();
-    if (this.options instanceof Media.LiveOptions) {
+    if (this.options instanceof Media.Stream.LiveOptions) {
       this.listenTo(options, "changed", this.changed);
     }
   },
@@ -60,18 +60,17 @@ var Displacement2BlendStream = Media.BlendStream.extend({
     this.push(this.frame);
   },
 
-  amount$set: function(value) {
+  amount$set$enum: function(value) {
     this.options.amount = value;
-    this.setDirty();
+    this.changed();
   },
 
-  amount$get: function() {
+  amount$get$enum: function() {
     return this.options.amount;
   }
 
 });
 
-Media.Displacement2BlendStream = Displacement2BlendStream;
 
 
 

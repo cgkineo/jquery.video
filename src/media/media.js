@@ -1,16 +1,17 @@
 var Media = Class.extend({
 
-  id: null,
   selector: null,
   el: null,
   options: null,
 
   constructor: function Media(selector, options) {
-    this.id = ++Media.ids;
     this.ensureElement(selector);
-    this.options = defaults(extend({}, options), { id: this.el.id });
-    this.components = {};
-    this.proxyEvent = this.proxyEvent.bind(this);
+    this.options = extend(options, {
+      id: this.el.id
+    });
+    this.defineProperties({
+      proxyEvent$write: this.proxyEvent.bind(this)
+    });
     Media.players.push(this);
     Media.trigger("create", this);
     this.attachEvents();
@@ -20,12 +21,12 @@ var Media = Class.extend({
     }.bind(this), 1);
   },
 
-  playingCheck: function() {
+  playingCheck$write: function() {
     if (this.el.paused) return;
     this.dispatchEvent("play");
   },
 
-  ensureElement: function(selector) {
+  ensureElement$write: function(selector) {
     switch (typeof selector) {
       case "string":
         this.el = window.document.querySelector(selector);
@@ -35,12 +36,12 @@ var Media = Class.extend({
         break;
     }
     this.selector = selector;
-    this.el[Media.prop] = this;
+    this.el[Media.propName] = this;
   },
 
-  attachEvents: function() {
-    for (var i = 0, l = Media.domEvents.length; i < l; i++) {
-      this.el.addEventListener(Media.domEvents[i], this.proxyEvent);
+  attachEvents$write: function() {
+    for (var i = 0, l = Media.DOMEvents.length; i < l; i++) {
+      this.el.addEventListener(Media.DOMEvents[i], this.proxyEvent);
     }
   },
 
@@ -51,7 +52,7 @@ var Media = Class.extend({
     this.el.dispatchEvent(event);
   },
 
-  proxyEvent: function(event) {
+  proxyEvent$write: function(event) {
     this.trigger("*", event);
     this.trigger(event.type, event);
     Media.trigger(event.type, this, event);
@@ -64,7 +65,6 @@ var Media = Class.extend({
       Media.players.splice(i, 1);
     }
     this.detachEvents();
-    this.id = null;
     this.selector = null;
     this.el = null;
     this.options = null;
@@ -74,43 +74,27 @@ var Media = Class.extend({
     Media.Component.prototype.destroy.call(this);
   },
 
-  detachEvents: function() {
-    for (var i = 0, l = Media.domEvents.length; i < l; i++) {
-      this.el.removeEventListener(Media.domEvents[i], this.proxyEvent);
+  detachEvents$write: function() {
+    for (var i = 0, l = Media.DOMEvents.length; i < l; i++) {
+      this.el.removeEventListener(Media.DOMEvents[i], this.proxyEvent);
     }
   }
 
 }, {
 
-  ids: 0,
-  prop: "player",
+  propName$write: "player",
 
-  players: [],
+  fixes$write: {},
+  players$write: [],
 
-  domEvents: [
-    "abort",
-    "canplay",
-    "canplaythrough",
-    "durationchange",
-    "emptied",
-    "ended",
-    "error",
-    "loadeddata",
-    "loadedmetadata",
-    "loadstart",
-    "pause",
-    "play",
-    "playing",
-    "process",
-    "ratechange",
-    "seeked",
-    "seeking",
-    "stalled",
-    "suspend",
-    "timeupdate",
-    "volumechange",
-    "waiting"
-  ]
+  findById: function(id) {
+    for (var i = 0, l = this.players.length; i < l; i++) {
+      var player = this.players[i];
+      if (!player.el) continue;
+      if (player.el.id !== id) continue;
+      return player;
+    }
+  }
 
 },{
   classEvents: true,
@@ -118,9 +102,3 @@ var Media = Class.extend({
 });
 
 window.Media = Media;
-Media.Class = Class;
-Media.List = List;
-Media.Events = Events;
-Media.Elements = Elements;
-Media.elements = elements;
-Media.properties = properties;

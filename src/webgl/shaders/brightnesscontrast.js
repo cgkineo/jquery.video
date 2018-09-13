@@ -1,7 +1,7 @@
-var BrightnessContrastShader = Media.Shader.extend({
+Media.WebGL.BrightnessContrastShader = Media.WebGL.Shader.extend({
 
   constructor: function BrightnessContrastShader() {
-    Media.Shader.prototype.constructor.apply(this, arguments);
+    Media.WebGL.Shader.prototype.constructor.apply(this, arguments);
   },
 
   fragmentSource: '\
@@ -29,5 +29,3 @@ var BrightnessContrastShader = Media.Shader.extend({
   }
 
 });
-
-Media.BrightnessContrastShader = BrightnessContrastShader;

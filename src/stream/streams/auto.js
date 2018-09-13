@@ -1,8 +1,8 @@
-var AutoStream = Class.extend({
+Media.Stream.Auto = Class.extend({
 
   streams: null,
 
-  constructor: function AutoStream(options) {
+  constructor: function Auto(options) {
 
     this.streams = {};
 
@@ -22,5 +22,3 @@ var AutoStream = Class.extend({
   }
 
 });
-
-Media.AutoStream = AutoStream;

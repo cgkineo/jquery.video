@@ -1,34 +1,34 @@
-var PlayPauseToggleComponent = Media.Component.extend({
+Media.DOM.PlayPauseToggleComponent = Media.DOM.Component.extend({
 
   media: null,
-  events: null,
+  domEvents: null,
   playpausetoggle: null,
 
   constructor: function PlayPauseToggleComponent(media) {
     this.media = media;
-    this.events = {
+    this.domEvents = {
       'click': this.onClick.bind(this)
     };
     this.media = media;
     this.listenTo(media, {
       "pause play": this.onUpdate
     });
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.onDOMCreate();
     this.onUpdate();
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.playpausetoggle = groups.playpausetoggle;
-    elements(this.playpausetoggle).off(this.events).on(this.events);
+    elements(this.playpausetoggle).off(this.domEvents).on(this.domEvents);
   },
 
   onDOMDestroy: function() {
-    elements(this.playpausetoggle).off(this.events);
+    elements(this.playpausetoggle).off(this.domEvents);
   },
 
   onUpdate: function() {
@@ -48,10 +48,9 @@ var PlayPauseToggleComponent = Media.Component.extend({
   onDestroyed: function() {
     this.onDOMDestroy();
     this.media = null;
-    Media.Component.prototype.destroy.call(this);
+    Media.DOM.Component.prototype.destroy.call(this);
   }
 
 });
 
-Media.PlayPauseToggleComponent = PlayPauseToggleComponent;
-Media.dom.register("PlayPauseToggleComponent");
+Media.DOM.register("PlayPauseToggleComponent");

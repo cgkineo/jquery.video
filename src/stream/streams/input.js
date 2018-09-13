@@ -1,9 +1,7 @@
-var InputStream = Media.Stream.extend({
+Media.Stream.Input = Media.Stream.extend({
 
-  constructor: function InputStream(canvas) {
+  constructor: function Input(canvas) {
 
   }
 
 });
-
-Media.InputStream = InputStream;

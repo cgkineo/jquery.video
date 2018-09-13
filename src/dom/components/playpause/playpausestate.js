@@ -1,4 +1,4 @@
-var PlayPauseStateComponent = Media.Component.extend({
+Media.DOM.PlayPauseStateComponent = Media.DOM.Component.extend({
 
   floorPrecision: 10,
 
@@ -7,8 +7,8 @@ var PlayPauseStateComponent = Media.Component.extend({
 
   constructor: function PlayPauseStateComponent(media) {
     this.media = media;
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate
     });
     this.listenTo(media, {
       "timeupdate play pause ended": this.onTimeUpdate,
@@ -19,7 +19,7 @@ var PlayPauseStateComponent = Media.Component.extend({
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.playpausestate = groups.playpausestate;
   },
 
@@ -30,11 +30,11 @@ var PlayPauseStateComponent = Media.Component.extend({
     var isPaused = this.media.el.paused;
     for (var i = 0, l = this.playpausestate.length; i < l; i++) {
       var playpausestate = this.playpausestate[i];
-      toggleClass(playpausestate, replace("${domclassprefix}playpausestate-playing", this.media.options), !isPaused);
-      toggleClass(playpausestate, replace("${domclassprefix}playpausestate-paused", this.media.options), isPaused);
-      toggleClass(playpausestate, replace("${domclassprefix}playpausestate-start", this.media.options), isAtStart);
-      toggleClass(playpausestate, replace("${domclassprefix}playpausestate-end", this.media.options), isAtEnd);
-      toggleClass(playpausestate, replace("${domclassprefix}playpausestate-middle", this.media.options), !isAtEnd && !isAtStart);
+      toggleClass(playpausestate, replace("${classprefix}playpausestate-playing", this.media.options), !isPaused);
+      toggleClass(playpausestate, replace("${classprefix}playpausestate-paused", this.media.options), isPaused);
+      toggleClass(playpausestate, replace("${classprefix}playpausestate-start", this.media.options), isAtStart);
+      toggleClass(playpausestate, replace("${classprefix}playpausestate-end", this.media.options), isAtEnd);
+      toggleClass(playpausestate, replace("${classprefix}playpausestate-middle", this.media.options), !isAtEnd && !isAtStart);
     }
   },
 
@@ -55,5 +55,4 @@ var PlayPauseStateComponent = Media.Component.extend({
 
 });
 
-Media.PlayPauseStateComponent = PlayPauseStateComponent;
-Media.dom.register("PlayPauseStateComponent");
+Media.DOM.register("PlayPauseStateComponent");

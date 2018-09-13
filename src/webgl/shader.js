@@ -1,4 +1,4 @@
-var Shader = Class.extend({
+Media.WebGL.Shader = Class.extend({
 
   context: null,
   vertexAttribute: null,
@@ -154,10 +154,8 @@ var Shader = Class.extend({
 },{
 
   getDefaultShader: function(context) {
-    context.defaultShader = context.defaultShader || new Media.Shader(context);
+    context.defaultShader = context.defaultShader || new Media.WebGL.Shader(context);
     return context.defaultShader;
   }
 
 });
-
-Media.Shader = Shader;

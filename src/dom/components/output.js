@@ -1,4 +1,4 @@
-var OutputComponent = Media.Component.extend({
+Media.DOM.OutputComponent = Media.DOM.Component.extend({
 
   media: null,
   output: null,
@@ -11,20 +11,20 @@ var OutputComponent = Media.Component.extend({
       "pause play timeupdate ended": this.onUpdate,
       "destroyed": this.onDestroyed
     });
-    this.listenTo(Media, {
-      "dom:create": this.onDOMCreate,
-      "dom:destroy": this.onDOMDestroy
+    this.listenTo(Media.DOM, {
+      "create": this.onDOMCreate,
+      "destroy": this.onDOMDestroy
     });
     this.onDOMCreate();
   },
 
   onDOMCreate: function() {
-    var groups = Media.dom.fetchElements(this.media);
+    var groups = Media.DOM.fetchElements(this.media);
     this.output = groups.output;
     if (!this.output) return;
     this.setupStream();
     for (var i = 0, l = this.output.length; i < l; i++) {
-      var outputStream = new Media.CanvasOutputStream(this.output[i]);
+      var outputStream = new Media.DOM.CanvasOutputStream(this.output[i]);
       this.outputStreams.push(outputStream);
       this.inputStream.pipe(outputStream);
     }
@@ -36,16 +36,15 @@ var OutputComponent = Media.Component.extend({
   },
 
   setupStream: function() {
-    this.inputStream = this.inputStream || new Media.VideoInputStream(this.media.el);
+    this.inputStream = this.inputStream || new Media.DOM.VideoInputStream(this.media.el);
     this.outputStreams = this.outputStreams || [];
   },
 
   onDestroyed: function() {
     this.onDOMDestroy();
-    Media.Component.prototype.destroy.call(this);
+    Media.DOM.Component.prototype.destroy.call(this);
   }
 
 });
 
-Media.OutputComponent = OutputComponent;
-Media.dom.register("OutputComponent");
+Media.DOM.register("OutputComponent");

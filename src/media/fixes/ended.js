@@ -3,11 +3,11 @@ This is needed for ie11, sometimes it doesn't call ended properly.
 It forces the ended event to trigger if the duration and current time are
 within 0.01 of each other and the media is paused.
  */
-var Ended = Class.extend({
+Media.fixes.IE11Ended = Class.extend({
 
   floorPrecision: 10,
 
-  constructor: function Ended() {
+  constructor: function IE11Ended() {
     this.listenTo(Media, {
       "play": this.onPlay,
       "pause": this.onPause,
@@ -41,5 +41,4 @@ var Ended = Class.extend({
   instanceEvents: true
 });
 
-Media.Ended = Ended;
-Media.ended = new Ended();
+Media.fixes.IE11Ended = new Media.fixes.IE11Ended();

@@ -1,8 +1,9 @@
-var HueSaturationModifyStream = Media.Stream.extend({
+Media.Stream.HueSaturationModify = Media.Stream.extend({
 
   options: null,
 
-  constructor: function HueSaturationModifyStream(options) {
+  constructor: function HueSaturationModify(options) {
+    Media.Stream.prototype.constructor.call(this);
     this.webgl = new Media.WebGL();
     this.texture = this.webgl.createTexture();
     this.options = defaults(options, {
@@ -27,22 +28,21 @@ var HueSaturationModifyStream = Media.Stream.extend({
     this.push(this.frame);
   },
 
-  hue$get: function() {
+  hue$get$enum: function() {
     return this.options.hue;
   },
 
-  hue$set: function(value) {
+  hue$set$enum: function(value) {
     this.options.hue = value;
   },
 
-  saturation$get: function() {
+  saturation$get$enum: function() {
     return this.options.saturation;
   },
 
-  saturation$set: function(value) {
+  saturation$set$enum: function(value) {
     this.options.saturation = value;
   }
 
 });
 
-Media.HueSaturationModifyStream = HueSaturationModifyStream;
